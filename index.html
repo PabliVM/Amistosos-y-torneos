@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>RM Fútbol Base — Torneos 25-26</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f7;min-height:100vh;color:#1d1d1f}
+.app{max-width:480px;margin:0 auto;background:#fff;min-height:100vh;display:flex;flex-direction:column;position:relative}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;background:#fff;border-bottom:0.5px solid #e5e5e7;position:sticky;top:0;z-index:50}
+.topbar-title{font-size:15px;font-weight:600;color:#1d1d1f}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.season-badge{font-size:11px;color:#6e6e73;background:#f5f5f7;padding:3px 8px;border-radius:10px}
+.status-dot{width:7px;height:7px;border-radius:50%;background:#34c759;flex-shrink:0}
+.status-dot.offline{background:#ff3b30}
+.nav{display:flex;border-bottom:0.5px solid #e5e5e7;background:#fff;overflow-x:auto;scrollbar-width:none;position:sticky;top:45px;z-index:49}
+.nav::-webkit-scrollbar{display:none}
+.nav-btn{flex:none;padding:10px 16px;font-size:13px;color:#6e6e73;background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;font-family:inherit;transition:color 0.15s}
+.nav-btn.active{color:#1d1d1f;font-weight:500;border-bottom-color:#1d1d1f}
+.content{flex:1;overflow-y:auto}
+.view{display:none;padding:16px;padding-bottom:80px}
+.view.active{display:block}
+.kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.kpi{background:#f5f5f7;border-radius:10px;padding:10px 12px;text-align:center}
+.kpi-num{font-size:22px;font-weight:600;color:#1d1d1f}
+.kpi-label{font-size:11px;color:#6e6e73;margin-top:2px}
+.section-label{font-size:11px;font-weight:600;color:#6e6e73;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;margin-top:16px}
+.section-label:first-child{margin-top:0}
+.card{background:#fff;border:0.5px solid #e5e5e7;border-radius:12px;padding:12px 14px;cursor:pointer;transition:border-color 0.15s;margin-bottom:6px}
+.card:hover{border-color:#c7c7cc}
+.card:active{background:#f5f5f7}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.card-title{font-size:14px;font-weight:500;color:#1d1d1f}
+.card-meta{font-size:12px;color:#6e6e73;margin-top:3px}
+.badge{display:inline-flex;align-items:center;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500;white-space:nowrap;flex-shrink:0}
+.bt-torneo{background:#e8f5e9;color:#2e7d32}
+.bt-amistoso{background:#e3f2fd;color:#1565c0}
+.bt-pretemporada{background:#fff3e0;color:#e65100}
+.bt-competicion{background:#f3e5f5;color:#6a1b9a}
+.bt-stage{background:#e0f2f1;color:#00695c}
+.bt-otro{background:#f5f5f7;color:#6e6e73}
+.bs-pendiente{background:#fff3e0;color:#e65100}
+.bs-por-confirmar{background:#e3f2fd;color:#1565c0}
+.bs-confirmado{background:#e8f5e9;color:#2e7d32}
+.bs-cerrado{background:#f5f5f7;color:#6e6e73}
+.bs-cancelado{background:#ffebee;color:#c62828}
+.teams-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.team-card{background:#fff;border:0.5px solid #e5e5e7;border-radius:12px;padding:12px 14px;cursor:pointer;transition:border-color 0.15s}
+.team-card:hover{border-color:#c7c7cc}
+.team-code{font-size:18px;font-weight:600;color:#1d1d1f}
+.team-name{font-size:12px;color:#6e6e73;margin-top:1px}
+.team-counts{display:flex;gap:8px;margin-top:8px}
+.team-count{font-size:11px;color:#aeaeb2}
+.team-count b{color:#6e6e73;font-weight:500}
+.detail-back{display:flex;align-items:center;gap:4px;font-size:13px;color:#6e6e73;cursor:pointer;margin-bottom:14px;padding:4px 0}
+.detail-back:hover{color:#1d1d1f}
+.detail-header{margin-bottom:14px}
+.detail-code{font-size:28px;font-weight:600}
+.detail-fullname{font-size:14px;color:#6e6e73;margin-top:2px}
+.info-box{background:#f5f5f7;border-radius:10px;padding:2px 14px;margin-bottom:14px}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:0.5px solid #e5e5e7}
+.info-row:last-child{border-bottom:none}
+.info-label{font-size:13px;color:#6e6e73}
+.info-value{font-size:13px;font-weight:500}
+.ev-row{display:flex;align-items:center;gap:10px;padding:9px 12px;background:#fff;border:0.5px solid #e5e5e7;border-radius:10px;cursor:pointer;margin-bottom:5px}
+.ev-row:hover{border-color:#c7c7cc}
+.ev-date{font-size:11px;color:#6e6e73;width:64px;flex-shrink:0}
+.ev-name{font-size:13px;font-weight:500;color:#1d1d1f}
+.ev-sub{font-size:11px;color:#6e6e73}
+.filter-row{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.filter-row::-webkit-scrollbar{display:none}
+.chip{flex:none;padding:5px 12px;border-radius:12px;font-size:12px;border:0.5px solid #e5e5e7;background:#fff;color:#6e6e73;cursor:pointer;font-family:inherit;transition:all 0.15s}
+.chip.active{background:#1d1d1f;color:#fff;border-color:#1d1d1f}
+.pend-card{background:#fff;border:0.5px solid #e5e5e7;border-radius:12px;padding:12px 14px;margin-bottom:6px;cursor:pointer}
+.pend-card.open{border-color:#ff9f0a;background:#fffbf0}
+.pend-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.pend-team{font-size:14px;font-weight:500}
+.pend-text{font-size:12px;color:#6e6e73;margin-top:4px;line-height:1.5;white-space:pre-line}
+.fab{position:fixed;bottom:24px;right:calc(50% - 224px);width:48px;height:48px;background:#1d1d1f;color:#fff;border:none;border-radius:50%;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:99}
+.fab:active{opacity:0.85}
+@media(max-width:480px){.fab{right:16px}}
+.sheet-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;align-items:flex-end;justify-content:center}
+.sheet-overlay.open{display:flex}
+.sheet{background:#fff;border-radius:20px 20px 0 0;padding:0 16px 32px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
+.sheet-handle{width:36px;height:4px;background:#e5e5e7;border-radius:2px;margin:12px auto 16px}
+.sheet-title{font-size:17px;font-weight:600;margin-bottom:18px}
+.form-group{margin-bottom:13px}
+.form-label{font-size:12px;color:#6e6e73;margin-bottom:5px;display:block;font-weight:500}
+.form-input,.form-select{width:100%;padding:9px 12px;border:0.5px solid #c7c7cc;border-radius:10px;font-size:15px;font-family:inherit;background:#fff;color:#1d1d1f;-webkit-appearance:none}
+.form-input:focus,.form-select:focus{outline:none;border-color:#1d1d1f}
+.btn-save{width:100%;padding:13px;background:#1d1d1f;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:6px}
+.btn-save:disabled{opacity:0.4;cursor:default}
+.btn-delete{width:100%;padding:13px;background:#fff;color:#c62828;border:0.5px solid #ffb3b3;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;margin-top:8px}
+.empty{padding:32px 0;text-align:center;color:#aeaeb2;font-size:13px}
+.warn-banner{background:#fffbf0;border:0.5px solid #ff9f0a;border-radius:10px;padding:10px 14px;margin-bottom:12px;cursor:pointer}
+.warn-text{font-size:13px;font-weight:500;color:#e65100}
+.warn-sub{font-size:12px;color:#6e6e73;margin-top:2px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <span class="topbar-title">RM Fútbol Base</span>
+    <div class="topbar-right">
+      <span class="season-badge">25-26</span>
+      <div class="status-dot" id="status-dot"></div>
+    </div>
+  </div>
+  <nav class="nav">
+    <button class="nav-btn active" data-view="dashboard">Inicio</button>
+    <button class="nav-btn" data-view="equipos">Equipos</button>
+    <button class="nav-btn" data-view="calendario">Calendario</button>
+    <button class="nav-btn" data-view="pretemp">Pretemporada</button>
+    <button class="nav-btn" data-view="pendientes">Pendientes</button>
+  </nav>
+  <div class="content">
+    <div class="view active" id="view-dashboard"></div>
+    <div class="view" id="view-equipos"></div>
+    <div class="view" id="view-equipo-detail"></div>
+    <div class="view" id="view-calendario"></div>
+    <div class="view" id="view-pretemp"></div>
+    <div class="view" id="view-pendientes"></div>
+  </div>
+  <button class="fab" id="fab">+</button>
+</div>
+
+<!-- Sheet: Nuevo / Editar evento -->
+<div class="sheet-overlay" id="sheet-new">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="sheet-new-title">Nuevo evento</div>
+    <div class="form-group">
+      <label class="form-label">Equipo</label>
+      <select class="form-select" id="f-team"></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tipo</label>
+      <select class="form-select" id="f-type">
+        <option value="torneo">Torneo</option>
+        <option value="amistoso">Amistoso</option>
+        <option value="pretemporada">Pretemporada</option>
+        <option value="competicion">Competición oficial</option>
+        <option value="stage">Stage</option>
+        <option value="otro">Otro</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Título del evento</label>
+      <input class="form-input" id="f-title" placeholder="Ej: Torneo Ciudad de Madrid, vs Atlético B…"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Rival (si aplica)</label>
+      <input class="form-input" id="f-opponent" placeholder="Nombre del rival"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Fecha inicio</label>
+      <input class="form-input" type="date" id="f-date"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Fecha fin (si el evento dura varios días)</label>
+      <input class="form-input" type="date" id="f-date-end"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Sede / lugar</label>
+      <input class="form-input" id="f-location" placeholder="Ciudad, campo…"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Estado</label>
+      <select class="form-select" id="f-status">
+        <option value="pendiente">Pendiente</option>
+        <option value="por confirmar">Por confirmar</option>
+        <option value="confirmado">Confirmado</option>
+        <option value="cerrado">Cerrado</option>
+        <option value="cancelado">Cancelado</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notas</label>
+      <input class="form-input" id="f-notes" placeholder="Observaciones…"/>
+    </div>
+    <button class="btn-save" id="btn-save">Guardar</button>
+    <button class="btn-delete" id="btn-delete" style="display:none">Eliminar evento</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAyPmMciYVe1RHaRYMww4kEg2nSAEc_dfw",
+  authDomain: "amistosos-y-torneos.firebaseapp.com",
+  projectId: "amistosos-y-torneos",
+  storageBucket: "amistosos-y-torneos.firebasestorage.app",
+  messagingSenderId: "7038951639",
+  appId: "1:7038951639:web:8daf47f203ca91f00a5092"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db = getFirestore(fbApp);
+const SEASON = '25-26';
+
+const TEAMS = [
+  {code:'CASTILLA',name:'Castilla',order:1},
+  {code:'RMC',name:'Real Madrid C',order:2},
+  {code:'JA',name:'Juvenil A',order:3},
+  {code:'JB',name:'Juvenil B',order:4},
+  {code:'JC',name:'Juvenil C',order:5},
+  {code:'CA',name:'Cadete A',order:6},
+  {code:'CB',name:'Cadete B',order:7},
+  {code:'IA',name:'Infantil A',order:8},
+  {code:'IB',name:'Infantil B',order:9},
+  {code:'AA',name:'Alevín A',order:10},
+  {code:'AB',name:'Alevín B',order:11},
+  {code:'AC',name:'Alevín C',order:12},
+  {code:'BB',name:'Benjamín A',order:13},
+  {code:'BA',name:'Benjamín B',order:14},
+  {code:'PB',name:'Prebenjamín A',order:15},
+  {code:'PA',name:'Prebenjamín B',order:16},
+  {code:'DB',name:'Debutantes',order:17},
+];
+
+const MONTHS_ES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const MONTHS_FULL = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+let events = [];
+let currentView = 'dashboard';
+let selectedTeam = null;
+let editingId = null;
+let calFilter = 'all';
+let pretempFilter = 'all';
+
+const teamByCode = c => TEAMS.find(t=>t.code===c)||{code:c,name:c};
+const today = () => new Date().toISOString().slice(0,10);
+const fmtDate = d => { if(!d) return '—'; const [y,m,day]=d.split('-'); return `${parseInt(day)} ${MONTHS_ES[parseInt(m)-1]}`; };
+const fmtDateFull = d => { if(!d) return '—'; const [y,m,day]=d.split('-'); return `${parseInt(day)} ${MONTHS_FULL[parseInt(m)-1]} ${y}`; };
+const badgeType = t => `badge bt-${t}`;
+const badgeStatus = s => `badge bs-${s.replace(' ','-')}`;
+const evForTeam = code => events.filter(e=>e.team===code).sort((a,b)=>a.date.localeCompare(b.date));
+const upcoming = (n=10) => events.filter(e=>e.date>=today()&&e.status!=='cancelado').sort((a,b)=>a.date.localeCompare(b.date)).slice(0,n);
+
+// Firestore listener
+const q = query(collection(db,'seasons',SEASON,'events'), orderBy('date'));
+onSnapshot(q, snap => {
+  events = snap.docs.map(d=>({id:d.id,...d.data()}));
+  document.getElementById('status-dot').className='status-dot';
+  rerenderCurrent();
+}, () => { document.getElementById('status-dot').className='status-dot offline'; });
+
+function rerenderCurrent(){
+  if(currentView==='dashboard') renderDashboard();
+  else if(currentView==='equipos') renderEquipos();
+  else if(currentView==='equipo-detail'&&selectedTeam) renderTeamDetail(selectedTeam);
+  else if(currentView==='calendario') renderCalendario();
+  else if(currentView==='pretemp') renderPretemp();
+  else if(currentView==='pendientes') renderPendientes();
+}
+
+function showView(v){
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active'));
+  const el=document.getElementById('view-'+v);
+  if(el) el.classList.add('active');
+  const btn=document.querySelector(`.nav-btn[data-view="${v}"]`);
+  if(btn) btn.classList.add('active');
+  currentView=v;
+  rerenderCurrent();
+}
+
+window.goTeam = function(code){
+  selectedTeam=code;
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('view-equipo-detail').classList.add('active');
+  currentView='equipo-detail';
+  renderTeamDetail(code);
+};
+
+window.openEvent = function(id){
+  const ev=events.find(e=>e.id===id);
+  if(!ev) return;
+  editingId=id;
+  populateForm(ev);
+  document.getElementById('sheet-new-title').textContent='Editar evento';
+  document.getElementById('btn-delete').style.display='block';
+  document.getElementById('sheet-new').classList.add('open');
+};
+
+window.setCalFilter = f => { calFilter=f; renderCalendario(); };
+window.setPretempFilter = f => { pretempFilter=f; renderPretemp(); };
+
+function populateForm(ev){
+  const sel=document.getElementById('f-team');
+  if(!sel.options.length) TEAMS.forEach(t=>{ const o=document.createElement('option'); o.value=t.code; o.textContent=`${t.code} — ${t.name}`; sel.appendChild(o); });
+  sel.value=ev?ev.team:(selectedTeam||TEAMS[0].code);
+  document.getElementById('f-type').value=ev?ev.type:'amistoso';
+  document.getElementById('f-title').value=ev?ev.title:'';
+  document.getElementById('f-opponent').value=ev?(ev.opponent||''):'';
+  document.getElementById('f-date').value=ev?ev.date:'';
+  document.getElementById('f-date-end').value=ev?(ev.dateEnd||''):'';
+  document.getElementById('f-location').value=ev?(ev.location||''):'';
+  document.getElementById('f-status').value=ev?ev.status:'pendiente';
+  document.getElementById('f-notes').value=ev?(ev.notes||''):'';
+}
+
+// Auto-fill end date when start date changes
+document.getElementById('f-date').addEventListener('change', function(){
+  const end=document.getElementById('f-date-end');
+  if(!end.value) end.value=this.value;
+});
+
+// FAB
+document.getElementById('fab').addEventListener('click',()=>{
+  editingId=null;
+  populateForm(null);
+  document.getElementById('sheet-new-title').textContent='Nuevo evento';
+  document.getElementById('btn-delete').style.display='none';
+  document.getElementById('sheet-new').classList.add('open');
+});
+
+document.getElementById('sheet-new').addEventListener('click',e=>{ if(e.target===document.getElementById('sheet-new')) document.getElementById('sheet-new').classList.remove('open'); });
+
+document.getElementById('btn-save').addEventListener('click', async ()=>{
+  const title=document.getElementById('f-title').value.trim();
+  const date=document.getElementById('f-date').value;
+  if(!title||!date){ alert('Título y fecha son obligatorios'); return; }
+  const btn=document.getElementById('btn-save');
+  btn.disabled=true; btn.textContent='Guardando…';
+  const data={
+    team:document.getElementById('f-team').value,
+    type:document.getElementById('f-type').value,
+    title,
+    opponent:document.getElementById('f-opponent').value.trim()||null,
+    date,
+    dateEnd:document.getElementById('f-date-end').value||date,
+    location:document.getElementById('f-location').value.trim()||null,
+    status:document.getElementById('f-status').value,
+    notes:document.getElementById('f-notes').value.trim()||null,
+    updatedAt:serverTimestamp(),
+    season:SEASON,
+  };
+  try{
+    if(editingId){ await updateDoc(doc(db,'seasons',SEASON,'events',editingId),data); }
+    else{ data.createdAt=serverTimestamp(); await addDoc(collection(db,'seasons',SEASON,'events'),data); }
+    document.getElementById('sheet-new').classList.remove('open');
+  }catch(err){ alert('Error: '+err.message); }
+  btn.disabled=false; btn.textContent='Guardar';
+});
+
+document.getElementById('btn-delete').addEventListener('click', async ()=>{
+  if(!editingId||!confirm('¿Eliminar este evento?')) return;
+  await deleteDoc(doc(db,'seasons',SEASON,'events',editingId));
+  document.getElementById('sheet-new').classList.remove('open');
+});
+
+// Nav
+document.querySelectorAll('.nav-btn').forEach(btn=>btn.addEventListener('click',()=>showView(btn.dataset.view)));
+
+// RENDERS
+function renderDashboard(){
+  const v=document.getElementById('view-dashboard');
+  const total=events.length, torn=events.filter(e=>e.type==='torneo').length, amis=events.filter(e=>e.type==='amistoso').length;
+  const pend=events.filter(e=>e.status==='pendiente'||e.status==='por confirmar').length;
+  const next=upcoming(8);
+  v.innerHTML=`
+    <div class="kpi-row">
+      <div class="kpi"><div class="kpi-num">${total}</div><div class="kpi-label">Eventos</div></div>
+      <div class="kpi"><div class="kpi-num">${torn}</div><div class="kpi-label">Torneos</div></div>
+      <div class="kpi"><div class="kpi-num">${amis}</div><div class="kpi-label">Amistosos</div></div>
+    </div>
+    ${pend>0?`<div class="warn-banner" onclick="showView('pendientes')"><div class="warn-text">${pend} evento${pend>1?'s':''} sin confirmar</div><div class="warn-sub">Ver pendientes →</div></div>`:''}
+    <div class="section-label">Próximos eventos</div>
+    ${next.length===0?'<div class="empty">Aún no hay eventos — usa + para añadir el primero</div>':''}
+    ${next.map(e=>`<div class="card" onclick="openEvent('${e.id}')"><div class="card-top"><div><div class="card-title">${e.title}</div><div class="card-meta">${teamByCode(e.team).code} · ${fmtDate(e.date)}${e.opponent?' · vs '+e.opponent:''}</div></div><span class="${badgeType(e.type)}">${e.type}</span></div></div>`).join('')}
+  `;
+}
+
+function renderEquipos(){
+  const v=document.getElementById('view-equipos');
+  v.innerHTML=`<div class="teams-grid">${TEAMS.map(t=>{
+    const ev=evForTeam(t.code);
+    return `<div class="team-card" onclick="goTeam('${t.code}')"><div class="team-code">${t.code}</div><div class="team-name">${t.name}</div><div class="team-counts"><span class="team-count"><b>${ev.filter(e=>e.type==='torneo').length}</b> T</span><span class="team-count"><b>${ev.filter(e=>e.type==='amistoso').length}</b> A</span><span class="team-count"><b>${ev.length}</b> total</span></div></div>`;
+  }).join('')}</div>`;
+}
+
+function renderTeamDetail(code){
+  const v=document.getElementById('view-equipo-detail');
+  const t=teamByCode(code);
+  const ev=evForTeam(code);
+  const pend=ev.filter(e=>e.status==='pendiente'||e.status==='por confirmar');
+  v.innerHTML=`
+    <div class="detail-back" onclick="showView('equipos')">← Equipos</div>
+    <div class="detail-header"><div class="detail-code">${t.code}</div><div class="detail-fullname">${t.name}</div></div>
+    <div class="kpi-row" style="margin-bottom:12px">
+      <div class="kpi"><div class="kpi-num">${ev.filter(e=>e.type==='torneo').length}</div><div class="kpi-label">Torneos</div></div>
+      <div class="kpi"><div class="kpi-num">${ev.filter(e=>e.type==='amistoso').length}</div><div class="kpi-label">Amistosos</div></div>
+      <div class="kpi"><div class="kpi-num">${ev.length}</div><div class="kpi-label">Total</div></div>
+    </div>
+    ${pend.length>0?`<div class="warn-banner" style="cursor:default"><div class="warn-text">${pend.length} sin confirmar</div></div>`:''}
+    <div class="section-label">Eventos</div>
+    ${ev.length===0?'<div class="empty">Sin eventos — usa + para añadir</div>':''}
+    ${ev.map(e=>`<div class="ev-row" onclick="openEvent('${e.id}')"><span class="ev-date">${fmtDate(e.date)}</span><div style="flex:1"><div class="ev-name">${e.title}</div>${e.opponent?`<div class="ev-sub">vs ${e.opponent}${e.location?' · '+e.location:''}</div>`:e.location?`<div class="ev-sub">${e.location}</div>`:''}</div><span class="${badgeStatus(e.status)}">${e.status}</span></div>`).join('')}
+  `;
+}
+
+function renderCalendario(){
+  const v=document.getElementById('view-calendario');
+  const types=['all','torneo','amistoso','pretemporada','competicion'];
+  const labels={all:'Todos',torneo:'Torneos',amistoso:'Amistosos',pretemporada:'Pretemp.',competicion:'Oficial'};
+  const filtered=calFilter==='all'?events:events.filter(e=>e.type===calFilter);
+  const sorted=[...filtered].sort((a,b)=>a.date.localeCompare(b.date));
+  const byMonth={};
+  sorted.forEach(e=>{ const m=e.date.slice(0,7); if(!byMonth[m]) byMonth[m]=[]; byMonth[m].push(e); });
+  const ml=m=>{ const [y,mo]=m.split('-'); return `${MONTHS_FULL[parseInt(mo)-1]} ${y}`; };
+  v.innerHTML=`
+    <div class="filter-row">${types.map(t=>`<button class="chip${calFilter===t?' active':''}" onclick="setCalFilter('${t}')">${labels[t]}</button>`).join('')}</div>
+    ${Object.keys(byMonth).length===0?'<div class="empty">No hay eventos registrados</div>':''}
+    ${Object.entries(byMonth).map(([m,evs])=>`<div class="section-label">${ml(m)}</div>${evs.map(e=>`<div class="ev-row" onclick="openEvent('${e.id}')"><span class="ev-date">${fmtDate(e.date)}</span><div style="flex:1"><div class="ev-name">${e.title}</div><div class="ev-sub">${teamByCode(e.team).code}${e.opponent?' · vs '+e.opponent:''}</div></div><span class="${badgeType(e.type)}">${e.type}</span></div>`).join('')}`).join('')}
+  `;
+}
+
+function renderPretemp(){
+  const v=document.getElementById('view-pretemp');
+  const pretemp=events.filter(e=>e.type==='pretemporada').sort((a,b)=>a.date.localeCompare(b.date));
+  const teamsWithPre=[...new Set(pretemp.map(e=>e.team))];
+  const filtered=pretempFilter==='all'?pretemp:pretemp.filter(e=>e.team===pretempFilter);
+  const byDate={};
+  filtered.forEach(e=>{ if(!byDate[e.date]) byDate[e.date]=[]; byDate[e.date].push(e); });
+  v.innerHTML=`
+    <div class="filter-row"><button class="chip${pretempFilter==='all'?' active':''}" onclick="setPretempFilter('all')">Todos</button>${teamsWithPre.map(c=>`<button class="chip${pretempFilter===c?' active':''}" onclick="setPretempFilter('${c}')">${c}</button>`).join('')}</div>
+    ${Object.keys(byDate).length===0?'<div class="empty">Sin eventos de pretemporada</div>':''}
+    ${Object.entries(byDate).map(([d,evs])=>`<div class="section-label">${fmtDateFull(d)}</div>${evs.map(e=>`<div class="ev-row" onclick="openEvent('${e.id}')"><span class="ev-date" style="width:72px">${teamByCode(e.team).code}</span><div style="flex:1"><div class="ev-name">${e.title}</div>${e.location?`<div class="ev-sub">${e.location}</div>`:''}</div><span class="${badgeStatus(e.status)}">${e.status}</span></div>`).join('')}`).join('')}
+  `;
+}
+
+function renderPendientes(){
+  const v=document.getElementById('view-pendientes');
+  const open=events.filter(e=>e.status==='pendiente'||e.status==='por confirmar').sort((a,b)=>a.date.localeCompare(b.date));
+  v.innerHTML=`
+    <div class="kpi-row">
+      <div class="kpi"><div class="kpi-num">${open.length}</div><div class="kpi-label">Sin cerrar</div></div>
+      <div class="kpi"><div class="kpi-num">${events.filter(e=>e.status==='confirmado'||e.status==='cerrado').length}</div><div class="kpi-label">Confirmados</div></div>
+      <div class="kpi"><div class="kpi-num">${events.filter(e=>e.status==='cancelado').length}</div><div class="kpi-label">Cancelados</div></div>
+    </div>
+    ${open.length===0?'<div class="empty">Todo cerrado. Sin pendientes.</div>':'<div class="section-label">Por resolver</div>'}
+    ${open.map(e=>`<div class="pend-card open" onclick="openEvent('${e.id}')"><div class="pend-top"><span class="pend-team">${teamByCode(e.team).code} · ${e.title}</span><span class="${badgeStatus(e.status)}">${e.status}</span></div><div class="pend-text">${fmtDate(e.date)}${e.opponent?' · vs '+e.opponent:''}${e.notes?'\n'+e.notes:''}</div></div>`).join('')}
+  `;
+}
+</script>
+</body>
+</html>
