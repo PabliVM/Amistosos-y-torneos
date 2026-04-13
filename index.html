@@ -5,182 +5,320 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>RM Fútbol Base — Torneos 25-26</title>
 <style>
+:root{
+  --blue:#00529F;
+  --blue-dark:#003F7A;
+  --blue-deep:#002D5C;
+  --blue-light:#E8F1FA;
+  --blue-mid:#4A90D9;
+  --gold:#F5C700;
+  --white:#fff;
+  --gray-50:#F5F6F8;
+  --gray-100:#EAECEF;
+  --gray-200:#D5D8DF;
+  --gray-400:#9499A6;
+  --gray-600:#555B6B;
+  --gray-900:#12151E;
+  --green:#27AE60;
+  --green-light:#E8F8EE;
+  --amber:#E67E22;
+  --amber-light:#FEF3E7;
+  --red:#E74C3C;
+  --red-light:#FDECEB;
+  --purple:#8E44AD;
+  --purple-light:#F3E8F9;
+  --teal:#16A085;
+  --teal-light:#E6F5F2;
+  --r:8px;
+  --r2:12px;
+  --r3:16px;
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f7;min-height:100vh;color:#1d1d1f}
-.app{max-width:480px;margin:0 auto;background:#fff;min-height:100vh;display:flex;flex-direction:column;position:relative}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;background:#fff;border-bottom:0.5px solid #e5e5e7;position:sticky;top:0;z-index:50}
-.topbar-title{font-size:15px;font-weight:600;color:#1d1d1f}
+html,body{height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-serif;background:var(--gray-50);color:var(--gray-900);font-size:13px}
+
+/* ===== APP SHELL ===== */
+.app{display:flex;height:100vh;overflow:hidden}
+
+/* ===== SIDEBAR ===== */
+.sidebar{width:220px;flex-shrink:0;background:var(--blue-deep);display:flex;flex-direction:column;overflow-y:auto;scrollbar-width:none}
+.sidebar::-webkit-scrollbar{display:none}
+.sidebar-header{padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.sidebar-logo{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.sidebar-shield{width:32px;height:32px;background:var(--gold);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:var(--blue-deep);flex-shrink:0}
+.sidebar-name{font-size:14px;font-weight:700;color:var(--white);line-height:1.2}
+.sidebar-season{font-size:11px;color:rgba(255,255,255,0.45);margin-top:8px;font-weight:500;text-transform:uppercase;letter-spacing:0.06em}
+.sidebar-section{padding:12px 16px 4px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.08em}
+.team-btn{display:flex;align-items:center;gap:10px;padding:8px 16px;cursor:pointer;border:none;background:none;width:100%;text-align:left;transition:background 0.12s;border-radius:0}
+.team-btn:hover{background:rgba(255,255,255,0.07)}
+.team-btn.active{background:rgba(255,255,255,0.13)}
+.team-btn-code{font-size:13px;font-weight:700;color:var(--white);width:52px;flex-shrink:0}
+.team-btn-name{font-size:12px;color:rgba(255,255,255,0.6);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.team-btn.active .team-btn-name{color:rgba(255,255,255,0.85)}
+.sidebar-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);margin-left:auto;flex-shrink:0;opacity:0}
+.team-btn.has-events .sidebar-dot{opacity:1}
+
+/* ===== MAIN ===== */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{background:var(--white);border-bottom:1px solid var(--gray-100);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar-team{font-size:17px;font-weight:700;color:var(--gray-900)}
+.topbar-fullname{font-size:13px;color:var(--gray-400)}
 .topbar-right{display:flex;align-items:center;gap:8px}
-.season-badge{font-size:11px;color:#6e6e73;background:#f5f5f7;padding:3px 8px;border-radius:10px}
-.status-dot{width:7px;height:7px;border-radius:50%;background:#34c759;flex-shrink:0}
-.status-dot.offline{background:#ff3b30}
-.nav{display:flex;border-bottom:0.5px solid #e5e5e7;background:#fff;overflow-x:auto;scrollbar-width:none;position:sticky;top:45px;z-index:49}
-.nav::-webkit-scrollbar{display:none}
-.nav-btn{flex:none;padding:10px 16px;font-size:13px;color:#6e6e73;background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;font-family:inherit;transition:color 0.15s}
-.nav-btn.active{color:#1d1d1f;font-weight:500;border-bottom-color:#1d1d1f}
-.content{flex:1;overflow-y:auto}
-.view{display:none;padding:16px;padding-bottom:80px}
-.view.active{display:block}
-.kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
-.kpi{background:#f5f5f7;border-radius:10px;padding:10px 12px;text-align:center}
-.kpi-num{font-size:22px;font-weight:600;color:#1d1d1f}
-.kpi-label{font-size:11px;color:#6e6e73;margin-top:2px}
-.section-label{font-size:11px;font-weight:600;color:#6e6e73;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;margin-top:16px}
-.section-label:first-child{margin-top:0}
-.card{background:#fff;border:0.5px solid #e5e5e7;border-radius:12px;padding:12px 14px;cursor:pointer;transition:border-color 0.15s;margin-bottom:6px}
-.card:hover{border-color:#c7c7cc}
-.card:active{background:#f5f5f7}
-.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
-.card-title{font-size:14px;font-weight:500;color:#1d1d1f}
-.card-meta{font-size:12px;color:#6e6e73;margin-top:3px}
-.badge{display:inline-flex;align-items:center;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500;white-space:nowrap;flex-shrink:0}
-.bt-torneo{background:#e8f5e9;color:#2e7d32}
-.bt-amistoso{background:#e3f2fd;color:#1565c0}
-.bt-pretemporada{background:#fff3e0;color:#e65100}
-.bt-competicion{background:#f3e5f5;color:#6a1b9a}
-.bt-stage{background:#e0f2f1;color:#00695c}
-.bt-otro{background:#f5f5f7;color:#6e6e73}
-.bs-pendiente{background:#fff3e0;color:#e65100}
-.bs-por-confirmar{background:#e3f2fd;color:#1565c0}
-.bs-confirmado{background:#e8f5e9;color:#2e7d32}
-.bs-cerrado{background:#f5f5f7;color:#6e6e73}
-.bs-cancelado{background:#ffebee;color:#c62828}
-.teams-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-.team-card{background:#fff;border:0.5px solid #e5e5e7;border-radius:12px;padding:12px 14px;cursor:pointer;transition:border-color 0.15s}
-.team-card:hover{border-color:#c7c7cc}
-.team-code{font-size:18px;font-weight:600;color:#1d1d1f}
-.team-name{font-size:12px;color:#6e6e73;margin-top:1px}
-.team-counts{display:flex;gap:8px;margin-top:8px}
-.team-count{font-size:11px;color:#aeaeb2}
-.team-count b{color:#6e6e73;font-weight:500}
-.detail-back{display:flex;align-items:center;gap:4px;font-size:13px;color:#6e6e73;cursor:pointer;margin-bottom:14px;padding:4px 0}
-.detail-back:hover{color:#1d1d1f}
-.detail-header{margin-bottom:14px}
-.detail-code{font-size:28px;font-weight:600}
-.detail-fullname{font-size:14px;color:#6e6e73;margin-top:2px}
-.info-box{background:#f5f5f7;border-radius:10px;padding:2px 14px;margin-bottom:14px}
-.info-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:0.5px solid #e5e5e7}
-.info-row:last-child{border-bottom:none}
-.info-label{font-size:13px;color:#6e6e73}
-.info-value{font-size:13px;font-weight:500}
-.ev-row{display:flex;align-items:center;gap:10px;padding:9px 12px;background:#fff;border:0.5px solid #e5e5e7;border-radius:10px;cursor:pointer;margin-bottom:5px}
-.ev-row:hover{border-color:#c7c7cc}
-.ev-date{font-size:11px;color:#6e6e73;width:64px;flex-shrink:0}
-.ev-name{font-size:13px;font-weight:500;color:#1d1d1f}
-.ev-sub{font-size:11px;color:#6e6e73}
-.filter-row{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
-.filter-row::-webkit-scrollbar{display:none}
-.chip{flex:none;padding:5px 12px;border-radius:12px;font-size:12px;border:0.5px solid #e5e5e7;background:#fff;color:#6e6e73;cursor:pointer;font-family:inherit;transition:all 0.15s}
-.chip.active{background:#1d1d1f;color:#fff;border-color:#1d1d1f}
-.pend-card{background:#fff;border:0.5px solid #e5e5e7;border-radius:12px;padding:12px 14px;margin-bottom:6px;cursor:pointer}
-.pend-card.open{border-color:#ff9f0a;background:#fffbf0}
-.pend-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
-.pend-team{font-size:14px;font-weight:500}
-.pend-text{font-size:12px;color:#6e6e73;margin-top:4px;line-height:1.5;white-space:pre-line}
-.fab{position:fixed;bottom:24px;right:calc(50% - 224px);width:48px;height:48px;background:#1d1d1f;color:#fff;border:none;border-radius:50%;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:99}
-.fab:active{opacity:0.85}
-@media(max-width:480px){.fab{right:16px}}
-.sheet-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;align-items:flex-end;justify-content:center}
-.sheet-overlay.open{display:flex}
-.sheet{background:#fff;border-radius:20px 20px 0 0;padding:0 16px 32px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
-.sheet-handle{width:36px;height:4px;background:#e5e5e7;border-radius:2px;margin:12px auto 16px}
-.sheet-title{font-size:17px;font-weight:600;margin-bottom:18px}
-.form-group{margin-bottom:13px}
-.form-label{font-size:12px;color:#6e6e73;margin-bottom:5px;display:block;font-weight:500}
-.form-input,.form-select{width:100%;padding:9px 12px;border:0.5px solid #c7c7cc;border-radius:10px;font-size:15px;font-family:inherit;background:#fff;color:#1d1d1f;-webkit-appearance:none}
-.form-input:focus,.form-select:focus{outline:none;border-color:#1d1d1f}
-.btn-save{width:100%;padding:13px;background:#1d1d1f;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:6px}
-.btn-save:disabled{opacity:0.4;cursor:default}
-.btn-delete{width:100%;padding:13px;background:#fff;color:#c62828;border:0.5px solid #ffb3b3;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;margin-top:8px}
-.empty{padding:32px 0;text-align:center;color:#aeaeb2;font-size:13px}
-.warn-banner{background:#fffbf0;border:0.5px solid #ff9f0a;border-radius:10px;padding:10px 14px;margin-bottom:12px;cursor:pointer}
-.warn-text{font-size:13px;font-weight:500;color:#e65100}
-.warn-sub{font-size:12px;color:#6e6e73;margin-top:2px}
+.topbar-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px}
+.tb-preseason{background:var(--amber-light);color:var(--amber)}
+.tb-competition{background:var(--green-light);color:var(--green)}
+.status-pill{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--gray-400);padding:4px 10px;border:1px solid var(--gray-200);border-radius:20px}
+.status-dot{width:6px;height:6px;border-radius:50%;background:#34C759}
+.status-dot.off{background:#FF3B30}
+
+.page{flex:1;overflow-y:auto;padding:20px 24px;display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start}
+
+/* ===== CALENDAR PANEL ===== */
+.cal-panel{background:var(--white);border-radius:var(--r3);border:1px solid var(--gray-100);overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+.cal-panel-header{background:var(--blue);padding:10px 14px;display:flex;align-items:center;justify-content:space-between}
+.cal-panel-title{font-size:12px;font-weight:700;color:var(--white);text-transform:uppercase;letter-spacing:0.06em}
+.cal-meta{display:flex;gap:12px}
+.cal-meta-item{text-align:center}
+.cal-meta-label{font-size:9px;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.05em}
+.cal-meta-val{font-size:11px;font-weight:700;color:var(--white)}
+.cal-year-label{font-size:10px;font-weight:700;color:var(--gray-400);padding:6px 14px 2px;background:var(--gray-50);border-bottom:1px solid var(--gray-100)}
+.cal-months-grid{display:grid;grid-template-columns:1fr 1fr 1fr}
+.cal-month{padding:8px 6px 6px;border-right:1px solid var(--gray-100);border-bottom:1px solid var(--gray-100)}
+.cal-month:nth-child(3n){border-right:none}
+.cal-month-name{font-size:9px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;padding:0 2px}
+.cal-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:0}
+.cal-dow-h{font-size:8px;font-weight:600;color:var(--gray-400);text-align:center;padding:1px 0;text-transform:uppercase}
+.cal-day{font-size:9px;text-align:center;padding:2px 1px;border-radius:4px;cursor:default;position:relative;line-height:1.4;color:var(--gray-600)}
+.cal-day.empty{color:transparent}
+.cal-day.today{background:var(--blue);color:var(--white);font-weight:700;border-radius:50%}
+.cal-day.ev-torneo{background:#FEF3B0;color:#7A5F00;font-weight:700;border-radius:4px}
+.cal-day.ev-amistoso{background:#DAEEFF;color:#00529F;font-weight:700;border-radius:4px}
+.cal-day.ev-champions{background:#EFE0FA;color:#6B21A8;font-weight:700;border-radius:4px}
+.cal-day.ev-seleccion_esp{background:#FFE0E0;color:#B91C1C;font-weight:700;border-radius:4px}
+.cal-day.ev-seleccion_ext{background:#D1FAF0;color:#0F7560;font-weight:700;border-radius:4px}
+.cal-day.ev-multi{background:linear-gradient(135deg,#FEF3B0 50%,#DAEEFF 50%);color:#1A1A22;font-weight:700;border-radius:4px}
+.cal-day.weekend{color:var(--gray-400)}
+.cal-day.ev-torneo.weekend,.cal-day.ev-amistoso.weekend,.cal-day.ev-champions.weekend,.cal-day.ev-seleccion_esp.weekend,.cal-day.ev-seleccion_ext.weekend{color:inherit}
+.cal-legend{display:flex;flex-wrap:wrap;gap:8px;padding:8px 14px;border-top:1px solid var(--gray-100);background:var(--gray-50)}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--gray-600)}
+.legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+
+/* ===== RIGHT PANELS ===== */
+.right-panels{display:flex;flex-direction:column;gap:14px}
+.panel{background:var(--white);border-radius:var(--r2);border:1px solid var(--gray-100);overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+.panel-header{padding:8px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+.panel-header-left{display:flex;align-items:center;gap:8px}
+.panel-color-bar{width:4px;height:16px;border-radius:2px;flex-shrink:0}
+.panel-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em}
+.panel-count{font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px}
+.panel-chevron{font-size:11px;color:var(--gray-400);transition:transform 0.2s}
+.panel-chevron.open{transform:rotate(180deg)}
+.panel-body{border-top:1px solid var(--gray-100)}
+.panel-table{width:100%;border-collapse:collapse}
+.panel-table th{font-size:9px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.06em;padding:6px 10px;background:var(--gray-50);border-bottom:1px solid var(--gray-100);white-space:nowrap}
+.panel-table td{padding:6px 10px;border-bottom:1px solid var(--gray-100);font-size:12px;color:var(--gray-900);vertical-align:middle}
+.panel-table tr:last-child td{border-bottom:none}
+.panel-table tr:hover td{background:var(--gray-50)}
+.panel-table tr.empty-row td{color:var(--gray-400);font-style:italic;font-size:11px}
+.td-date{font-size:11px;color:var(--gray-600);white-space:nowrap;min-width:64px}
+.td-rival{font-weight:500}
+.td-status{white-space:nowrap}
+.td-actions{white-space:nowrap}
+.status-badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;white-space:nowrap}
+.s-pendiente{background:var(--amber-light);color:var(--amber)}
+.s-por-confirmar{background:#EEF2FF;color:#4338CA}
+.s-confirmado{background:var(--green-light);color:var(--green)}
+.s-cerrado{background:var(--gray-100);color:var(--gray-600)}
+.s-cancelado{background:var(--red-light);color:var(--red)}
+.btn-icon{background:none;border:none;cursor:pointer;padding:3px 5px;border-radius:4px;color:var(--gray-400);font-size:12px;transition:all 0.12s}
+.btn-icon:hover{background:var(--blue-light);color:var(--blue)}
+.btn-add-row{display:flex;align-items:center;gap:6px;padding:7px 14px;font-size:11px;color:var(--blue);font-weight:600;cursor:pointer;background:none;border:none;border-top:1px solid var(--gray-100);width:100%;font-family:inherit;transition:background 0.12s}
+.btn-add-row:hover{background:var(--blue-light)}
+
+/* ===== TORNEOS color bars ===== */
+.ph-torneos .panel-color-bar{background:#F5C700}
+.ph-torneos .panel-title{color:#8B6F00}
+.ph-torneos .panel-count{background:#FEF9E0;color:#8B6F00}
+.ph-amistosos .panel-color-bar{background:var(--blue)}
+.ph-amistosos .panel-title{color:var(--blue-dark)}
+.ph-amistosos .panel-count{background:var(--blue-light);color:var(--blue)}
+.ph-champions .panel-color-bar{background:var(--purple)}
+.ph-champions .panel-title{color:var(--purple)}
+.ph-champions .panel-count{background:var(--purple-light);color:var(--purple)}
+.ph-seleccion .panel-color-bar{background:var(--red)}
+.ph-seleccion .panel-title{color:var(--red)}
+.ph-seleccion .panel-count{background:var(--red-light);color:var(--red)}
+.ph-seleccion2 .panel-color-bar{background:var(--teal)}
+.ph-seleccion2 .panel-title{color:var(--teal)}
+.ph-seleccion2 .panel-count{background:var(--teal-light);color:var(--teal)}
+
+/* ===== MODAL ===== */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:500;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:var(--r3);width:100%;max-width:440px;overflow:hidden;box-shadow:var(--shadow-lg)}
+.modal-header{padding:16px 20px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:15px;font-weight:700}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--gray-400);line-height:1;padding:0 4px}
+.modal-body{padding:20px}
+.form-row{margin-bottom:14px}
+.form-label{display:block;font-size:11px;font-weight:600;color:var(--gray-600);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.04em}
+.form-input,.form-select{width:100%;padding:9px 12px;border:1px solid var(--gray-200);border-radius:var(--r);font-size:13px;font-family:inherit;background:var(--white);color:var(--gray-900);transition:border-color 0.15s}
+.form-input:focus,.form-select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,82,159,0.1)}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--gray-100);display:flex;gap:8px;justify-content:flex-end}
+.btn{padding:9px 18px;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:all 0.15s}
+.btn-primary{background:var(--blue);color:var(--white)}
+.btn-primary:hover{background:var(--blue-dark)}
+.btn-primary:disabled{opacity:0.5;cursor:default}
+.btn-secondary{background:var(--gray-100);color:var(--gray-700)}
+.btn-secondary:hover{background:var(--gray-200)}
+.btn-danger{background:var(--red-light);color:var(--red);margin-right:auto}
+.btn-danger:hover{background:#FDDCDA}
+
+/* ===== MOBILE ===== */
+.mobile-nav{display:none;background:var(--blue-deep);padding:10px 16px;align-items:center;gap:10px;flex-shrink:0}
+.mobile-team-select{flex:1;padding:8px 12px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:var(--r);color:var(--white);font-size:13px;font-weight:600;font-family:inherit;appearance:none;-webkit-appearance:none}
+.mobile-menu-btn{background:none;border:none;color:var(--white);font-size:20px;cursor:pointer;padding:6px}
+@media(max-width:900px){
+  .sidebar{display:none}
+  .mobile-nav{display:flex}
+  .page{grid-template-columns:1fr;gap:16px;padding:16px}
+  .topbar{padding:0 16px}
+  .app{flex-direction:column}
+  .main{height:calc(100vh - 52px - 44px)}
+}
+@media(max-width:600px){
+  .topbar-fullname{display:none}
+  .topbar-badge{display:none}
+  .panel-table th:nth-child(3),.panel-table td:nth-child(3){display:none}
+}
 </style>
 </head>
 <body>
 <div class="app">
-  <div class="topbar">
-    <span class="topbar-title">RM Fútbol Base</span>
-    <div class="topbar-right">
-      <span class="season-badge">25-26</span>
-      <div class="status-dot" id="status-dot"></div>
+
+  <!-- SIDEBAR desktop -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="sidebar-shield">RM</div>
+        <div class="sidebar-name">Fútbol Base</div>
+      </div>
+      <div class="sidebar-season">Temporada 25 · 26</div>
+    </div>
+    <div class="sidebar-section">Equipos</div>
+    <div id="sidebar-teams"></div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- Mobile top nav -->
+    <div class="mobile-nav">
+      <select class="mobile-team-select" id="mobile-team-select"></select>
+    </div>
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-team" id="tb-team">—</div>
+        <div class="topbar-fullname" id="tb-fullname"></div>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-badge tb-preseason" id="tb-preseason" style="display:none"></div>
+        <div class="topbar-badge tb-competition" id="tb-competition" style="display:none"></div>
+        <div class="status-pill"><div class="status-dot" id="status-dot"></div><span id="status-text">Conectando…</span></div>
+      </div>
+    </div>
+
+    <!-- Page content -->
+    <div class="page" id="page">
+      <div class="cal-panel" id="cal-panel">
+        <div class="cal-panel-header">
+          <span class="cal-panel-title">Calendario Temporada</span>
+          <div class="cal-meta">
+            <div class="cal-meta-item"><div class="cal-meta-label">Eventos</div><div class="cal-meta-val" id="cal-total">0</div></div>
+            <div class="cal-meta-item"><div class="cal-meta-label">Torneos</div><div class="cal-meta-val" id="cal-torneos">0</div></div>
+            <div class="cal-meta-item"><div class="cal-meta-label">Amistosos</div><div class="cal-meta-val" id="cal-amistosos">0</div></div>
+          </div>
+        </div>
+        <div id="cal-body"></div>
+        <div class="cal-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#FEF3B0;border:1px solid #D4AA00"></div>Torneo</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#DAEEFF;border:1px solid #00529F"></div>Amistoso</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#EFE0FA;border:1px solid #8E44AD"></div>Champions</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#FFE0E0;border:1px solid #E74C3C"></div>Sel. Española</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#D1FAF0;border:1px solid #16A085"></div>Sel. Extranjera</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--blue);border-radius:50%"></div>Hoy</div>
+        </div>
+      </div>
+
+      <div class="right-panels" id="right-panels">
+        <!-- Injected by JS -->
+      </div>
     </div>
   </div>
-  <nav class="nav">
-    <button class="nav-btn active" data-view="dashboard">Inicio</button>
-    <button class="nav-btn" data-view="equipos">Equipos</button>
-    <button class="nav-btn" data-view="calendario">Calendario</button>
-    <button class="nav-btn" data-view="pretemp">Pretemporada</button>
-    <button class="nav-btn" data-view="pendientes">Pendientes</button>
-  </nav>
-  <div class="content">
-    <div class="view active" id="view-dashboard"></div>
-    <div class="view" id="view-equipos"></div>
-    <div class="view" id="view-equipo-detail"></div>
-    <div class="view" id="view-calendario"></div>
-    <div class="view" id="view-pretemp"></div>
-    <div class="view" id="view-pendientes"></div>
-  </div>
-  <button class="fab" id="fab">+</button>
 </div>
 
-<!-- Sheet: Nuevo / Editar evento -->
-<div class="sheet-overlay" id="sheet-new">
-  <div class="sheet">
-    <div class="sheet-handle"></div>
-    <div class="sheet-title" id="sheet-new-title">Nuevo evento</div>
-    <div class="form-group">
-      <label class="form-label">Equipo</label>
-      <select class="form-select" id="f-team"></select>
+<!-- Modal evento -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Nuevo evento</div>
+      <button class="modal-close" id="modal-close">×</button>
     </div>
-    <div class="form-group">
-      <label class="form-label">Tipo</label>
-      <select class="form-select" id="f-type">
-        <option value="torneo">Torneo</option>
-        <option value="amistoso">Amistoso</option>
-        <option value="pretemporada">Pretemporada</option>
-        <option value="competicion">Competición oficial</option>
-        <option value="stage">Stage</option>
-        <option value="otro">Otro</option>
-      </select>
+    <div class="modal-body">
+      <div class="form-row">
+        <label class="form-label">Tipo de panel</label>
+        <select class="form-select" id="f-panel">
+          <option value="torneo">Torneo</option>
+          <option value="amistoso">Amistoso</option>
+          <option value="champions">Partido Champions 1er Equipo</option>
+          <option value="seleccion_esp">Convocatoria Selección Española</option>
+          <option value="seleccion_ext">Convocatoria Selección Extranjera</option>
+        </select>
+      </div>
+      <div class="form-row-2">
+        <div>
+          <label class="form-label">Fecha inicio</label>
+          <input class="form-input" type="date" id="f-date"/>
+        </div>
+        <div>
+          <label class="form-label">Fecha fin</label>
+          <input class="form-input" type="date" id="f-date-end"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Rival / Nombre evento</label>
+        <input class="form-input" id="f-rival" placeholder="Nombre del rival o torneo…"/>
+      </div>
+      <div class="form-row-2">
+        <div>
+          <label class="form-label">Sede / lugar</label>
+          <input class="form-input" id="f-location" placeholder="Ciudad, campo…"/>
+        </div>
+        <div>
+          <label class="form-label">Estado</label>
+          <select class="form-select" id="f-status">
+            <option value="pendiente">Pendiente</option>
+            <option value="por confirmar">Por confirmar</option>
+            <option value="confirmado">Confirmado</option>
+            <option value="cerrado">Cerrado</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Notas</label>
+        <input class="form-input" id="f-notes" placeholder="Observaciones…"/>
+      </div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Título del evento</label>
-      <input class="form-input" id="f-title" placeholder="Ej: Torneo Ciudad de Madrid, vs Atlético B…"/>
+    <div class="modal-footer">
+      <button class="btn btn-danger" id="btn-delete" style="display:none">Eliminar</button>
+      <button class="btn btn-secondary" id="btn-cancel">Cancelar</button>
+      <button class="btn btn-primary" id="btn-save">Guardar</button>
     </div>
-    <div class="form-group">
-      <label class="form-label">Rival (si aplica)</label>
-      <input class="form-input" id="f-opponent" placeholder="Nombre del rival"/>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Fecha inicio</label>
-      <input class="form-input" type="date" id="f-date"/>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Fecha fin (si el evento dura varios días)</label>
-      <input class="form-input" type="date" id="f-date-end"/>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Sede / lugar</label>
-      <input class="form-input" id="f-location" placeholder="Ciudad, campo…"/>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Estado</label>
-      <select class="form-select" id="f-status">
-        <option value="pendiente">Pendiente</option>
-        <option value="por confirmar">Por confirmar</option>
-        <option value="confirmado">Confirmado</option>
-        <option value="cerrado">Cerrado</option>
-        <option value="cancelado">Cancelado</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Notas</label>
-      <input class="form-input" id="f-notes" placeholder="Observaciones…"/>
-    </div>
-    <button class="btn-save" id="btn-save">Guardar</button>
-    <button class="btn-delete" id="btn-delete" style="display:none">Eliminar evento</button>
   </div>
 </div>
 
@@ -188,17 +326,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAyPmMciYVe1RHaRYMww4kEg2nSAEc_dfw",
-  authDomain: "amistosos-y-torneos.firebaseapp.com",
-  projectId: "amistosos-y-torneos",
-  storageBucket: "amistosos-y-torneos.firebasestorage.app",
-  messagingSenderId: "7038951639",
-  appId: "1:7038951639:web:8daf47f203ca91f00a5092"
+const FB = {
+  apiKey:"AIzaSyAyPmMciYVe1RHaRYMww4kEg2nSAEc_dfw",
+  authDomain:"amistosos-y-torneos.firebaseapp.com",
+  projectId:"amistosos-y-torneos",
+  storageBucket:"amistosos-y-torneos.firebasestorage.app",
+  messagingSenderId:"7038951639",
+  appId:"1:7038951639:web:8daf47f203ca91f00a5092"
 };
-
-const fbApp = initializeApp(firebaseConfig);
-const db = getFirestore(fbApp);
+const app = initializeApp(FB);
+const db = getFirestore(app);
 const SEASON = '25-26';
 
 const TEAMS = [
@@ -221,232 +358,320 @@ const TEAMS = [
   {code:'DB',name:'Debutantes',order:17},
 ];
 
-const MONTHS_ES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-const MONTHS_FULL = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+// Season months: Jul 2025 – Jun 2026
+const SEASON_MONTHS = [
+  {y:2025,m:6},{y:2025,m:7},{y:2025,m:8},
+  {y:2025,m:9},{y:2025,m:10},{y:2025,m:11},
+  {y:2026,m:0},{y:2026,m:1},{y:2026,m:2},
+  {y:2026,m:3},{y:2026,m:4},{y:2026,m:5}
+];
+const MES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const MES_FULL = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const DOW = ['L','M','X','J','V','S','D'];
+
+const PANELS = [
+  {key:'torneo',     label:'Torneos',                        cls:'ph-torneos',   cols:['Rival / Nombre','Fecha inicio','Fecha fin','Sede','Estado']},
+  {key:'amistoso',   label:'Amistosos',                      cls:'ph-amistosos', cols:['Rival','Fecha','Sede','Estado']},
+  {key:'champions',  label:'Partidos Champions 1er Equipo',  cls:'ph-champions', cols:['Rival','Fecha','Estado','Notas']},
+  {key:'seleccion_esp', label:'Convocatorias Selección Española',  cls:'ph-seleccion',  cols:['Jugador / Selección','Fecha','Estado']},
+  {key:'seleccion_ext', label:'Convocatorias Selección Extranjera',cls:'ph-seleccion2', cols:['Jugador / Selección','Fecha','Estado']},
+];
 
 let events = [];
-let currentView = 'dashboard';
-let selectedTeam = null;
+let currentTeam = TEAMS[0].code;
 let editingId = null;
-let calFilter = 'all';
-let pretempFilter = 'all';
+let currentPanelKey = 'torneo';
 
-const teamByCode = c => TEAMS.find(t=>t.code===c)||{code:c,name:c};
-const today = () => new Date().toISOString().slice(0,10);
-const fmtDate = d => { if(!d) return '—'; const [y,m,day]=d.split('-'); return `${parseInt(day)} ${MONTHS_ES[parseInt(m)-1]}`; };
-const fmtDateFull = d => { if(!d) return '—'; const [y,m,day]=d.split('-'); return `${parseInt(day)} ${MONTHS_FULL[parseInt(m)-1]} ${y}`; };
-const badgeType = t => `badge bt-${t}`;
-const badgeStatus = s => `badge bs-${s.replace(' ','-')}`;
-const evForTeam = code => events.filter(e=>e.team===code).sort((a,b)=>a.date.localeCompare(b.date));
-const upcoming = (n=10) => events.filter(e=>e.date>=today()&&e.status!=='cancelado').sort((a,b)=>a.date.localeCompare(b.date)).slice(0,n);
-
-// Firestore listener
+// Firebase listener
 const q = query(collection(db,'seasons',SEASON,'events'), orderBy('date'));
 onSnapshot(q, snap => {
   events = snap.docs.map(d=>({id:d.id,...d.data()}));
   document.getElementById('status-dot').className='status-dot';
-  rerenderCurrent();
-}, () => { document.getElementById('status-dot').className='status-dot offline'; });
-
-function rerenderCurrent(){
-  if(currentView==='dashboard') renderDashboard();
-  else if(currentView==='equipos') renderEquipos();
-  else if(currentView==='equipo-detail'&&selectedTeam) renderTeamDetail(selectedTeam);
-  else if(currentView==='calendario') renderCalendario();
-  else if(currentView==='pretemp') renderPretemp();
-  else if(currentView==='pendientes') renderPendientes();
-}
-
-function showView(v){
-  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active'));
-  const el=document.getElementById('view-'+v);
-  if(el) el.classList.add('active');
-  const btn=document.querySelector(`.nav-btn[data-view="${v}"]`);
-  if(btn) btn.classList.add('active');
-  currentView=v;
-  rerenderCurrent();
-}
-
-window.goTeam = function(code){
-  selectedTeam=code;
-  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active'));
-  document.getElementById('view-equipo-detail').classList.add('active');
-  currentView='equipo-detail';
-  renderTeamDetail(code);
-};
-
-window.openEvent = function(id){
-  const ev=events.find(e=>e.id===id);
-  if(!ev) return;
-  editingId=id;
-  populateForm(ev);
-  document.getElementById('sheet-new-title').textContent='Editar evento';
-  document.getElementById('btn-delete').style.display='block';
-  document.getElementById('sheet-new').classList.add('open');
-};
-
-window.setCalFilter = f => { calFilter=f; renderCalendario(); };
-window.setPretempFilter = f => { pretempFilter=f; renderPretemp(); };
-
-function populateForm(ev){
-  const sel=document.getElementById('f-team');
-  if(!sel.options.length) TEAMS.forEach(t=>{ const o=document.createElement('option'); o.value=t.code; o.textContent=`${t.code} — ${t.name}`; sel.appendChild(o); });
-  sel.value=ev?ev.team:(selectedTeam||TEAMS[0].code);
-  document.getElementById('f-type').value=ev?ev.type:'amistoso';
-  document.getElementById('f-title').value=ev?ev.title:'';
-  document.getElementById('f-opponent').value=ev?(ev.opponent||''):'';
-  document.getElementById('f-date').value=ev?ev.date:'';
-  document.getElementById('f-date-end').value=ev?(ev.dateEnd||''):'';
-  document.getElementById('f-location').value=ev?(ev.location||''):'';
-  document.getElementById('f-status').value=ev?ev.status:'pendiente';
-  document.getElementById('f-notes').value=ev?(ev.notes||''):'';
-}
-
-// Auto-fill end date when start date changes
-document.getElementById('f-date').addEventListener('change', function(){
-  const end=document.getElementById('f-date-end');
-  if(!end.value) end.value=this.value;
+  document.getElementById('status-text').textContent='En línea';
+  renderAll();
+  updateSidebarDots();
+}, () => {
+  document.getElementById('status-dot').className='status-dot off';
+  document.getElementById('status-text').textContent='Sin conexión';
 });
 
-// FAB
-document.getElementById('fab').addEventListener('click',()=>{
-  editingId=null;
-  populateForm(null);
-  document.getElementById('sheet-new-title').textContent='Nuevo evento';
+function teamEvents(code){ return events.filter(e=>e.team===code); }
+function teamByCode(c){ return TEAMS.find(t=>t.code===c)||{code:c,name:c}; }
+function fmtDate(d){ if(!d) return '—'; const [y,m,day]=d.split('-'); return `${parseInt(day)} ${MES[parseInt(m)-1]}`; }
+function fmtDateFull(d){ if(!d) return '—'; const [y,m,day]=d.split('-'); return `${parseInt(day)} ${MES_FULL[parseInt(m)-1]} ${y}`; }
+function today(){ return new Date().toISOString().slice(0,10); }
+
+function selectTeam(code){
+  currentTeam = code;
+  document.querySelectorAll('.team-btn').forEach(b=>b.classList.toggle('active', b.dataset.code===code));
+  const msel = document.getElementById('mobile-team-select');
+  if(msel) msel.value = code;
+  renderAll();
+}
+
+function renderAll(){
+  const t = teamByCode(currentTeam);
+  document.getElementById('tb-team').textContent = t.code;
+  document.getElementById('tb-fullname').textContent = t.name;
+
+  const evs = teamEvents(currentTeam);
+  document.getElementById('cal-total').textContent = evs.length;
+  document.getElementById('cal-torneos').textContent = evs.filter(e=>e.panel==='torneo').length;
+  document.getElementById('cal-amistosos').textContent = evs.filter(e=>e.panel==='amistoso').length;
+
+  renderCalendar(evs, t);
+  renderPanels(evs);
+}
+
+// Priority order for color when multiple events on same day
+const PANEL_PRIORITY = ['torneo','amistoso','champions','seleccion_esp','seleccion_ext'];
+
+function renderCalendar(evs, team){
+  // Build map: date -> { types: Set, labels: [] }
+  const eventDates = {};
+  evs.forEach(e => {
+    if(!e.date) return;
+    const start = e.date;
+    const end = e.dateEnd||e.date;
+    let cur = new Date(start+'T12:00:00');
+    const endD = new Date(end+'T12:00:00');
+    while(cur<=endD){
+      const ds = cur.toISOString().slice(0,10);
+      if(!eventDates[ds]) eventDates[ds]={types:new Set(),labels:[]};
+      const panel = e.panel||'amistoso';
+      eventDates[ds].types.add(panel);
+      if(e.rival) eventDates[ds].labels.push(e.rival);
+      cur = new Date(cur.getTime()+86400000);
+    }
+  });
+
+  const todayStr = today();
+  let html = '';
+  let lastYear = null;
+
+  SEASON_MONTHS.forEach(({y,m}) => {
+    if(y !== lastYear){
+      html += `<div class="cal-year-label">${y}</div><div class="cal-months-grid">`;
+      lastYear = y;
+    }
+
+    const daysInMonth = new Date(y,m+1,0).getDate();
+    let startOffset = new Date(y,m,1).getDay()-1;
+    if(startOffset<0) startOffset=6;
+
+    html += `<div class="cal-month"><div class="cal-month-name">${MES[m]}</div><div class="cal-dow">`;
+    DOW.forEach(d=>{ html+=`<div class="cal-dow-h">${d}</div>`; });
+
+    for(let i=0;i<startOffset;i++) html+=`<div class="cal-day empty">·</div>`;
+
+    for(let d=1;d<=daysInMonth;d++){
+      const ds = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const dow = (new Date(ds+'T12:00:00').getDay()+6)%7; // 0=Mon
+      let cls = 'cal-day';
+      let tooltip = ds;
+
+      if(ds===todayStr){
+        cls += ' today';
+      } else if(eventDates[ds]){
+        const types = eventDates[ds].types;
+        const labels = eventDates[ds].labels;
+        // Pick highest priority type for the color class
+        const dominant = PANEL_PRIORITY.find(p=>types.has(p)) || 'amistoso';
+        if(types.size > 1){
+          cls += ' ev-multi';
+        } else {
+          cls += ` ev-${dominant}`;
+        }
+        tooltip = labels.length>0 ? labels.join(', ') : dominant;
+      }
+
+      if(dow>=5) cls += ' weekend';
+      html+=`<div class="${cls}" title="${tooltip}">${d}</div>`;
+    }
+
+    html += `</div></div>`;
+
+    // Close the months grid every 3 months
+    if((m===8&&y===2025)||(m===11&&y===2025)||(m===2&&y===2026)||(m===5&&y===2026)){
+      html += `</div>`;
+      lastYear = null;
+    }
+  });
+
+  document.getElementById('cal-body').innerHTML = html;
+}
+
+function renderPanels(evs){
+  const container = document.getElementById('right-panels');
+  let html = '';
+
+  PANELS.forEach(panel => {
+    const panelEvs = evs.filter(e=>(e.panel||'amistoso')===panel.key).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+
+    html += `<div class="panel">
+      <div class="panel-header" onclick="togglePanel('${panel.key}')">
+        <div class="panel-header-left">
+          <div class="panel-color-bar ${panel.cls}"></div>
+          <span class="panel-title ${panel.cls}">${panel.label}</span>
+          <span class="panel-count ${panel.cls}">${panelEvs.length}</span>
+        </div>
+        <span class="panel-chevron open" id="chev-${panel.key}">▾</span>
+      </div>
+      <div class="panel-body" id="pb-${panel.key}">
+        <table class="panel-table">
+          <thead><tr>`;
+
+    panel.cols.forEach(c=>{ html+=`<th>${c}</th>`; });
+    html+=`<th></th></tr></thead><tbody>`;
+
+    if(panelEvs.length===0){
+      html+=`<tr class="empty-row"><td colspan="${panel.cols.length+1}">Sin eventos — haz clic en + para añadir</td></tr>`;
+    } else {
+      panelEvs.forEach(e=>{
+        html+=`<tr>`;
+        if(panel.key==='torneo'){
+          html+=`<td class="td-rival">${e.rival||'—'}</td>
+                 <td class="td-date">${fmtDate(e.date)}</td>
+                 <td class="td-date">${fmtDate(e.dateEnd)}</td>
+                 <td>${e.location||'—'}</td>`;
+        } else if(panel.key==='amistoso'){
+          html+=`<td class="td-rival">${e.rival||'—'}</td>
+                 <td class="td-date">${fmtDate(e.date)}</td>
+                 <td>${e.location||'—'}</td>`;
+        } else if(panel.key==='champions'){
+          html+=`<td class="td-rival">${e.rival||'—'}</td>
+                 <td class="td-date">${fmtDate(e.date)}</td>
+                 <td></td>
+                 <td>${e.notes||'—'}</td>`;
+        } else {
+          html+=`<td class="td-rival">${e.rival||'—'}</td>
+                 <td class="td-date">${fmtDate(e.date)}</td>
+                 <td></td>`;
+        }
+        const st = e.status||'pendiente';
+        html+=`<td class="td-status"><span class="status-badge s-${st.replace(' ','-')}">${st}</span></td>`;
+        html+=`<td class="td-actions">
+          <button class="btn-icon" onclick="openEdit('${e.id}')" title="Editar">✏️</button>
+        </td></tr>`;
+      });
+    }
+
+    html+=`</tbody></table>
+      <button class="btn-add-row" onclick="openNew('${panel.key}')">＋ Añadir ${panel.label.toLowerCase()}</button>
+    </div></div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+function updateSidebarDots(){
+  TEAMS.forEach(t=>{
+    const btn = document.querySelector(`.team-btn[data-code="${t.code}"]`);
+    if(!btn) return;
+    if(teamEvents(t.code).length>0) btn.classList.add('has-events');
+    else btn.classList.remove('has-events');
+  });
+}
+
+window.togglePanel = function(key){
+  const pb = document.getElementById('pb-'+key);
+  const chev = document.getElementById('chev-'+key);
+  if(!pb) return;
+  const open = pb.style.display!=='none';
+  pb.style.display = open?'none':'block';
+  chev.classList.toggle('open',!open);
+};
+
+window.openNew = function(panelKey){
+  editingId = null;
+  currentPanelKey = panelKey;
+  document.getElementById('modal-title').textContent = 'Nuevo evento';
   document.getElementById('btn-delete').style.display='none';
-  document.getElementById('sheet-new').classList.add('open');
-});
+  document.getElementById('f-panel').value = panelKey;
+  document.getElementById('f-date').value='';
+  document.getElementById('f-date-end').value='';
+  document.getElementById('f-rival').value='';
+  document.getElementById('f-location').value='';
+  document.getElementById('f-status').value='pendiente';
+  document.getElementById('f-notes').value='';
+  document.getElementById('modal').classList.add('open');
+};
 
-document.getElementById('sheet-new').addEventListener('click',e=>{ if(e.target===document.getElementById('sheet-new')) document.getElementById('sheet-new').classList.remove('open'); });
+window.openEdit = function(id){
+  const ev = events.find(e=>e.id===id);
+  if(!ev) return;
+  editingId = id;
+  document.getElementById('modal-title').textContent='Editar evento';
+  document.getElementById('btn-delete').style.display='block';
+  document.getElementById('f-panel').value=ev.panel||'amistoso';
+  document.getElementById('f-date').value=ev.date||'';
+  document.getElementById('f-date-end').value=ev.dateEnd||'';
+  document.getElementById('f-rival').value=ev.rival||'';
+  document.getElementById('f-location').value=ev.location||'';
+  document.getElementById('f-status').value=ev.status||'pendiente';
+  document.getElementById('f-notes').value=ev.notes||'';
+  document.getElementById('modal').classList.add('open');
+};
+
+// Auto-fill end date
+document.getElementById('f-date').addEventListener('change',function(){
+  if(!document.getElementById('f-date-end').value) document.getElementById('f-date-end').value=this.value;
+});
 
 document.getElementById('btn-save').addEventListener('click', async ()=>{
-  const title=document.getElementById('f-title').value.trim();
-  const date=document.getElementById('f-date').value;
-  if(!title||!date){ alert('Título y fecha son obligatorios'); return; }
-  const btn=document.getElementById('btn-save');
+  const date = document.getElementById('f-date').value;
+  const rival = document.getElementById('f-rival').value.trim();
+  if(!date&&!rival){ alert('Introduce al menos una fecha o rival'); return; }
+  const btn = document.getElementById('btn-save');
   btn.disabled=true; btn.textContent='Guardando…';
-  const data={
-    team:document.getElementById('f-team').value,
-    type:document.getElementById('f-type').value,
-    title,
-    opponent:document.getElementById('f-opponent').value.trim()||null,
-    date,
-    dateEnd:document.getElementById('f-date-end').value||date,
-    location:document.getElementById('f-location').value.trim()||null,
-    status:document.getElementById('f-status').value,
-    notes:document.getElementById('f-notes').value.trim()||null,
-    updatedAt:serverTimestamp(),
-    season:SEASON,
+  const data = {
+    team: currentTeam,
+    panel: document.getElementById('f-panel').value,
+    date, rival,
+    dateEnd: document.getElementById('f-date-end').value||date,
+    location: document.getElementById('f-location').value.trim()||null,
+    status: document.getElementById('f-status').value,
+    notes: document.getElementById('f-notes').value.trim()||null,
+    updatedAt: serverTimestamp(),
+    season: SEASON,
   };
   try{
-    if(editingId){ await updateDoc(doc(db,'seasons',SEASON,'events',editingId),data); }
+    if(editingId) await updateDoc(doc(db,'seasons',SEASON,'events',editingId),data);
     else{ data.createdAt=serverTimestamp(); await addDoc(collection(db,'seasons',SEASON,'events'),data); }
-    document.getElementById('sheet-new').classList.remove('open');
-  }catch(err){ alert('Error: '+err.message); }
+    document.getElementById('modal').classList.remove('open');
+  } catch(e){ alert('Error: '+e.message); }
   btn.disabled=false; btn.textContent='Guardar';
 });
 
 document.getElementById('btn-delete').addEventListener('click', async ()=>{
   if(!editingId||!confirm('¿Eliminar este evento?')) return;
   await deleteDoc(doc(db,'seasons',SEASON,'events',editingId));
-  document.getElementById('sheet-new').classList.remove('open');
+  document.getElementById('modal').classList.remove('open');
 });
 
-// Nav
-document.querySelectorAll('.nav-btn').forEach(btn=>btn.addEventListener('click',()=>showView(btn.dataset.view)));
+document.getElementById('btn-cancel').addEventListener('click',()=>document.getElementById('modal').classList.remove('open'));
+document.getElementById('modal-close').addEventListener('click',()=>document.getElementById('modal').classList.remove('open'));
+document.getElementById('modal').addEventListener('click',e=>{ if(e.target===document.getElementById('modal')) document.getElementById('modal').classList.remove('open'); });
 
-// RENDERS
-function renderDashboard(){
-  const v=document.getElementById('view-dashboard');
-  const total=events.length, torn=events.filter(e=>e.type==='torneo').length, amis=events.filter(e=>e.type==='amistoso').length;
-  const pend=events.filter(e=>e.status==='pendiente'||e.status==='por confirmar').length;
-  const next=upcoming(8);
-  v.innerHTML=`
-    <div class="kpi-row">
-      <div class="kpi"><div class="kpi-num">${total}</div><div class="kpi-label">Eventos</div></div>
-      <div class="kpi"><div class="kpi-num">${torn}</div><div class="kpi-label">Torneos</div></div>
-      <div class="kpi"><div class="kpi-num">${amis}</div><div class="kpi-label">Amistosos</div></div>
-    </div>
-    ${pend>0?`<div class="warn-banner" onclick="showView('pendientes')"><div class="warn-text">${pend} evento${pend>1?'s':''} sin confirmar</div><div class="warn-sub">Ver pendientes →</div></div>`:''}
-    <div class="section-label">Próximos eventos</div>
-    ${next.length===0?'<div class="empty">Aún no hay eventos — usa + para añadir el primero</div>':''}
-    ${next.map(e=>`<div class="card" onclick="openEvent('${e.id}')"><div class="card-top"><div><div class="card-title">${e.title}</div><div class="card-meta">${teamByCode(e.team).code} · ${fmtDate(e.date)}${e.opponent?' · vs '+e.opponent:''}</div></div><span class="${badgeType(e.type)}">${e.type}</span></div></div>`).join('')}
-  `;
-}
+// Build sidebar + mobile select
+const sidebarTeams = document.getElementById('sidebar-teams');
+const mobileSelect = document.getElementById('mobile-team-select');
+TEAMS.forEach(t=>{
+  const btn = document.createElement('button');
+  btn.className='team-btn'+(t.code===currentTeam?' active':'');
+  btn.dataset.code=t.code;
+  btn.innerHTML=`<span class="team-btn-code">${t.code}</span><span class="team-btn-name">${t.name}</span><span class="sidebar-dot"></span>`;
+  btn.addEventListener('click',()=>selectTeam(t.code));
+  sidebarTeams.appendChild(btn);
 
-function renderEquipos(){
-  const v=document.getElementById('view-equipos');
-  v.innerHTML=`<div class="teams-grid">${TEAMS.map(t=>{
-    const ev=evForTeam(t.code);
-    return `<div class="team-card" onclick="goTeam('${t.code}')"><div class="team-code">${t.code}</div><div class="team-name">${t.name}</div><div class="team-counts"><span class="team-count"><b>${ev.filter(e=>e.type==='torneo').length}</b> T</span><span class="team-count"><b>${ev.filter(e=>e.type==='amistoso').length}</b> A</span><span class="team-count"><b>${ev.length}</b> total</span></div></div>`;
-  }).join('')}</div>`;
-}
+  const opt = document.createElement('option');
+  opt.value=t.code; opt.textContent=`${t.code} — ${t.name}`;
+  mobileSelect.appendChild(opt);
+});
+mobileSelect.addEventListener('change',e=>selectTeam(e.target.value));
 
-function renderTeamDetail(code){
-  const v=document.getElementById('view-equipo-detail');
-  const t=teamByCode(code);
-  const ev=evForTeam(code);
-  const pend=ev.filter(e=>e.status==='pendiente'||e.status==='por confirmar');
-  v.innerHTML=`
-    <div class="detail-back" onclick="showView('equipos')">← Equipos</div>
-    <div class="detail-header"><div class="detail-code">${t.code}</div><div class="detail-fullname">${t.name}</div></div>
-    <div class="kpi-row" style="margin-bottom:12px">
-      <div class="kpi"><div class="kpi-num">${ev.filter(e=>e.type==='torneo').length}</div><div class="kpi-label">Torneos</div></div>
-      <div class="kpi"><div class="kpi-num">${ev.filter(e=>e.type==='amistoso').length}</div><div class="kpi-label">Amistosos</div></div>
-      <div class="kpi"><div class="kpi-num">${ev.length}</div><div class="kpi-label">Total</div></div>
-    </div>
-    ${pend.length>0?`<div class="warn-banner" style="cursor:default"><div class="warn-text">${pend.length} sin confirmar</div></div>`:''}
-    <div class="section-label">Eventos</div>
-    ${ev.length===0?'<div class="empty">Sin eventos — usa + para añadir</div>':''}
-    ${ev.map(e=>`<div class="ev-row" onclick="openEvent('${e.id}')"><span class="ev-date">${fmtDate(e.date)}</span><div style="flex:1"><div class="ev-name">${e.title}</div>${e.opponent?`<div class="ev-sub">vs ${e.opponent}${e.location?' · '+e.location:''}</div>`:e.location?`<div class="ev-sub">${e.location}</div>`:''}</div><span class="${badgeStatus(e.status)}">${e.status}</span></div>`).join('')}
-  `;
-}
-
-function renderCalendario(){
-  const v=document.getElementById('view-calendario');
-  const types=['all','torneo','amistoso','pretemporada','competicion'];
-  const labels={all:'Todos',torneo:'Torneos',amistoso:'Amistosos',pretemporada:'Pretemp.',competicion:'Oficial'};
-  const filtered=calFilter==='all'?events:events.filter(e=>e.type===calFilter);
-  const sorted=[...filtered].sort((a,b)=>a.date.localeCompare(b.date));
-  const byMonth={};
-  sorted.forEach(e=>{ const m=e.date.slice(0,7); if(!byMonth[m]) byMonth[m]=[]; byMonth[m].push(e); });
-  const ml=m=>{ const [y,mo]=m.split('-'); return `${MONTHS_FULL[parseInt(mo)-1]} ${y}`; };
-  v.innerHTML=`
-    <div class="filter-row">${types.map(t=>`<button class="chip${calFilter===t?' active':''}" onclick="setCalFilter('${t}')">${labels[t]}</button>`).join('')}</div>
-    ${Object.keys(byMonth).length===0?'<div class="empty">No hay eventos registrados</div>':''}
-    ${Object.entries(byMonth).map(([m,evs])=>`<div class="section-label">${ml(m)}</div>${evs.map(e=>`<div class="ev-row" onclick="openEvent('${e.id}')"><span class="ev-date">${fmtDate(e.date)}</span><div style="flex:1"><div class="ev-name">${e.title}</div><div class="ev-sub">${teamByCode(e.team).code}${e.opponent?' · vs '+e.opponent:''}</div></div><span class="${badgeType(e.type)}">${e.type}</span></div>`).join('')}`).join('')}
-  `;
-}
-
-function renderPretemp(){
-  const v=document.getElementById('view-pretemp');
-  const pretemp=events.filter(e=>e.type==='pretemporada').sort((a,b)=>a.date.localeCompare(b.date));
-  const teamsWithPre=[...new Set(pretemp.map(e=>e.team))];
-  const filtered=pretempFilter==='all'?pretemp:pretemp.filter(e=>e.team===pretempFilter);
-  const byDate={};
-  filtered.forEach(e=>{ if(!byDate[e.date]) byDate[e.date]=[]; byDate[e.date].push(e); });
-  v.innerHTML=`
-    <div class="filter-row"><button class="chip${pretempFilter==='all'?' active':''}" onclick="setPretempFilter('all')">Todos</button>${teamsWithPre.map(c=>`<button class="chip${pretempFilter===c?' active':''}" onclick="setPretempFilter('${c}')">${c}</button>`).join('')}</div>
-    ${Object.keys(byDate).length===0?'<div class="empty">Sin eventos de pretemporada</div>':''}
-    ${Object.entries(byDate).map(([d,evs])=>`<div class="section-label">${fmtDateFull(d)}</div>${evs.map(e=>`<div class="ev-row" onclick="openEvent('${e.id}')"><span class="ev-date" style="width:72px">${teamByCode(e.team).code}</span><div style="flex:1"><div class="ev-name">${e.title}</div>${e.location?`<div class="ev-sub">${e.location}</div>`:''}</div><span class="${badgeStatus(e.status)}">${e.status}</span></div>`).join('')}`).join('')}
-  `;
-}
-
-function renderPendientes(){
-  const v=document.getElementById('view-pendientes');
-  const open=events.filter(e=>e.status==='pendiente'||e.status==='por confirmar').sort((a,b)=>a.date.localeCompare(b.date));
-  v.innerHTML=`
-    <div class="kpi-row">
-      <div class="kpi"><div class="kpi-num">${open.length}</div><div class="kpi-label">Sin cerrar</div></div>
-      <div class="kpi"><div class="kpi-num">${events.filter(e=>e.status==='confirmado'||e.status==='cerrado').length}</div><div class="kpi-label">Confirmados</div></div>
-      <div class="kpi"><div class="kpi-num">${events.filter(e=>e.status==='cancelado').length}</div><div class="kpi-label">Cancelados</div></div>
-    </div>
-    ${open.length===0?'<div class="empty">Todo cerrado. Sin pendientes.</div>':'<div class="section-label">Por resolver</div>'}
-    ${open.map(e=>`<div class="pend-card open" onclick="openEvent('${e.id}')"><div class="pend-top"><span class="pend-team">${teamByCode(e.team).code} · ${e.title}</span><span class="${badgeStatus(e.status)}">${e.status}</span></div><div class="pend-text">${fmtDate(e.date)}${e.opponent?' · vs '+e.opponent:''}${e.notes?'\n'+e.notes:''}</div></div>`).join('')}
-  `;
-}
+// Initial render with empty data
+renderAll();
 </script>
 </body>
 </html>
