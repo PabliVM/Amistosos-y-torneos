@@ -5,11 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Planificación de Temporada</title>
 <style>
-:root{--bg:#f0f2f5;--surface:#fff;--surface-alt:#fafbfc;--border:#dfe1e6;--border-light:#eaecf0;--text:#1a1d23;--text-sec:#5a6170;--text-mut:#8b919e;--text-faint:#b4b9c4;--rm-blue:#1a3c8e;--rm-blue-lt:#2450a8;--rm-blue-bg:#e8edf8;--green:#0d8a50;--green-bg:#e6f7ee;--green-bdr:#b4e4cc;--blue:#2563a8;--blue-bg:#e8f0fa;--bronze:#a06830;--bronze-bg:#faf0e4;--red-lt:#fce8e8;--red:#c93b3b;--sh-sm:0 1px 3px rgba(0,0,0,.06);--sh-md:0 2px 8px rgba(0,0,0,.08);--sh-lg:0 4px 16px rgba(0,0,0,.1);--r:8px;--rs:5px;--rl:12px;--font:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;--tr:.2s ease}
+:root{--bg:#f0f2f5;--surface:#fff;--surface-alt:#fafbfc;--border:#dfe1e6;--border-light:#eaecf0;--text:#1a1d23;--text-sec:#5a6170;--text-mut:#8b919e;--text-faint:#b4b9c4;--rm-blue:#2563eb;--rm-blue-lt:#3b7cf5;--rm-blue-bg:#e8edf8;--green:#0d8a50;--green-bg:#e6f7ee;--green-bdr:#b4e4cc;--blue:#2563a8;--blue-bg:#e8f0fa;--bronze:#a06830;--bronze-bg:#faf0e4;--red-lt:#fce8e8;--red:#c93b3b;--sh-sm:0 1px 3px rgba(0,0,0,.06);--sh-md:0 2px 8px rgba(0,0,0,.08);--sh-lg:0 4px 16px rgba(0,0,0,.1);--r:8px;--rs:5px;--rl:12px;--font:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;--tr:.2s ease}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.45;-webkit-font-smoothing:antialiased;font-size:13px}
 
-/* HEADER — white */
 .header{background:var(--surface);padding:14px 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.08);border-bottom:1px solid var(--border)}
 .header-logo{width:38px;height:38px;border-radius:50%;background:var(--rm-blue);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0}
 .header h1{font-size:17px;font-weight:600;color:var(--text);white-space:nowrap}
@@ -20,10 +19,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .btn-add-season{background:var(--rm-blue-bg);border:1px solid var(--border);color:var(--rm-blue);font-size:16px;width:28px;height:28px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--tr)}
 .btn-add-season:hover{background:var(--rm-blue);color:#fff}
 
-/* TEAM BAR — white */
 .team-bar{background:var(--surface);padding:10px 24px;display:flex;align-items:center;gap:6px;overflow-x:auto;position:sticky;top:67px;z-index:99;border-bottom:1px solid var(--border)}
 .team-bar::-webkit-scrollbar{height:0}
-.team-btn{padding:6px 16px;font-size:12px;font-weight:600;font-family:var(--font);border:1.5px solid var(--border);border-radius:22px;background:var(--surface);color:var(--text-sec);cursor:pointer;white-space:nowrap;transition:all var(--tr);letter-spacing:.2px}
+.team-btn{padding:6px 16px;font-size:12px;font-weight:600;font-family:var(--font);border:1.5px solid var(--border);border-radius:22px;background:var(--surface);color:var(--text-sec);cursor:pointer;white-space:nowrap;transition:all var(--tr)}
 .team-btn:hover{border-color:var(--rm-blue);color:var(--rm-blue)}
 .team-btn.active{background:var(--rm-blue);color:#fff;border-color:var(--rm-blue)}
 
@@ -40,7 +38,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .panel-body.collapsed{max-height:0!important;padding:0 12px;overflow:hidden}
 .shared-badge{font-size:7px;font-weight:700;padding:1px 5px;border-radius:3px;background:#fdf6e3;color:#8b6914;border:1px solid #e8d48b;text-transform:uppercase;letter-spacing:.3px;flex-shrink:0}
 
-/* Calendar — RM BLUE headers */
 .cal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .cal-month{border:1px solid var(--border-light);border-radius:var(--r);background:var(--surface);overflow:hidden;transition:box-shadow var(--tr)}
 .cal-month:hover{box-shadow:var(--sh-md)}
@@ -58,13 +55,12 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 
 .right-col{display:flex;flex-direction:column;gap:14px}
 .card-list{display:flex;flex-direction:column;gap:4px}
-
 .item-card{border:1px solid var(--border-light);border-radius:var(--rs);padding:7px 10px;background:var(--surface);transition:box-shadow var(--tr),border-color var(--tr);position:relative}
 .item-card:hover{box-shadow:var(--sh-md);border-color:var(--border)}
 .item-card.res-campeon{border-left:3px solid var(--green);background:linear-gradient(135deg,var(--green-bg) 0%,var(--surface) 50%)}
 .item-card.res-subcampeon{border-left:3px solid var(--blue)}
 .item-card.res-tercero{border-left:3px solid var(--bronze)}
-.item-row{display:flex;align-items:center;gap:5px;flex-wrap:nowrap}
+.item-row{display:flex;align-items:center;gap:5px}
 .st-badge{font-size:8px;padding:1px 6px;border-radius:12px;font-weight:600;flex-shrink:0;display:inline-flex;align-items:center;gap:2px;line-height:1.6}
 .st-badge.provisional{background:#fff8e6;color:#a07d1e;border:1px solid #f0d96b}
 .st-badge.definitivo{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bdr)}
@@ -75,12 +71,12 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .item-card:hover .item-acts{opacity:1}
 .item-acts button{background:none;border:none;cursor:pointer;width:22px;height:22px;border-radius:4px;display:flex;align-items:center;justify-content:center;color:var(--text-mut);transition:background var(--tr),color var(--tr)}
 .item-acts button:hover{background:var(--bg);color:var(--text)}
-.item-sub{display:flex;align-items:center;gap:6px;margin-top:2px;flex-wrap:wrap}
+.item-sub{display:flex;align-items:center;gap:6px;margin-top:2px}
 .res-tag{font-size:8px;font-weight:600;padding:1px 6px;border-radius:3px;line-height:1.6}
 .res-tag.campeon{background:var(--green-bg);color:var(--green)}.res-tag.subcampeon{background:var(--blue-bg);color:var(--blue)}.res-tag.tercero{background:var(--bronze-bg);color:var(--bronze)}.res-tag.neutral{background:var(--bg);color:var(--text-sec)}.res-tag.ganado{background:var(--green-bg);color:var(--green)}.res-tag.empate{background:#fff8e6;color:#a07d1e}.res-tag.perdido{background:var(--red-lt);color:var(--red)}
 .obs-dot{width:16px;height:16px;border-radius:3px;background:#f0f1f4;cursor:pointer;position:relative;color:var(--text-mut);flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:8px}
 .obs-dot:hover{background:#e4e6eb}
-.obs-tt{display:none;position:absolute;bottom:calc(100% + 5px);right:-4px;background:var(--text);color:#fff;font-size:10px;padding:5px 9px;border-radius:var(--rs);max-width:220px;white-space:normal;z-index:50;box-shadow:var(--sh-lg);line-height:1.3;font-weight:400}
+.obs-tt{display:none;position:absolute;bottom:calc(100% + 5px);right:-4px;background:var(--text);color:#fff;font-size:10px;padding:5px 9px;border-radius:var(--rs);max-width:220px;white-space:normal;z-index:50;box-shadow:var(--sh-lg);line-height:1.3}
 .obs-tt::after{content:'';position:absolute;top:100%;right:8px;border:4px solid transparent;border-top-color:var(--text)}
 .obs-dot:hover .obs-tt{display:block}
 
@@ -135,18 +131,12 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 <div class="header">
   <div class="header-logo">RM</div>
   <h1>Planificación de Temporada <span id="headerSeason">2026/2027</span></h1>
-  <div class="season-area">
-    <label>Temporada</label>
-    <select id="seasonSel" onchange="changeSeason()"></select>
-    <button class="btn-add-season" onclick="addSeason()" title="Añadir temporada">+</button>
-  </div>
+  <div class="season-area"><label>Temporada</label><select id="seasonSel" onchange="changeSeason()"></select><button class="btn-add-season" onclick="addSeason()" title="Añadir temporada">+</button></div>
 </div>
 <div class="team-bar" id="teamBar"></div>
 <div class="main">
   <div class="panel">
-    <div class="panel-header" onclick="togglePanel('calBody')">
-      <div class="panel-title"><span class="chevron" id="chev_calBody">▼</span> Calendario de Temporada <span style="font-size:11px;color:var(--rm-blue);font-weight:500;margin-left:4px" id="calTeamLabel"></span></div>
-    </div>
+    <div class="panel-header" onclick="togglePanel('calBody')"><div class="panel-title"><span class="chevron" id="chev_calBody">▼</span> Calendario de Temporada <span style="font-size:11px;color:var(--rm-blue);font-weight:500;margin-left:4px" id="calTeamLabel"></span></div></div>
     <div class="panel-body" id="calBody"><div class="cal-grid" id="calGrid"></div></div>
   </div>
   <div id="rightCol" class="right-col"></div>
@@ -155,7 +145,37 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
   <div class="modal"><div class="mh"><h3 id="mt"></h3><button class="mx" onclick="closeModal()">&times;</button></div><div class="mb" id="mbd"></div><div class="mf" id="mft"></div></div>
 </div>
 <script>
-const COLORS=[{h:'#2563eb',n:'Azul'},{h:'#1a3c8e',n:'RM Azul'},{h:'#0891b2',n:'Cian'},{h:'#0d9488',n:'Teal'},{h:'#16a34a',n:'Verde'},{h:'#059669',n:'Esmeralda'},{h:'#65a30d',n:'Lima'},{h:'#ca8a04',n:'Amarillo'},{h:'#d97706',n:'Ámbar'},{h:'#ea580c',n:'Naranja'},{h:'#dc2626',n:'Rojo'},{h:'#e11d48',n:'Rosa'},{h:'#db2777',n:'Fucsia'},{h:'#9333ea',n:'Morado'},{h:'#7c3aed',n:'Violeta'},{h:'#4f46e5',n:'Índigo'},{h:'#475569',n:'Gris'},{h:'#92400e',n:'Marrón'}];
+// EXPANDED COLOR PALETTE — blue first, includes yellows for porteros
+const COLORS=[
+  {h:'#2563eb',n:'Azul'},
+  {h:'#3b82f6',n:'Azul Claro'},
+  {h:'#1e3a6e',n:'Azul Oscuro'},
+  {h:'#0891b2',n:'Cian'},
+  {h:'#0d9488',n:'Teal'},
+  {h:'#16a34a',n:'Verde'},
+  {h:'#059669',n:'Esmeralda'},
+  {h:'#65a30d',n:'Lima'},
+  {h:'#eab308',n:'Amarillo'},
+  {h:'#facc15',n:'Amarillo Claro'},
+  {h:'#ca8a04',n:'Amarillo Oscuro'},
+  {h:'#f59e0b',n:'Ámbar'},
+  {h:'#d97706',n:'Ámbar Oscuro'},
+  {h:'#ea580c',n:'Naranja'},
+  {h:'#f97316',n:'Naranja Claro'},
+  {h:'#dc2626',n:'Rojo'},
+  {h:'#ef4444',n:'Rojo Claro'},
+  {h:'#e11d48',n:'Rosa'},
+  {h:'#db2777',n:'Fucsia'},
+  {h:'#9333ea',n:'Morado'},
+  {h:'#7c3aed',n:'Violeta'},
+  {h:'#4f46e5',n:'Índigo'},
+  {h:'#6366f1',n:'Índigo Claro'},
+  {h:'#475569',n:'Gris'},
+  {h:'#78716c',n:'Gris Cálido'},
+  {h:'#92400e',n:'Marrón'},
+  {h:'#b45309',n:'Marrón Claro'},
+  {h:'#1a1a1a',n:'Negro'},
+];
 function cpHTML(sel){return '<div class="color-palette">'+COLORS.map(c=>`<div class="csw ${c.h===sel?'sel':''}" style="background:${c.h}" onclick="pickC(this,'${c.h}')" title="${c.n}"><span class="ck">✓</span></div>`).join('')+'</div>';}
 function pickC(el,h){el.closest('.color-palette').querySelectorAll('.csw').forEach(s=>{s.classList.remove('sel');s.querySelector('.ck').style.display='none'});el.classList.add('sel');el.querySelector('.ck').style.display='block';document.getElementById('mColor').value=h;}
 const LOC_EMOJI={casa:'🏠',fuera:'✈️','':''};
@@ -194,7 +214,7 @@ sharedItems['primer']=[
 ];
 
 let nextId=2000;
-function getItems(cid){const c=categories.find(x=>x.id===cid);if(c.shared)return sharedItems[cid]||[];if(!allItems[activeTeam][cid])allItems[activeTeam][cid]=[];return allItems[activeTeam][cid];}
+function getItems(cid){const c=categories.find(x=>x.id===cid);if(!c)return[];if(c.shared)return sharedItems[cid]||[];if(!allItems[activeTeam][cid])allItems[activeTeam][cid]=[];return allItems[activeTeam][cid];}
 const MESES=['julio','agosto','septiembre','octubre','noviembre','diciembre','enero','febrero','marzo','abril','mayo','junio'];
 const ML={julio:'Julio',agosto:'Agosto',septiembre:'Septiembre',octubre:'Octubre',noviembre:'Noviembre',diciembre:'Diciembre',enero:'Enero',febrero:'Febrero',marzo:'Marzo',abril:'Abril',mayo:'Mayo',junio:'Junio'};
 const DN=['L','M','X','J','V','S','D'];
@@ -219,17 +239,11 @@ function renderCalendar(){
   document.getElementById('calTeamLabel').textContent='— '+(TEAMS.find(t=>t.key===activeTeam)||{}).name;
   MESES.forEach(m=>{
     const yr=getMY(m),dc=gDIM(m),fd=gFD(m),h=hl[m];
-    let ds='';
-    for(let i=0;i<fd;i++)ds+='<span class="cal-d e"></span>';
+    let ds='';for(let i=0;i<fd;i++)ds+='<span class="cal-d e"></span>';
     for(let d=1;d<=dc;d++){const dow=(fd+d-1)%7,we=dow>=5;if(h[d]){const fg=contrast(h[d].color);ds+=`<span class="cal-d" style="background:${h[d].color};color:${fg};font-weight:700" title="${esc(h[d].label)}">${d}</span>`;}else ds+=`<span class="cal-d${we?' w':''}">${d}</span>`;}
-    let ev='';
-    categories.forEach(cat=>{getItems(cat.id).filter(it=>dtM(it.fechaInicio)===m).forEach(it=>{
-      const loc=it.ubicacion?LOC_EMOJI[it.ubicacion]||'':'';const rc=getRC(it.resultado);
-      ev+=`<div class="cal-ev" title="${esc(it.nombre)}"><span class="cal-ev-dot" style="background:${cat.color}"></span>${loc?`<span class="cal-ev-loc">${loc}</span>`:''}${rc==='campeon'?'🏆 ':''}${esc(it.nombre)}</div>`;
-    });});
+    let ev='';categories.forEach(cat=>{getItems(cat.id).filter(it=>dtM(it.fechaInicio)===m).forEach(it=>{const loc=it.ubicacion?LOC_EMOJI[it.ubicacion]||'':'';const rc=getRC(it.resultado);ev+=`<div class="cal-ev" title="${esc(it.nombre)}"><span class="cal-ev-dot" style="background:${cat.color}"></span>${loc?`<span class="cal-ev-loc">${loc}</span>`:''}${rc==='campeon'?'🏆 ':''}${esc(it.nombre)}</div>`;});});
     const div=document.createElement('div');div.className='cal-month';
-    div.innerHTML=`<div class="cal-month-head"><span>${ML[m]}</span><span class="cy">${yr}</span></div><div class="cal-dh">${DN.map(n=>`<span>${n}</span>`).join('')}</div><div class="cal-ds">${ds}</div>${ev?`<div class="cal-evs">${ev}</div>`:''}`;
-    g.appendChild(div);
+    div.innerHTML=`<div class="cal-month-head"><span>${ML[m]}</span><span class="cy">${yr}</span></div><div class="cal-dh">${DN.map(n=>`<span>${n}</span>`).join('')}</div><div class="cal-ds">${ds}</div>${ev?`<div class="cal-evs">${ev}</div>`:''}`;g.appendChild(div);
   });
 }
 
@@ -290,14 +304,20 @@ function delItem(cid,id){if(!confirm('¿Eliminar?'))return;const c=categories.fi
 function openCatCfg(cid){
   const cat=categories.find(c=>c.id===cid);eT='__cfg';eI=cid;
   document.getElementById('mt').textContent='Configurar — '+cat.title;
-  document.getElementById('mbd').innerHTML=`<label>Título</label><input id="mCT" value="${esc(cat.title)}"><label>Fechas</label><select id="mCR"><option value="0" ${!cat.hasRange?'selected':''}>Fecha única</option><option value="1" ${cat.hasRange?'selected':''}>Rango</option></select><label>Resultado</label><select id="mCRT"><option value="0" ${!cat.hasResultSelect?'selected':''}>Texto libre</option><option value="1" ${cat.hasResultSelect?'selected':''}>Selector</option></select><label>Compartido</label><select id="mCS"><option value="0" ${!cat.shared?'selected':''}>Solo equipo</option><option value="1" ${cat.shared?'selected':''}>Todos</option></select><label>Color</label><input type="hidden" id="mColor" value="${cat.color}">${cpHTML(cat.color)}`;
+  document.getElementById('mbd').innerHTML=`<label>Título</label><input id="mCT" value="${esc(cat.title)}"><label>Fechas</label><select id="mCR"><option value="0" ${!cat.hasRange?'selected':''}>Fecha única</option><option value="1" ${cat.hasRange?'selected':''}>Período (inicio — fin)</option></select><label>Resultado</label><select id="mCRT"><option value="0" ${!cat.hasResultSelect?'selected':''}>Texto libre</option><option value="1" ${cat.hasResultSelect?'selected':''}>Selector (Campeones, etc.)</option></select><label>Compartido</label><select id="mCS"><option value="0" ${!cat.shared?'selected':''}>Solo equipo</option><option value="1" ${cat.shared?'selected':''}>Todos los equipos</option></select><label>Color</label><input type="hidden" id="mColor" value="${cat.color}">${cpHTML(cat.color)}`;
   document.getElementById('mft').innerHTML=`<button class="btn-d" onclick="delCat('${cid}')">Eliminar</button><button class="btn-s" onclick="closeModal()">Cancelar</button><button class="btn-p" onclick="saveCatCfg()">Guardar</button>`;
   document.getElementById('mo').classList.add('active');
 }
 function saveCatCfg(){const cat=categories.find(c=>c.id===eI),ws=cat.shared;cat.title=document.getElementById('mCT').value.trim()||cat.title;cat.hasRange=document.getElementById('mCR').value==='1';cat.hasResultSelect=document.getElementById('mCRT').value==='1';cat.shared=document.getElementById('mCS').value==='1';cat.color=document.getElementById('mColor').value;if(!ws&&cat.shared){sharedItems[cat.id]=allItems[activeTeam][cat.id]||[];TEAMS.forEach(t=>{delete allItems[t.key][cat.id];});}if(ws&&!cat.shared){TEAMS.forEach(t=>{allItems[t.key][cat.id]=[];});allItems[activeTeam][cat.id]=sharedItems[cat.id]||[];delete sharedItems[cat.id];}closeModal();renderAll();}
 function delCat(cid){if(!confirm('¿Eliminar categoría?'))return;categories=categories.filter(c=>c.id!==cid);TEAMS.forEach(t=>{delete allItems[t.key][cid];});delete sharedItems[cid];closeModal();renderAll();}
 
-function openNewCat(){eT='__new';eI=null;const dc='#9333ea';document.getElementById('mt').textContent='Nueva categoría';document.getElementById('mbd').innerHTML=`<label>Título</label><input id="mCT" value="" placeholder="Ej: Selecciones, Copa..."><label>Fechas</label><select id="mCR"><option value="0">Fecha única</option><option value="1">Rango</option></select><label>Resultado</label><select id="mCRT"><option value="0">Texto libre</option><option value="1">Selector</option></select><label>Compartido</label><select id="mCS"><option value="0">Solo equipo</option><option value="1">Todos</option></select><label>Color</label><input type="hidden" id="mColor" value="${dc}">${cpHTML(dc)}`;document.getElementById('mft').innerHTML=`<button class="btn-s" onclick="closeModal()">Cancelar</button><button class="btn-p" onclick="saveNewCat()">Crear</button>`;document.getElementById('mo').classList.add('active');}
+function openNewCat(){
+  eT='__new';eI=null;const dc='#2563eb';
+  document.getElementById('mt').textContent='Nueva categoría';
+  document.getElementById('mbd').innerHTML=`<label>Título</label><input id="mCT" value="" placeholder="Ej: Selecciones, Porteros, Copa..."><label>Tipo de fecha</label><select id="mCR"><option value="0">Fecha única</option><option value="1">Período de tiempo (inicio — fin)</option></select><label>Tipo de resultado</label><select id="mCRT"><option value="0">Texto libre</option><option value="1">Selector (Campeones, etc.)</option></select><label>Compartido con todos los equipos</label><select id="mCS"><option value="0">No — solo equipo actual</option><option value="1">Sí — visible en todos</option></select><label>Color en calendario</label><input type="hidden" id="mColor" value="${dc}">${cpHTML(dc)}`;
+  document.getElementById('mft').innerHTML=`<button class="btn-s" onclick="closeModal()">Cancelar</button><button class="btn-p" onclick="saveNewCat()">Crear</button>`;
+  document.getElementById('mo').classList.add('active');
+}
 function saveNewCat(){const t=document.getElementById('mCT').value.trim();if(!t){alert('Escribe un título');return;}const id='c_'+Date.now(),sh=document.getElementById('mCS').value==='1';categories.push({id,title:t,color:document.getElementById('mColor').value,shared:sh,hasRange:document.getElementById('mCR').value==='1',hasResultSelect:document.getElementById('mCRT').value==='1'});if(sh)sharedItems[id]=[];else TEAMS.forEach(t=>{allItems[t.key][id]=[];});closeModal();renderAll();}
 
 function closeModal(){document.getElementById('mo').classList.remove('active');eT=null;eI=null;}
