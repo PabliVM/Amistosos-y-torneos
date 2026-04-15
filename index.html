@@ -5,128 +5,136 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Planificación de Temporada</title>
 <style>
-:root{--bg:#f5f6f8;--surface:#fff;--surface-alt:#fafbfc;--border:#e2e5ea;--border-light:#eef0f3;--text:#1a1d23;--text-sec:#5a6170;--text-mut:#8b919e;--text-faint:#b4b9c4;--navy:#0a1f4a;--navy-lt:#122b5e;--green:#0d8a50;--green-bg:#e6f7ee;--green-bdr:#b4e4cc;--blue:#2563a8;--blue-bg:#e8f0fa;--bronze:#a06830;--bronze-bg:#faf0e4;--red-lt:#fce8e8;--red:#c93b3b;--sh-sm:0 1px 3px rgba(0,0,0,.06);--sh-md:0 2px 8px rgba(0,0,0,.08);--sh-lg:0 4px 16px rgba(0,0,0,.1);--r:8px;--rs:5px;--rl:12px;--font:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;--tr:.2s ease}
+:root{--bg:#f0f2f5;--surface:#fff;--surface-alt:#fafbfc;--border:#dfe1e6;--border-light:#eaecf0;--text:#1a1d23;--text-sec:#5a6170;--text-mut:#8b919e;--text-faint:#b4b9c4;--rm-blue:#1a3c8e;--rm-blue-lt:#2450a8;--rm-blue-bg:#e8edf8;--green:#0d8a50;--green-bg:#e6f7ee;--green-bdr:#b4e4cc;--blue:#2563a8;--blue-bg:#e8f0fa;--bronze:#a06830;--bronze-bg:#faf0e4;--red-lt:#fce8e8;--red:#c93b3b;--sh-sm:0 1px 3px rgba(0,0,0,.06);--sh-md:0 2px 8px rgba(0,0,0,.08);--sh-lg:0 4px 16px rgba(0,0,0,.1);--r:8px;--rs:5px;--rl:12px;--font:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;--tr:.2s ease}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.45;-webkit-font-smoothing:antialiased;font-size:13px}
 
-.header{background:var(--navy);padding:10px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2)}
-.header-logo{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:11px;flex-shrink:0;border:1px solid rgba(255,255,255,.2)}
-.header h1{font-size:14px;font-weight:600;color:#fff;white-space:nowrap}
-.header h1 span{color:rgba(255,255,255,.55);font-weight:400;margin-left:4px}
-.season-area{margin-left:auto;display:flex;align-items:center;gap:6px;flex-shrink:0}
-.season-area label{font-size:10px;color:rgba(255,255,255,.45);font-weight:500}
-.season-area select{padding:3px 22px 3px 7px;border:1px solid rgba(255,255,255,.2);border-radius:var(--rs);font-size:10px;font-family:var(--font);color:#fff;background:rgba(255,255,255,.1);cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(255,255,255,0.5)'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 5px center}
-.season-area select option{color:var(--text);background:var(--surface)}
-.btn-add-season{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);font-size:14px;width:24px;height:24px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--tr)}
-.btn-add-season:hover{background:rgba(255,255,255,.25);color:#fff}
+/* HEADER — white */
+.header{background:var(--surface);padding:14px 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.08);border-bottom:1px solid var(--border)}
+.header-logo{width:38px;height:38px;border-radius:50%;background:var(--rm-blue);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0}
+.header h1{font-size:17px;font-weight:600;color:var(--text);white-space:nowrap}
+.header h1 span{color:var(--text-mut);font-weight:400;margin-left:6px}
+.season-area{margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.season-area label{font-size:12px;color:var(--text-mut);font-weight:500}
+.season-area select{padding:5px 26px 5px 10px;border:1px solid var(--border);border-radius:var(--rs);font-size:12px;font-family:var(--font);color:var(--text);background:var(--surface);cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235a6170'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
+.btn-add-season{background:var(--rm-blue-bg);border:1px solid var(--border);color:var(--rm-blue);font-size:16px;width:28px;height:28px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--tr)}
+.btn-add-season:hover{background:var(--rm-blue);color:#fff}
 
-.team-bar{background:var(--navy-lt);padding:6px 20px;display:flex;align-items:center;gap:3px;overflow-x:auto;position:sticky;top:48px;z-index:99;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+/* TEAM BAR — white */
+.team-bar{background:var(--surface);padding:10px 24px;display:flex;align-items:center;gap:6px;overflow-x:auto;position:sticky;top:67px;z-index:99;border-bottom:1px solid var(--border)}
 .team-bar::-webkit-scrollbar{height:0}
-.team-btn{padding:4px 10px;font-size:10px;font-weight:600;font-family:var(--font);border:1px solid rgba(255,255,255,.12);border-radius:16px;background:transparent;color:rgba(255,255,255,.6);cursor:pointer;white-space:nowrap;transition:all var(--tr);letter-spacing:.2px}
-.team-btn:hover{background:rgba(255,255,255,.1);color:#fff}
-.team-btn.active{background:#fff;color:var(--navy);border-color:#fff}
+.team-btn{padding:6px 16px;font-size:12px;font-weight:600;font-family:var(--font);border:1.5px solid var(--border);border-radius:22px;background:var(--surface);color:var(--text-sec);cursor:pointer;white-space:nowrap;transition:all var(--tr);letter-spacing:.2px}
+.team-btn:hover{border-color:var(--rm-blue);color:var(--rm-blue)}
+.team-btn.active{background:var(--rm-blue);color:#fff;border-color:var(--rm-blue)}
 
-.main{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:16px 20px;max-width:1600px;margin:0 auto;align-items:start}
+.main{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:18px 24px;max-width:1600px;margin:0 auto;align-items:start}
 
-.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh-sm);overflow:hidden}
-.panel-header{padding:8px 12px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;gap:6px;cursor:pointer;user-select:none;transition:background var(--tr)}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);box-shadow:var(--sh-sm);overflow:hidden}
+.panel-header{padding:10px 14px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;gap:6px;cursor:pointer;user-select:none;transition:background var(--tr)}
 .panel-header:hover{background:var(--surface-alt)}
-.panel-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--text-sec);display:flex;align-items:center;gap:5px}
-.panel-color-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;border:1px solid rgba(0,0,0,.08)}
-.chevron{transition:transform .25s ease;font-size:10px;color:var(--text-mut);flex-shrink:0;margin-right:2px}
+.panel-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-sec);display:flex;align-items:center;gap:6px}
+.panel-color-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;border:1px solid rgba(0,0,0,.08)}
+.chevron{transition:transform .25s ease;font-size:11px;color:var(--text-mut);flex-shrink:0;margin-right:2px}
 .chevron.collapsed{transform:rotate(-90deg)}
-.panel-body{padding:8px 10px;transition:max-height .3s ease,padding .3s ease;overflow:hidden}
-.panel-body.collapsed{max-height:0!important;padding:0 10px;overflow:hidden}
-.shared-badge{font-size:7px;font-weight:700;padding:1px 4px;border-radius:3px;background:#fdf6e3;color:#8b6914;border:1px solid #e8d48b;text-transform:uppercase;letter-spacing:.3px;flex-shrink:0}
+.panel-body{padding:10px 12px;overflow:hidden;transition:max-height .3s ease,padding .3s ease}
+.panel-body.collapsed{max-height:0!important;padding:0 12px;overflow:hidden}
+.shared-badge{font-size:7px;font-weight:700;padding:1px 5px;border-radius:3px;background:#fdf6e3;color:#8b6914;border:1px solid #e8d48b;text-transform:uppercase;letter-spacing:.3px;flex-shrink:0}
 
-/* Calendar */
-.cal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.cal-month{border:1px solid var(--border-light);border-radius:var(--rs);background:var(--surface-alt);overflow:hidden;transition:box-shadow var(--tr)}
+/* Calendar — RM BLUE headers */
+.cal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.cal-month{border:1px solid var(--border-light);border-radius:var(--r);background:var(--surface);overflow:hidden;transition:box-shadow var(--tr)}
 .cal-month:hover{box-shadow:var(--sh-md)}
-.cal-month-head{padding:3px 6px;background:var(--navy);color:#fff;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;display:flex;justify-content:space-between}
-.cal-month-head .cy{font-weight:400;opacity:.55;font-size:8px}
-.cal-dh{display:grid;grid-template-columns:repeat(7,1fr);padding:1px 3px 0}
-.cal-dh span{text-align:center;font-size:7px;font-weight:700;color:var(--text-mut);text-transform:uppercase}
-.cal-ds{display:grid;grid-template-columns:repeat(7,1fr);padding:1px 3px 2px;gap:1px}
-.cal-d{text-align:center;font-size:8px;color:var(--text-sec);padding:1px 0;border-radius:2px;line-height:1.6;cursor:default}
+.cal-month-head{padding:5px 10px;background:var(--rm-blue);color:#fff;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:center}
+.cal-month-head .cy{font-weight:400;opacity:.6;font-size:10px}
+.cal-dh{display:grid;grid-template-columns:repeat(7,1fr);padding:3px 5px 1px}
+.cal-dh span{text-align:center;font-size:8px;font-weight:700;color:var(--text-mut);text-transform:uppercase;padding:1px 0}
+.cal-ds{display:grid;grid-template-columns:repeat(7,1fr);padding:1px 5px 4px;gap:1px}
+.cal-d{text-align:center;font-size:9px;color:var(--text-sec);padding:2px 0;border-radius:3px;line-height:1.7;cursor:default}
 .cal-d.e{visibility:hidden}.cal-d.w{color:var(--text-faint)}
-.cal-evs{padding:1px 4px 3px;display:flex;flex-direction:column;gap:1px}
-.cal-ev{font-size:7px;padding:1px 3px;border-radius:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:default;line-height:1.3;border-left:2px solid}
+.cal-evs{padding:2px 6px 5px;display:flex;flex-direction:column;gap:2px}
+.cal-ev{font-size:8px;padding:1px 4px;border-radius:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:default;line-height:1.4;display:flex;align-items:center;gap:3px;color:var(--text-sec);background:var(--surface-alt)}
+.cal-ev-dot{width:7px;height:7px;border-radius:2px;flex-shrink:0}
+.cal-ev-loc{font-size:8px;flex-shrink:0}
 
-/* Items — COMPACT */
+.right-col{display:flex;flex-direction:column;gap:14px}
 .card-list{display:flex;flex-direction:column;gap:4px}
-.item-card{border:1px solid var(--border-light);border-radius:var(--rs);padding:6px 8px;background:var(--surface);transition:box-shadow var(--tr),border-color var(--tr);position:relative}
+
+.item-card{border:1px solid var(--border-light);border-radius:var(--rs);padding:7px 10px;background:var(--surface);transition:box-shadow var(--tr),border-color var(--tr);position:relative}
 .item-card:hover{box-shadow:var(--sh-md);border-color:var(--border)}
 .item-card.res-campeon{border-left:3px solid var(--green);background:linear-gradient(135deg,var(--green-bg) 0%,var(--surface) 50%)}
 .item-card.res-subcampeon{border-left:3px solid var(--blue)}
 .item-card.res-tercero{border-left:3px solid var(--bronze)}
 .item-row{display:flex;align-items:center;gap:5px;flex-wrap:nowrap}
-.st-badge{font-size:8px;padding:0 5px;border-radius:12px;font-weight:600;flex-shrink:0;display:inline-flex;align-items:center;gap:2px;line-height:1.6}
+.st-badge{font-size:8px;padding:1px 6px;border-radius:12px;font-weight:600;flex-shrink:0;display:inline-flex;align-items:center;gap:2px;line-height:1.6}
 .st-badge.provisional{background:#fff8e6;color:#a07d1e;border:1px solid #f0d96b}
 .st-badge.definitivo{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bdr)}
 .item-nm{font-size:11px;font-weight:600;color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item-loc{font-size:11px;flex-shrink:0}
 .item-dt{font-size:9px;color:var(--text-mut);flex-shrink:0;white-space:nowrap}
 .item-acts{display:flex;gap:1px;flex-shrink:0;opacity:0;transition:opacity var(--tr)}
 .item-card:hover .item-acts{opacity:1}
-.item-acts button{background:none;border:none;cursor:pointer;width:20px;height:20px;border-radius:3px;display:flex;align-items:center;justify-content:center;color:var(--text-mut);transition:background var(--tr),color var(--tr)}
+.item-acts button{background:none;border:none;cursor:pointer;width:22px;height:22px;border-radius:4px;display:flex;align-items:center;justify-content:center;color:var(--text-mut);transition:background var(--tr),color var(--tr)}
 .item-acts button:hover{background:var(--bg);color:var(--text)}
 .item-sub{display:flex;align-items:center;gap:6px;margin-top:2px;flex-wrap:wrap}
-.res-tag{font-size:8px;font-weight:600;padding:0 5px;border-radius:3px;line-height:1.6}
+.res-tag{font-size:8px;font-weight:600;padding:1px 6px;border-radius:3px;line-height:1.6}
 .res-tag.campeon{background:var(--green-bg);color:var(--green)}.res-tag.subcampeon{background:var(--blue-bg);color:var(--blue)}.res-tag.tercero{background:var(--bronze-bg);color:var(--bronze)}.res-tag.neutral{background:var(--bg);color:var(--text-sec)}.res-tag.ganado{background:var(--green-bg);color:var(--green)}.res-tag.empate{background:#fff8e6;color:#a07d1e}.res-tag.perdido{background:var(--red-lt);color:var(--red)}
-.obs-dot{width:14px;height:14px;border-radius:3px;background:#f0f1f4;cursor:pointer;position:relative;color:var(--text-mut);flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:8px}
+.obs-dot{width:16px;height:16px;border-radius:3px;background:#f0f1f4;cursor:pointer;position:relative;color:var(--text-mut);flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:8px}
 .obs-dot:hover{background:#e4e6eb}
-.obs-tt{display:none;position:absolute;bottom:calc(100% + 5px);right:-4px;background:var(--text);color:#fff;font-size:9px;padding:4px 8px;border-radius:var(--rs);max-width:200px;white-space:normal;z-index:50;box-shadow:var(--sh-lg);line-height:1.3;font-weight:400}
+.obs-tt{display:none;position:absolute;bottom:calc(100% + 5px);right:-4px;background:var(--text);color:#fff;font-size:10px;padding:5px 9px;border-radius:var(--rs);max-width:220px;white-space:normal;z-index:50;box-shadow:var(--sh-lg);line-height:1.3;font-weight:400}
 .obs-tt::after{content:'';position:absolute;top:100%;right:8px;border:4px solid transparent;border-top-color:var(--text)}
 .obs-dot:hover .obs-tt{display:block}
 
-.btn-add{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;font-size:9px;font-weight:600;background:var(--navy);color:#fff;border:none;border-radius:var(--rs);cursor:pointer;font-family:var(--font);transition:background var(--tr)}
-.btn-add:hover{background:var(--navy-lt)}
-.btn-add svg{width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2.2}
+.btn-add{display:inline-flex;align-items:center;gap:3px;padding:4px 10px;font-size:10px;font-weight:600;background:var(--rm-blue);color:#fff;border:none;border-radius:var(--rs);cursor:pointer;font-family:var(--font);transition:background var(--tr)}
+.btn-add:hover{background:var(--rm-blue-lt)}
+.btn-add svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.2}
 .cat-acts{display:flex;gap:3px;align-items:center}
 .cat-acts .btn-cfg{background:none;border:none;cursor:pointer;color:var(--text-mut);display:flex;align-items:center;padding:3px;border-radius:3px;transition:background var(--tr)}
 .cat-acts .btn-cfg:hover{background:var(--bg);color:var(--text)}
-.cat-acts .btn-cfg svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.8}
-
-.btn-new-cat{display:inline-flex;align-items:center;gap:4px;padding:5px 12px;font-size:10px;font-weight:600;background:var(--surface);color:var(--text-sec);border:1px dashed var(--border);border-radius:var(--r);cursor:pointer;font-family:var(--font);transition:all var(--tr)}
-.btn-new-cat:hover{border-color:var(--text-mut);color:var(--text)}
+.cat-acts .btn-cfg svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8}
+.btn-new-cat{display:inline-flex;align-items:center;gap:4px;padding:6px 14px;font-size:10px;font-weight:600;background:var(--surface);color:var(--text-sec);border:1px dashed var(--border);border-radius:var(--r);cursor:pointer;font-family:var(--font);transition:all var(--tr)}
+.btn-new-cat:hover{border-color:var(--rm-blue);color:var(--rm-blue)}
 
 .color-palette{display:flex;flex-wrap:wrap;gap:5px;margin-top:3px}
-.csw{width:26px;height:26px;border-radius:5px;cursor:pointer;border:2px solid transparent;transition:all .12s;display:flex;align-items:center;justify-content:center}
-.csw:hover{transform:scale(1.12)}.csw.sel{border-color:var(--text);box-shadow:0 0 0 2px #fff,0 0 0 4px var(--text)}
-.csw .ck{display:none;color:#fff;font-size:12px;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,.3)}.csw.sel .ck{display:block}
+.csw{width:28px;height:28px;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:all .12s;display:flex;align-items:center;justify-content:center}
+.csw:hover{transform:scale(1.1)}.csw.sel{border-color:var(--text);box-shadow:0 0 0 2px #fff,0 0 0 4px var(--text)}
+.csw .ck{display:none;color:#fff;font-size:13px;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,.3)}.csw.sel .ck{display:block}
+
+.loc-opts{display:flex;gap:12px;margin-top:3px}
+.loc-opt{display:flex;align-items:center;gap:4px;cursor:pointer;font-size:11px;color:var(--text-sec)}
+.loc-opt input{margin:0}
+.loc-opt span{font-size:14px}
 
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;justify-content:center;align-items:center;padding:16px}
 .modal-overlay.active{display:flex}
-.modal{background:var(--surface);border-radius:var(--rl);box-shadow:var(--sh-lg);width:100%;max-width:420px;max-height:90vh;overflow-y:auto}
-.mh{padding:12px 16px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between}
-.mh h3{font-size:12px;font-weight:600}
-.mx{background:none;border:none;cursor:pointer;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--text-mut);font-size:16px}
+.modal{background:var(--surface);border-radius:var(--rl);box-shadow:var(--sh-lg);width:100%;max-width:440px;max-height:90vh;overflow-y:auto}
+.mh{padding:14px 18px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between}
+.mh h3{font-size:13px;font-weight:600}
+.mx{background:none;border:none;cursor:pointer;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--text-mut);font-size:17px}
 .mx:hover{background:var(--bg)}
-.mb{padding:12px 16px}
-.mb label{display:block;font-size:9px;font-weight:600;color:var(--text-sec);margin-bottom:2px;margin-top:8px;text-transform:uppercase;letter-spacing:.3px}
+.mb{padding:14px 18px}
+.mb label{display:block;font-size:10px;font-weight:600;color:var(--text-sec);margin-bottom:2px;margin-top:10px;text-transform:uppercase;letter-spacing:.3px}
 .mb label:first-child{margin-top:0}
-.mb input,.mb select,.mb textarea{width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:var(--rs);font-size:10px;font-family:var(--font);color:var(--text);background:var(--surface)}
-.mb input:focus,.mb select:focus,.mb textarea:focus{outline:none;border-color:var(--navy)}
-.mb textarea{resize:vertical;min-height:40px}
-.mb .dr{display:flex;gap:5px;align-items:center}.mb .dr input{flex:1}.mb .dr span{font-size:9px;color:var(--text-mut)}
-.mf{padding:8px 16px;border-top:1px solid var(--border-light);display:flex;justify-content:flex-end;gap:5px}
-.btn-s{padding:4px 10px;font-size:9px;font-weight:600;background:var(--bg);color:var(--text-sec);border:1px solid var(--border);border-radius:var(--rs);cursor:pointer;font-family:var(--font)}
+.mb input,.mb select,.mb textarea{width:100%;padding:6px 9px;border:1px solid var(--border);border-radius:var(--rs);font-size:11px;font-family:var(--font);color:var(--text);background:var(--surface)}
+.mb input:focus,.mb select:focus,.mb textarea:focus{outline:none;border-color:var(--rm-blue)}
+.mb textarea{resize:vertical;min-height:44px}
+.mb .dr{display:flex;gap:6px;align-items:center}.mb .dr input{flex:1}.mb .dr span{font-size:10px;color:var(--text-mut)}
+.mf{padding:10px 18px;border-top:1px solid var(--border-light);display:flex;justify-content:flex-end;gap:6px}
+.btn-s{padding:5px 12px;font-size:10px;font-weight:600;background:var(--bg);color:var(--text-sec);border:1px solid var(--border);border-radius:var(--rs);cursor:pointer;font-family:var(--font)}
 .btn-s:hover{background:#e8eaee}
-.btn-p{padding:4px 10px;font-size:9px;font-weight:600;background:var(--navy);color:#fff;border:none;border-radius:var(--rs);cursor:pointer;font-family:var(--font)}
-.btn-p:hover{background:var(--navy-lt)}
-.btn-d{padding:4px 10px;font-size:9px;font-weight:600;background:var(--red-lt);color:var(--red);border:1px solid #f0c8c8;border-radius:var(--rs);cursor:pointer;font-family:var(--font);margin-right:auto}
+.btn-p{padding:5px 12px;font-size:10px;font-weight:600;background:var(--rm-blue);color:#fff;border:none;border-radius:var(--rs);cursor:pointer;font-family:var(--font)}
+.btn-p:hover{background:var(--rm-blue-lt)}
+.btn-d{padding:5px 12px;font-size:10px;font-weight:600;background:var(--red-lt);color:var(--red);border:1px solid #f0c8c8;border-radius:var(--rs);cursor:pointer;font-family:var(--font);margin-right:auto}
 .btn-d:hover{background:#f8d4d4}
-.empty-st{text-align:center;padding:12px 8px;color:var(--text-mut);font-size:10px}
+.empty-st{text-align:center;padding:14px 8px;color:var(--text-mut);font-size:10px}
 
 @media(max-width:1100px){.main{grid-template-columns:1fr}.cal-grid{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:640px){.header{padding:7px 10px;flex-wrap:wrap}.header h1{font-size:12px}.season-area{margin-left:0;width:100%;justify-content:flex-end}.team-bar{padding:5px 10px;top:auto;position:relative;gap:2px}.team-btn{padding:3px 7px;font-size:9px}.main{padding:8px 10px;gap:10px}.cal-grid{grid-template-columns:repeat(2,1fr);gap:4px}.item-acts{opacity:1}}
+@media(max-width:640px){.header{padding:10px 14px;flex-wrap:wrap}.header h1{font-size:14px}.season-area{margin-left:0;width:100%;justify-content:flex-end}.team-bar{padding:8px 14px;top:auto;position:relative;gap:4px}.team-btn{padding:5px 12px;font-size:11px}.main{padding:10px 12px;gap:12px}.cal-grid{grid-template-columns:repeat(2,1fr);gap:6px}.item-acts{opacity:1}}
 </style>
 </head>
 <body>
-
 <div class="header">
   <div class="header-logo">RM</div>
-  <h1>Planificación <span id="headerSeason">2026/2027</span></h1>
+  <h1>Planificación de Temporada <span id="headerSeason">2026/2027</span></h1>
   <div class="season-area">
     <label>Temporada</label>
     <select id="seasonSel" onchange="changeSeason()"></select>
@@ -134,97 +142,62 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
   </div>
 </div>
 <div class="team-bar" id="teamBar"></div>
-
 <div class="main">
   <div class="panel">
     <div class="panel-header" onclick="togglePanel('calBody')">
-      <div class="panel-title"><span class="chevron" id="chev_calBody">▼</span> Calendario <span style="font-size:10px;color:rgba(90,97,112,.7);font-weight:400;margin-left:3px" id="calTeamLabel"></span></div>
+      <div class="panel-title"><span class="chevron" id="chev_calBody">▼</span> Calendario de Temporada <span style="font-size:11px;color:var(--rm-blue);font-weight:500;margin-left:4px" id="calTeamLabel"></span></div>
     </div>
     <div class="panel-body" id="calBody"><div class="cal-grid" id="calGrid"></div></div>
   </div>
-  <div id="rightCol" style="display:flex;flex-direction:column;gap:12px"></div>
+  <div id="rightCol" class="right-col"></div>
 </div>
-
 <div class="modal-overlay" id="mo" onclick="if(event.target===this)closeModal()">
   <div class="modal"><div class="mh"><h3 id="mt"></h3><button class="mx" onclick="closeModal()">&times;</button></div><div class="mb" id="mbd"></div><div class="mf" id="mft"></div></div>
 </div>
-
 <script>
-const COLORS=[
-  {h:'#2563eb',n:'Azul'},{h:'#1e3a6e',n:'Azul Osc'},{h:'#0891b2',n:'Cian'},{h:'#0d9488',n:'Teal'},
-  {h:'#16a34a',n:'Verde'},{h:'#059669',n:'Esmeralda'},{h:'#65a30d',n:'Lima'},{h:'#ca8a04',n:'Amarillo'},
-  {h:'#d97706',n:'Ámbar'},{h:'#ea580c',n:'Naranja'},{h:'#dc2626',n:'Rojo'},{h:'#e11d48',n:'Rosa'},
-  {h:'#db2777',n:'Fucsia'},{h:'#9333ea',n:'Morado'},{h:'#7c3aed',n:'Violeta'},{h:'#4f46e5',n:'Índigo'},
-  {h:'#475569',n:'Gris'},{h:'#92400e',n:'Marrón'}
-];
+const COLORS=[{h:'#2563eb',n:'Azul'},{h:'#1a3c8e',n:'RM Azul'},{h:'#0891b2',n:'Cian'},{h:'#0d9488',n:'Teal'},{h:'#16a34a',n:'Verde'},{h:'#059669',n:'Esmeralda'},{h:'#65a30d',n:'Lima'},{h:'#ca8a04',n:'Amarillo'},{h:'#d97706',n:'Ámbar'},{h:'#ea580c',n:'Naranja'},{h:'#dc2626',n:'Rojo'},{h:'#e11d48',n:'Rosa'},{h:'#db2777',n:'Fucsia'},{h:'#9333ea',n:'Morado'},{h:'#7c3aed',n:'Violeta'},{h:'#4f46e5',n:'Índigo'},{h:'#475569',n:'Gris'},{h:'#92400e',n:'Marrón'}];
 function cpHTML(sel){return '<div class="color-palette">'+COLORS.map(c=>`<div class="csw ${c.h===sel?'sel':''}" style="background:${c.h}" onclick="pickC(this,'${c.h}')" title="${c.n}"><span class="ck">✓</span></div>`).join('')+'</div>';}
 function pickC(el,h){el.closest('.color-palette').querySelectorAll('.csw').forEach(s=>{s.classList.remove('sel');s.querySelector('.ck').style.display='none'});el.classList.add('sel');el.querySelector('.ck').style.display='block';document.getElementById('mColor').value=h;}
+const LOC_EMOJI={casa:'🏠',fuera:'✈️','':''};
 
-// ── SEASONS ──
-let seasons=['2026/2027'];
-let activeSeason='2026/2027';
-function renderSeasons(){
-  const sel=document.getElementById('seasonSel');
-  sel.innerHTML=seasons.map(s=>`<option value="${s}" ${s===activeSeason?'selected':''}>${s}</option>`).join('');
-  document.getElementById('headerSeason').textContent=activeSeason;
-}
+let seasons=['2026/2027'];let activeSeason='2026/2027';
+function renderSeasons(){const sel=document.getElementById('seasonSel');sel.innerHTML=seasons.map(s=>`<option value="${s}" ${s===activeSeason?'selected':''}>${s}</option>`).join('');document.getElementById('headerSeason').textContent=activeSeason;}
 function changeSeason(){activeSeason=document.getElementById('seasonSel').value;document.getElementById('headerSeason').textContent=activeSeason;renderAll();}
-function addSeason(){
-  const last=seasons[seasons.length-1];
-  const[a,b]=last.split('/').map(Number);
-  const ns=(b)+'/'+(b+1);
-  if(!seasons.includes(ns)){seasons.push(ns);activeSeason=ns;renderSeasons();renderAll();}
-}
+function addSeason(){const last=seasons[seasons.length-1];const[a,b]=last.split('/').map(Number);const ns=b+'/'+(b+1);if(!seasons.includes(ns)){seasons.push(ns);activeSeason=ns;renderSeasons();renderAll();}}
 
-const TEAMS=[
-  {key:'CAS',name:'Castilla'},{key:'RMC',name:'Real Madrid C'},
-  {key:'JA',name:'Juvenil A'},{key:'JB',name:'Juvenil B'},{key:'JC',name:'Juvenil C'},
-  {key:'CA',name:'Cadete A'},{key:'CB',name:'Cadete B'},
-  {key:'IA',name:'Infantil A'},{key:'IB',name:'Infantil B'},
-  {key:'AA',name:'Alevín A'},{key:'AB',name:'Alevín B'},
-  {key:'BA',name:'Benjamín A'},{key:'BB',name:'Benjamín B'},
-  {key:'PA',name:'Prebenjamín A'},{key:'PB',name:'Prebenjamín B'},
-  {key:'DB',name:'Debutante'},
-];
+const TEAMS=[{key:'CAS',name:'Castilla'},{key:'RMC',name:'Real Madrid C'},{key:'JA',name:'Juvenil A'},{key:'JB',name:'Juvenil B'},{key:'JC',name:'Juvenil C'},{key:'CA',name:'Cadete A'},{key:'CB',name:'Cadete B'},{key:'IA',name:'Infantil A'},{key:'IB',name:'Infantil B'},{key:'AA',name:'Alevín A'},{key:'AB',name:'Alevín B'},{key:'BA',name:'Benjamín A'},{key:'BB',name:'Benjamín B'},{key:'PA',name:'Prebenjamín A'},{key:'PB',name:'Prebenjamín B'},{key:'DB',name:'Debutante'}];
 let activeTeam='JA';
-
 let categories=[
   {id:'torneos',title:'Torneos',color:'#2563eb',shared:false,hasRange:true,hasResultSelect:true},
   {id:'amistosos',title:'Amistosos',color:'#d97706',shared:false,hasRange:false,hasResultSelect:false},
   {id:'primer',title:'1er Equipo',color:'#92400e',shared:true,hasRange:false,hasResultSelect:false},
 ];
-
 const allItems={};TEAMS.forEach(t=>{allItems[t.key]={};categories.filter(c=>!c.shared).forEach(c=>{allItems[t.key][c.id]=[];});});
 const sharedItems={};categories.filter(c=>c.shared).forEach(c=>{sharedItems[c.id]=[];});
-
-// Collapsed state
 const collapsed={};
 
-// Sample data
 allItems['JA']['torneos']=[
-  {id:1,nombre:'Torneo Internacional de Verano',fechaInicio:'2026-09-12',fechaFin:'2026-09-14',estado:'provisional',resultado:'',sede:'',obs:'Hablar con el organizador'},
-  {id:2,nombre:'Torneo Ciudad Deportiva',fechaInicio:'2027-01-03',fechaFin:'2027-01-05',estado:'definitivo',resultado:'Campeones',sede:'',obs:'Hotel ya confirmado'},
-  {id:3,nombre:'Copa Primavera',fechaInicio:'2027-03-20',fechaFin:'2027-03-22',estado:'definitivo',resultado:'Terceros',sede:'',obs:'Revisar horarios de llegada'},
+  {id:1,nombre:'Torneo Internacional de Verano',fechaInicio:'2026-09-12',fechaFin:'2026-09-14',estado:'provisional',resultado:'',sede:'',ubicacion:'fuera',obs:'Hablar con el organizador'},
+  {id:2,nombre:'Torneo Ciudad Deportiva',fechaInicio:'2027-01-03',fechaFin:'2027-01-05',estado:'definitivo',resultado:'Campeones',sede:'',ubicacion:'casa',obs:'Hotel ya confirmado'},
+  {id:3,nombre:'Copa Primavera',fechaInicio:'2027-03-20',fechaFin:'2027-03-22',estado:'definitivo',resultado:'Terceros',sede:'',ubicacion:'fuera',obs:'Revisar horarios de llegada'},
 ];
 allItems['JA']['amistosos']=[
-  {id:4,nombre:'Selección Sub-16',fechaInicio:'',fechaFin:'',estado:'provisional',resultado:'',obs:'Esperando confirmación de campo'},
-  {id:5,nombre:'Club Deportivo Norte',fechaInicio:'2027-02-18',fechaFin:'',estado:'definitivo',resultado:'Ganado 2-1',obs:''},
-  {id:6,nombre:'Academia Este',fechaInicio:'2027-04-10',fechaFin:'',estado:'provisional',resultado:'',obs:'Pendiente de cerrar hora'},
+  {id:4,nombre:'Selección Sub-16',fechaInicio:'',fechaFin:'',estado:'provisional',resultado:'',ubicacion:'',obs:'Esperando confirmación de campo'},
+  {id:5,nombre:'Club Deportivo Norte',fechaInicio:'2027-02-18',fechaFin:'',estado:'definitivo',resultado:'Ganado 2-1',ubicacion:'casa',obs:''},
+  {id:6,nombre:'Academia Este',fechaInicio:'2027-04-10',fechaFin:'',estado:'provisional',resultado:'',ubicacion:'fuera',obs:'Pendiente de cerrar hora'},
 ];
-allItems['CA']['torneos']=[{id:10,nombre:'Torneo Navideño',fechaInicio:'2026-12-27',fechaFin:'2026-12-29',estado:'definitivo',resultado:'Subcampeones',sede:'Valdebebas',obs:''}];
-allItems['CA']['amistosos']=[{id:11,nombre:'Atlético Sub-14',fechaInicio:'2026-11-05',fechaFin:'',estado:'definitivo',resultado:'Ganado 3-0',obs:''}];
+allItems['CA']['torneos']=[{id:10,nombre:'Torneo Navideño',fechaInicio:'2026-12-27',fechaFin:'2026-12-29',estado:'definitivo',resultado:'Subcampeones',sede:'Valdebebas',ubicacion:'fuera',obs:''}];
+allItems['CA']['amistosos']=[{id:11,nombre:'Atlético Sub-14',fechaInicio:'2026-11-05',fechaFin:'',estado:'definitivo',resultado:'Ganado 3-0',ubicacion:'casa',obs:''}];
 sharedItems['primer']=[
-  {id:900,nombre:'FC Barcelona',fechaInicio:'2026-10-26',fechaFin:'',estado:'definitivo',resultado:'',obs:'El Clásico — Liga'},
-  {id:901,nombre:'Manchester City',fechaInicio:'2027-02-12',fechaFin:'',estado:'provisional',resultado:'',obs:'Champions League'},
+  {id:900,nombre:'FC Barcelona',fechaInicio:'2026-10-26',fechaFin:'',estado:'definitivo',resultado:'',ubicacion:'fuera',obs:'El Clásico — Liga'},
+  {id:901,nombre:'Manchester City',fechaInicio:'2027-02-12',fechaFin:'',estado:'provisional',resultado:'',ubicacion:'casa',obs:'Champions League'},
 ];
 
 let nextId=2000;
 function getItems(cid){const c=categories.find(x=>x.id===cid);if(c.shared)return sharedItems[cid]||[];if(!allItems[activeTeam][cid])allItems[activeTeam][cid]=[];return allItems[activeTeam][cid];}
-
 const MESES=['julio','agosto','septiembre','octubre','noviembre','diciembre','enero','febrero','marzo','abril','mayo','junio'];
 const ML={julio:'Julio',agosto:'Agosto',septiembre:'Septiembre',octubre:'Octubre',noviembre:'Noviembre',diciembre:'Diciembre',enero:'Enero',febrero:'Febrero',marzo:'Marzo',abril:'Abril',mayo:'Mayo',junio:'Junio'};
 const DN=['L','M','X','J','V','S','D'];
-
 function dtD(iso){if(!iso)return 'Sin fecha';const[y,m,d]=iso.split('-');return`${+d}/${+m}/${y}`;}
 function dtR(a,b){if(!a)return 'Sin fecha';if(!b||b===a)return dtD(a);return dtD(a)+' — '+dtD(b);}
 function dtM(iso){if(!iso)return '';const m=+iso.split('-')[1];return['','enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][m];}
@@ -234,31 +207,12 @@ function getMY(m){const sy=getSY();return['julio','agosto','septiembre','octubre
 function gMI(m){return{enero:0,febrero:1,marzo:2,abril:3,mayo:4,junio:5,julio:6,agosto:7,septiembre:8,octubre:9,noviembre:10,diciembre:11}[m];}
 function gDIM(m){return new Date(getMY(m),gMI(m)+1,0).getDate();}
 function gFD(m){let d=new Date(getMY(m),gMI(m),1).getDay();return d===0?6:d-1;}
-function changeSeason2(){activeSeason=document.getElementById('seasonSel').value;document.getElementById('headerSeason').textContent=activeSeason;renderAll();}
 function contrast(h){const r=parseInt(h.substr(1,2),16),g=parseInt(h.substr(3,2),16),b=parseInt(h.substr(5,2),16);return(r*299+g*587+b*114)/1000>140?'#1a1d23':'#fff';}
-function darken(h,a){let r=parseInt(h.substr(1,2),16),g=parseInt(h.substr(3,2),16),b=parseInt(h.substr(5,2),16);return '#'+[r,g,b].map(x=>Math.max(0,Math.floor(x*(1-a))).toString(16).padStart(2,'0')).join('');}
-
 function renderTeamBar(){document.getElementById('teamBar').innerHTML=TEAMS.map(t=>`<button class="team-btn ${t.key===activeTeam?'active':''}" onclick="selectTeam('${t.key}')">${t.key}</button>`).join('');}
 function selectTeam(k){activeTeam=k;renderTeamBar();renderAll();}
+function togglePanel(id){const b=document.getElementById(id),c=document.getElementById('chev_'+id);if(!b||!c)return;collapsed[id]=!collapsed[id];if(collapsed[id]){b.classList.add('collapsed');c.classList.add('collapsed');}else{b.classList.remove('collapsed');c.classList.remove('collapsed');}}
 
-function togglePanel(id){
-  const body=document.getElementById(id);
-  const chev=document.getElementById('chev_'+id);
-  if(!body||!chev)return;
-  collapsed[id]=!collapsed[id];
-  if(collapsed[id]){body.classList.add('collapsed');chev.classList.add('collapsed');}
-  else{body.classList.remove('collapsed');chev.classList.remove('collapsed');}
-}
-
-function buildHL(){
-  const h={};MESES.forEach(m=>h[m]={});
-  categories.forEach(cat=>{
-    getItems(cat.id).forEach(it=>{
-      const mes=dtM(it.fechaInicio);if(!mes)return;
-      dtDays(it.fechaInicio,it.fechaFin||it.fechaInicio).forEach(d=>{h[mes][d]={color:cat.color,label:(cat.shared?cat.title+': ':'')+it.nombre};});
-    });
-  });return h;
-}
+function buildHL(){const h={};MESES.forEach(m=>h[m]={});categories.forEach(cat=>{getItems(cat.id).forEach(it=>{const mes=dtM(it.fechaInicio);if(!mes)return;dtDays(it.fechaInicio,it.fechaFin||it.fechaInicio).forEach(d=>{h[mes][d]={color:cat.color,label:(cat.shared?cat.title+': ':'')+it.nombre};});});});return h;}
 
 function renderCalendar(){
   const g=document.getElementById('calGrid');g.innerHTML='';const hl=buildHL();
@@ -267,15 +221,11 @@ function renderCalendar(){
     const yr=getMY(m),dc=gDIM(m),fd=gFD(m),h=hl[m];
     let ds='';
     for(let i=0;i<fd;i++)ds+='<span class="cal-d e"></span>';
-    for(let d=1;d<=dc;d++){
-      const dow=(fd+d-1)%7,we=dow>=5;
-      if(h[d]){const fg=contrast(h[d].color);ds+=`<span class="cal-d" style="background:${h[d].color};color:${fg};font-weight:700" title="${esc(h[d].label)}">${d}</span>`;}
-      else ds+=`<span class="cal-d${we?' w':''}">${d}</span>`;
-    }
+    for(let d=1;d<=dc;d++){const dow=(fd+d-1)%7,we=dow>=5;if(h[d]){const fg=contrast(h[d].color);ds+=`<span class="cal-d" style="background:${h[d].color};color:${fg};font-weight:700" title="${esc(h[d].label)}">${d}</span>`;}else ds+=`<span class="cal-d${we?' w':''}">${d}</span>`;}
     let ev='';
     categories.forEach(cat=>{getItems(cat.id).filter(it=>dtM(it.fechaInicio)===m).forEach(it=>{
-      const fg=contrast(cat.color);const rc=getRC(it.resultado);
-      ev+=`<div class="cal-ev" style="background:${cat.color};color:${fg};border-left-color:${darken(cat.color,.2)}" title="${esc(it.nombre)}">${rc==='campeon'?'🏆 ':''}${it.nombre}</div>`;
+      const loc=it.ubicacion?LOC_EMOJI[it.ubicacion]||'':'';const rc=getRC(it.resultado);
+      ev+=`<div class="cal-ev" title="${esc(it.nombre)}"><span class="cal-ev-dot" style="background:${cat.color}"></span>${loc?`<span class="cal-ev-loc">${loc}</span>`:''}${rc==='campeon'?'🏆 ':''}${esc(it.nombre)}</div>`;
     });});
     const div=document.createElement('div');div.className='cal-month';
     div.innerHTML=`<div class="cal-month-head"><span>${ML[m]}</span><span class="cy">${yr}</span></div><div class="cal-dh">${DN.map(n=>`<span>${n}</span>`).join('')}</div><div class="cal-ds">${ds}</div>${ev?`<div class="cal-evs">${ev}</div>`:''}`;
@@ -284,12 +234,12 @@ function renderCalendar(){
 }
 
 function getRC(r){if(!r)return '';const l=r.toLowerCase();if(l.includes('campeon')&&!l.includes('sub'))return 'campeon';if(l.includes('subcampeon'))return 'subcampeon';if(l.includes('tercer'))return 'tercero';if(l.startsWith('ganado')||l.startsWith('victoria'))return 'ganado';if(l.startsWith('empate'))return 'empate';if(l.startsWith('perdido')||l.startsWith('derrota'))return 'perdido';return 'neutral';}
-function getRL(r){const c=getRC(r);if(!r)return '';let ic=c==='campeon'?'🏆 ':'';return `<span class="res-tag ${c}">${ic}${esc(r)}</span>`;}
+function getRL(r){const c=getRC(r);if(!r)return '';return `<span class="res-tag ${c}">${c==='campeon'?'🏆 ':''}${esc(r)}</span>`;}
 
 const IC={
-  ed:'<svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
-  dl:'<svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:1.8"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>',
-  nt:'<svg viewBox="0 0 24 24" style="width:9px;height:9px;stroke:currentColor;fill:none;stroke-width:2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>',
+  ed:'<svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
+  dl:'<svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.8"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>',
+  nt:'<svg viewBox="0 0 24 24" style="width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>',
   cfg:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>',
 };
 
@@ -297,68 +247,43 @@ function renderRight(){
   const col=document.getElementById('rightCol');col.innerHTML='';
   const sorted=[...categories.filter(c=>!c.shared),...categories.filter(c=>c.shared)];
   sorted.forEach(cat=>{
-    const items=getItems(cat.id);
-    const bodyId='catBody_'+cat.id;
-    const isCol=collapsed[bodyId];
+    const items=getItems(cat.id),bodyId='catBody_'+cat.id,isCol=collapsed[bodyId];
     const p=document.createElement('div');p.className='panel cat-panel';
-    p.innerHTML=`
-      <div class="panel-header" onclick="togglePanel('${bodyId}')">
-        <div class="panel-title"><span class="chevron ${isCol?'collapsed':''}" id="chev_${bodyId}">▼</span><span class="panel-color-dot" style="background:${cat.color}"></span>${cat.title}${cat.shared?' <span class="shared-badge">TODOS</span>':''} <span style="font-size:9px;color:var(--text-mut);font-weight:400;margin-left:2px">(${items.length})</span></div>
-        <div class="cat-acts" onclick="event.stopPropagation()">
-          <button class="btn-cfg" onclick="openCatCfg('${cat.id}')" title="Configurar">${IC.cfg}</button>
-          <button class="btn-add" onclick="openModal('${cat.id}')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Añadir</button>
-        </div>
-      </div>
-      <div class="panel-body ${isCol?'collapsed':''}" id="${bodyId}"><div class="card-list" id="list_${cat.id}"></div></div>`;
-    col.appendChild(p);
-    renderItems(cat);
+    p.innerHTML=`<div class="panel-header" onclick="togglePanel('${bodyId}')"><div class="panel-title"><span class="chevron ${isCol?'collapsed':''}" id="chev_${bodyId}">▼</span><span class="panel-color-dot" style="background:${cat.color}"></span>${cat.title}${cat.shared?' <span class="shared-badge">TODOS</span>':''} <span style="font-size:9px;color:var(--text-mut);font-weight:400;margin-left:2px">(${items.length})</span></div><div class="cat-acts" onclick="event.stopPropagation()"><button class="btn-cfg" onclick="openCatCfg('${cat.id}')" title="Configurar">${IC.cfg}</button><button class="btn-add" onclick="openModal('${cat.id}')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Añadir</button></div></div><div class="panel-body ${isCol?'collapsed':''}" id="${bodyId}"><div class="card-list" id="list_${cat.id}"></div></div>`;
+    col.appendChild(p);renderItems(cat);
   });
   const ad=document.createElement('div');ad.style.padding='2px 0';
-  ad.innerHTML=`<button class="btn-new-cat" onclick="openNewCat()">+ Nueva categoría</button>`;
-  col.appendChild(ad);
+  ad.innerHTML=`<button class="btn-new-cat" onclick="openNewCat()">+ Nueva categoría</button>`;col.appendChild(ad);
 }
 
 function renderItems(cat){
-  const items=getItems(cat.id),l=document.getElementById('list_'+cat.id);
-  if(!l)return;
+  const items=getItems(cat.id),l=document.getElementById('list_'+cat.id);if(!l)return;
   if(!items.length){l.innerHTML='<div class="empty-st">Sin elementos.</div>';return;}
   l.innerHTML=items.map(it=>{
-    const rc=getRC(it.resultado);
-    const dt=cat.hasRange?dtR(it.fechaInicio,it.fechaFin):dtD(it.fechaInicio);
-    return`<div class="item-card ${rc?'res-'+rc:''}">
-      <div class="item-row">
-        <span class="st-badge ${it.estado}">${it.estado==='provisional'?'⏳':'✅'}</span>
-        <span class="item-nm">${esc(it.nombre)}</span>
-        <span class="item-dt">${dt}</span>
-        ${it.obs?`<span class="obs-dot">${IC.nt}<span class="obs-tt">${esc(it.obs)}</span></span>`:''}
-        <div class="item-acts"><button onclick="openModal('${cat.id}',${it.id})" title="Editar">${IC.ed}</button><button onclick="delItem('${cat.id}',${it.id})" title="Borrar">${IC.dl}</button></div>
-      </div>
-      ${it.resultado?`<div class="item-sub">${getRL(it.resultado)}</div>`:''}
-    </div>`;
+    const rc=getRC(it.resultado),dt=cat.hasRange?dtR(it.fechaInicio,it.fechaFin):dtD(it.fechaInicio);
+    const locE=it.ubicacion?LOC_EMOJI[it.ubicacion]||'':'';
+    return`<div class="item-card ${rc?'res-'+rc:''}"><div class="item-row"><span class="st-badge ${it.estado}">${it.estado==='provisional'?'⏳':'✅'}</span>${locE?`<span class="item-loc">${locE}</span>`:''}<span class="item-nm">${esc(it.nombre)}</span><span class="item-dt">${dt}</span>${it.obs?`<span class="obs-dot">${IC.nt}<span class="obs-tt">${esc(it.obs)}</span></span>`:''}<div class="item-acts"><button onclick="openModal('${cat.id}',${it.id})" title="Editar">${IC.ed}</button><button onclick="delItem('${cat.id}',${it.id})" title="Borrar">${IC.dl}</button></div></div>${it.resultado?`<div class="item-sub">${getRL(it.resultado)}</div>`:''}</div>`;
   }).join('');
 }
 
 function esc(s){if(!s)return '';const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
 
-// ── MODALS ──
 let eT=null,eI=null;
 function openModal(cid,id){
-  eT=cid;eI=id||null;
-  const cat=categories.find(c=>c.id===cid),items=getItems(cid),it=id?items.find(x=>x.id===id):null;
+  eT=cid;eI=id||null;const cat=categories.find(c=>c.id===cid),items=getItems(cid),it=id?items.find(x=>x.id===id):null;
   document.getElementById('mt').textContent=(it?'Editar':'Añadir')+' — '+cat.title;
   let dH=cat.hasRange?`<label>Fechas</label><div class="dr"><input id="mFI" type="date" value="${it?it.fechaInicio:''}"><span>a</span><input id="mFF" type="date" value="${it?it.fechaFin:''}"></div>`:`<label>Fecha</label><input id="mFI" type="date" value="${it?it.fechaInicio:''}">`;
   let rH=cat.hasResultSelect?`<label>Resultado</label><select id="mR"><option value="">Pendiente</option><option value="Campeones" ${it&&it.resultado==='Campeones'?'selected':''}>🏆 Campeones</option><option value="Subcampeones" ${it&&it.resultado==='Subcampeones'?'selected':''}>Subcampeones</option><option value="Terceros" ${it&&it.resultado==='Terceros'?'selected':''}>Terceros</option><option value="Semifinalistas" ${it&&it.resultado==='Semifinalistas'?'selected':''}>Semifinalistas</option><option value="Cuartos" ${it&&it.resultado==='Cuartos'?'selected':''}>Cuartos</option><option value="Fase de grupos" ${it&&it.resultado==='Fase de grupos'?'selected':''}>Fase de grupos</option></select>`:`<label>Resultado</label><input id="mR" value="${it?esc(it.resultado):''}" placeholder="Ej: Ganado 2-1">`;
-  document.getElementById('mbd').innerHTML=`<label>Nombre</label><input id="mN" value="${it?esc(it.nombre):''}" placeholder="Nombre o rival">${dH}<label>Sede</label><input id="mS" value="${it&&it.sede?esc(it.sede):''}" placeholder="Opcional"><label>Estado</label><select id="mE"><option value="provisional" ${!it||it.estado==='provisional'?'selected':''}>⏳ Provisional</option><option value="definitivo" ${it&&it.estado==='definitivo'?'selected':''}>✅ Definitivo</option></select>${rH}<label>Observaciones</label><textarea id="mO" placeholder="Notas...">${it?esc(it.obs):''}</textarea>`;
+  const curLoc=it?it.ubicacion||'':'';
+  document.getElementById('mbd').innerHTML=`<label>Nombre</label><input id="mN" value="${it?esc(it.nombre):''}" placeholder="Nombre o rival">${dH}<label>Ubicación</label><div class="loc-opts"><label class="loc-opt"><input type="radio" name="mLoc" value="" ${curLoc===''?'checked':''}> Sin definir</label><label class="loc-opt"><input type="radio" name="mLoc" value="casa" ${curLoc==='casa'?'checked':''}><span>🏠</span> Casa</label><label class="loc-opt"><input type="radio" name="mLoc" value="fuera" ${curLoc==='fuera'?'checked':''}><span>✈️</span> Fuera</label></div><label>Sede</label><input id="mS" value="${it&&it.sede?esc(it.sede):''}" placeholder="Opcional"><label>Estado</label><select id="mE"><option value="provisional" ${!it||it.estado==='provisional'?'selected':''}>⏳ Provisional</option><option value="definitivo" ${it&&it.estado==='definitivo'?'selected':''}>✅ Definitivo</option></select>${rH}<label>Observaciones</label><textarea id="mO" placeholder="Notas...">${it?esc(it.obs):''}</textarea>`;
   document.getElementById('mft').innerHTML=`${it?`<button class="btn-d" onclick="delItem('${cid}',${it.id});closeModal()">Borrar</button>`:''}<button class="btn-s" onclick="closeModal()">Cancelar</button><button class="btn-p" onclick="saveItem()">Guardar</button>`;
   document.getElementById('mo').classList.add('active');
 }
 function saveItem(){
   const cat=categories.find(c=>c.id===eT),fi=document.getElementById('mFI').value,ff=cat.hasRange&&document.getElementById('mFF')?document.getElementById('mFF').value:fi;
-  const rEl=document.getElementById('mR');
-  const d={nombre:document.getElementById('mN').value.trim()||'Sin nombre',fechaInicio:fi,fechaFin:ff||fi,sede:document.getElementById('mS').value.trim(),estado:document.getElementById('mE').value,resultado:rEl?(rEl.value.trim?rEl.value.trim():rEl.value):'',obs:document.getElementById('mO').value.trim()};
-  const items=getItems(eT);
-  if(eI){const it=items.find(x=>x.id===eI);if(it)Object.assign(it,d);}else{d.id=++nextId;items.push(d);}
-  closeModal();renderAll();
+  const rEl=document.getElementById('mR');const locEl=document.querySelector('input[name="mLoc"]:checked');
+  const d={nombre:document.getElementById('mN').value.trim()||'Sin nombre',fechaInicio:fi,fechaFin:ff||fi,sede:document.getElementById('mS').value.trim(),estado:document.getElementById('mE').value,resultado:rEl?(rEl.value.trim?rEl.value.trim():rEl.value):'',ubicacion:locEl?locEl.value:'',obs:document.getElementById('mO').value.trim()};
+  const items=getItems(eT);if(eI){const it=items.find(x=>x.id===eI);if(it)Object.assign(it,d);}else{d.id=++nextId;items.push(d);}closeModal();renderAll();
 }
 function delItem(cid,id){if(!confirm('¿Eliminar?'))return;const c=categories.find(x=>x.id===cid);if(c.shared)sharedItems[cid]=sharedItems[cid].filter(x=>x.id!==id);else allItems[activeTeam][cid]=(allItems[activeTeam][cid]||[]).filter(x=>x.id!==id);renderAll();}
 
@@ -369,29 +294,11 @@ function openCatCfg(cid){
   document.getElementById('mft').innerHTML=`<button class="btn-d" onclick="delCat('${cid}')">Eliminar</button><button class="btn-s" onclick="closeModal()">Cancelar</button><button class="btn-p" onclick="saveCatCfg()">Guardar</button>`;
   document.getElementById('mo').classList.add('active');
 }
-function saveCatCfg(){
-  const cat=categories.find(c=>c.id===eI),ws=cat.shared;
-  cat.title=document.getElementById('mCT').value.trim()||cat.title;cat.hasRange=document.getElementById('mCR').value==='1';cat.hasResultSelect=document.getElementById('mCRT').value==='1';cat.shared=document.getElementById('mCS').value==='1';cat.color=document.getElementById('mColor').value;
-  if(!ws&&cat.shared){sharedItems[cat.id]=allItems[activeTeam][cat.id]||[];TEAMS.forEach(t=>{delete allItems[t.key][cat.id];});}
-  if(ws&&!cat.shared){TEAMS.forEach(t=>{allItems[t.key][cat.id]=[];});allItems[activeTeam][cat.id]=sharedItems[cat.id]||[];delete sharedItems[cat.id];}
-  closeModal();renderAll();
-}
+function saveCatCfg(){const cat=categories.find(c=>c.id===eI),ws=cat.shared;cat.title=document.getElementById('mCT').value.trim()||cat.title;cat.hasRange=document.getElementById('mCR').value==='1';cat.hasResultSelect=document.getElementById('mCRT').value==='1';cat.shared=document.getElementById('mCS').value==='1';cat.color=document.getElementById('mColor').value;if(!ws&&cat.shared){sharedItems[cat.id]=allItems[activeTeam][cat.id]||[];TEAMS.forEach(t=>{delete allItems[t.key][cat.id];});}if(ws&&!cat.shared){TEAMS.forEach(t=>{allItems[t.key][cat.id]=[];});allItems[activeTeam][cat.id]=sharedItems[cat.id]||[];delete sharedItems[cat.id];}closeModal();renderAll();}
 function delCat(cid){if(!confirm('¿Eliminar categoría?'))return;categories=categories.filter(c=>c.id!==cid);TEAMS.forEach(t=>{delete allItems[t.key][cid];});delete sharedItems[cid];closeModal();renderAll();}
 
-function openNewCat(){
-  eT='__new';eI=null;const dc='#9333ea';
-  document.getElementById('mt').textContent='Nueva categoría';
-  document.getElementById('mbd').innerHTML=`<label>Título</label><input id="mCT" value="" placeholder="Ej: Selecciones, Copa..."><label>Fechas</label><select id="mCR"><option value="0">Fecha única</option><option value="1">Rango</option></select><label>Resultado</label><select id="mCRT"><option value="0">Texto libre</option><option value="1">Selector</option></select><label>Compartido</label><select id="mCS"><option value="0">Solo equipo</option><option value="1">Todos</option></select><label>Color</label><input type="hidden" id="mColor" value="${dc}">${cpHTML(dc)}`;
-  document.getElementById('mft').innerHTML=`<button class="btn-s" onclick="closeModal()">Cancelar</button><button class="btn-p" onclick="saveNewCat()">Crear</button>`;
-  document.getElementById('mo').classList.add('active');
-}
-function saveNewCat(){
-  const t=document.getElementById('mCT').value.trim();if(!t){alert('Escribe un título');return;}
-  const id='c_'+Date.now(),sh=document.getElementById('mCS').value==='1';
-  categories.push({id,title:t,color:document.getElementById('mColor').value,shared:sh,hasRange:document.getElementById('mCR').value==='1',hasResultSelect:document.getElementById('mCRT').value==='1'});
-  if(sh)sharedItems[id]=[];else TEAMS.forEach(t=>{allItems[t.key][id]=[];});
-  closeModal();renderAll();
-}
+function openNewCat(){eT='__new';eI=null;const dc='#9333ea';document.getElementById('mt').textContent='Nueva categoría';document.getElementById('mbd').innerHTML=`<label>Título</label><input id="mCT" value="" placeholder="Ej: Selecciones, Copa..."><label>Fechas</label><select id="mCR"><option value="0">Fecha única</option><option value="1">Rango</option></select><label>Resultado</label><select id="mCRT"><option value="0">Texto libre</option><option value="1">Selector</option></select><label>Compartido</label><select id="mCS"><option value="0">Solo equipo</option><option value="1">Todos</option></select><label>Color</label><input type="hidden" id="mColor" value="${dc}">${cpHTML(dc)}`;document.getElementById('mft').innerHTML=`<button class="btn-s" onclick="closeModal()">Cancelar</button><button class="btn-p" onclick="saveNewCat()">Crear</button>`;document.getElementById('mo').classList.add('active');}
+function saveNewCat(){const t=document.getElementById('mCT').value.trim();if(!t){alert('Escribe un título');return;}const id='c_'+Date.now(),sh=document.getElementById('mCS').value==='1';categories.push({id,title:t,color:document.getElementById('mColor').value,shared:sh,hasRange:document.getElementById('mCR').value==='1',hasResultSelect:document.getElementById('mCRT').value==='1'});if(sh)sharedItems[id]=[];else TEAMS.forEach(t=>{allItems[t.key][id]=[];});closeModal();renderAll();}
 
 function closeModal(){document.getElementById('mo').classList.remove('active');eT=null;eI=null;}
 function renderAll(){renderCalendar();renderRight();}
