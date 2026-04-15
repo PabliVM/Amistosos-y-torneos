@@ -1,676 +1,479 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>RM Fútbol Base — Torneos 25-26</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planificación de Temporada</title>
 <style>
-:root{
-  --blue:#00529F;
-  --blue-dark:#003F7A;
-  --blue-deep:#002D5C;
-  --blue-light:#E8F1FA;
-  --blue-mid:#4A90D9;
-  --gold:#F5C700;
-  --white:#fff;
-  --gray-50:#F5F6F8;
-  --gray-100:#EAECEF;
-  --gray-200:#D5D8DF;
-  --gray-400:#9499A6;
-  --gray-600:#555B6B;
-  --gray-900:#12151E;
-  --green:#27AE60;
-  --green-light:#E8F8EE;
-  --amber:#E67E22;
-  --amber-light:#FEF3E7;
-  --red:#E74C3C;
-  --red-light:#FDECEB;
-  --purple:#8E44AD;
-  --purple-light:#F3E8F9;
-  --teal:#16A085;
-  --teal-light:#E6F5F2;
-  --r:8px;
-  --r2:12px;
-  --r3:16px;
+:root {
+  --bg: #f5f6f8;
+  --surface: #ffffff;
+  --surface-alt: #fafbfc;
+  --border: #e2e5ea;
+  --border-light: #eef0f3;
+  --text: #1a1d23;
+  --text-secondary: #5a6170;
+  --text-muted: #8b919e;
+  --text-faint: #b4b9c4;
+  --accent: #1b4fd4;
+  --accent-light: #e8eefb;
+  --accent-hover: #153fb0;
+  --green: #0d8a50;
+  --green-bg: #e6f7ee;
+  --green-border: #b4e4cc;
+  --blue: #2563a8;
+  --blue-bg: #e8f0fa;
+  --bronze: #a06830;
+  --bronze-bg: #faf0e4;
+  --amber: #e5a833;
+  --amber-light: #fef3e2;
+  --red-light: #fce8e8;
+  --red: #c93b3b;
+  --gold: #8b6914;
+  --gold-bg: #fdf6e3;
+  --gold-border: #e8d48b;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.06);
+  --shadow-md: 0 2px 8px rgba(0,0,0,.08);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,.1);
+  --radius: 8px;
+  --radius-sm: 5px;
+  --radius-lg: 12px;
+  --font: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  --transition: .2s ease;
 }
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
-body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-serif;background:var(--gray-50);color:var(--gray-900);font-size:13px}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased;}
 
-/* ===== APP SHELL ===== */
-.app{display:flex;height:100vh;overflow:hidden}
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow-sm);}
+.header-logo{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px;flex-shrink:0;}
+.header h1{font-size:15px;font-weight:600;letter-spacing:-.2px;white-space:nowrap;}
+.header h1 span{color:var(--text-secondary);font-weight:400;margin-left:5px;}
+.season-selector{margin-left:auto;display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.season-selector label{font-size:11px;color:var(--text-muted);font-weight:500;}
+.season-selector select{padding:4px 24px 4px 8px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:11px;font-family:var(--font);color:var(--text);background:var(--surface);cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235a6170'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center;}
 
-/* ===== SIDEBAR ===== */
-.sidebar{width:220px;flex-shrink:0;background:var(--blue-deep);display:flex;flex-direction:column;overflow-y:auto;scrollbar-width:none}
-.sidebar::-webkit-scrollbar{display:none}
-.sidebar-header{padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,0.08)}
-.sidebar-logo{display:flex;align-items:center;gap:10px;margin-bottom:4px}
-.sidebar-shield{width:32px;height:32px;background:var(--gold);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:var(--blue-deep);flex-shrink:0}
-.sidebar-name{font-size:14px;font-weight:700;color:var(--white);line-height:1.2}
-.sidebar-season{font-size:11px;color:rgba(255,255,255,0.45);margin-top:8px;font-weight:500;text-transform:uppercase;letter-spacing:0.06em}
-.sidebar-section{padding:12px 16px 4px;font-size:10px;font-weight:700;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.08em}
-.team-btn{display:flex;align-items:center;gap:10px;padding:8px 16px;cursor:pointer;border:none;background:none;width:100%;text-align:left;transition:background 0.12s;border-radius:0}
-.team-btn:hover{background:rgba(255,255,255,0.07)}
-.team-btn.active{background:rgba(255,255,255,0.13)}
-.team-btn-code{font-size:13px;font-weight:700;color:var(--white);width:52px;flex-shrink:0}
-.team-btn-name{font-size:12px;color:rgba(255,255,255,0.6);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.team-btn.active .team-btn-name{color:rgba(255,255,255,0.85)}
-.sidebar-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);margin-left:auto;flex-shrink:0;opacity:0}
-.team-btn.has-events .sidebar-dot{opacity:1}
+.team-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:8px 24px;display:flex;align-items:center;gap:4px;overflow-x:auto;position:sticky;top:56px;z-index:99;box-shadow:0 1px 2px rgba(0,0,0,.04);}
+.team-bar::-webkit-scrollbar{height:0;}
+.team-btn{padding:5px 12px;font-size:11px;font-weight:600;font-family:var(--font);border:1px solid var(--border);border-radius:20px;background:var(--surface);color:var(--text-secondary);cursor:pointer;white-space:nowrap;transition:all var(--transition);letter-spacing:.3px;}
+.team-btn:hover{background:var(--bg);border-color:#ccc;color:var(--text);}
+.team-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
 
-/* ===== MAIN ===== */
-.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
-.topbar{background:var(--white);border-bottom:1px solid var(--gray-100);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.topbar-left{display:flex;align-items:center;gap:12px}
-.topbar-team{font-size:17px;font-weight:700;color:var(--gray-900)}
-.topbar-fullname{font-size:13px;color:var(--gray-400)}
-.topbar-right{display:flex;align-items:center;gap:8px}
-.topbar-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px}
-.tb-preseason{background:var(--amber-light);color:var(--amber)}
-.tb-competition{background:var(--green-light);color:var(--green)}
-.status-pill{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--gray-400);padding:4px 10px;border:1px solid var(--gray-200);border-radius:20px}
-.status-dot{width:6px;height:6px;border-radius:50%;background:#34C759}
-.status-dot.off{background:#FF3B30}
+.main{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:20px 24px;max-width:1600px;margin:0 auto;align-items:start;}
 
-.page{flex:1;overflow-y:auto;padding:20px 24px;display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);overflow:hidden;}
+.panel-header{padding:12px 16px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;}
+.panel-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-secondary);}
+.panel-body{padding:12px 14px;}
 
-/* ===== CALENDAR PANEL ===== */
-.cal-panel{background:var(--white);border-radius:var(--r3);border:1px solid var(--gray-100);overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
-.cal-panel-header{background:var(--blue);padding:10px 14px;display:flex;align-items:center;justify-content:space-between}
-.cal-panel-title{font-size:12px;font-weight:700;color:var(--white);text-transform:uppercase;letter-spacing:0.06em}
-.cal-meta{display:flex;gap:12px}
-.cal-meta-item{text-align:center}
-.cal-meta-label{font-size:9px;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.05em}
-.cal-meta-val{font-size:11px;font-weight:700;color:var(--white)}
-.cal-year-label{font-size:10px;font-weight:700;color:var(--gray-400);padding:6px 14px 2px;background:var(--gray-50);border-bottom:1px solid var(--gray-100)}
-.cal-months-grid{display:grid;grid-template-columns:1fr 1fr 1fr}
-.cal-month{padding:8px 6px 6px;border-right:1px solid var(--gray-100);border-bottom:1px solid var(--gray-100)}
-.cal-month:nth-child(3n){border-right:none}
-.cal-month-name{font-size:9px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;padding:0 2px}
-.cal-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:0}
-.cal-dow-h{font-size:8px;font-weight:600;color:var(--gray-400);text-align:center;padding:1px 0;text-transform:uppercase}
-.cal-day{font-size:9px;text-align:center;padding:2px 1px;border-radius:4px;cursor:default;position:relative;line-height:1.4;color:var(--gray-600)}
-.cal-day.empty{color:transparent}
-.cal-day.today{background:var(--blue);color:var(--white);font-weight:700;border-radius:50%}
-.cal-day.ev-torneo{background:#FEF3B0;color:#7A5F00;font-weight:700;border-radius:4px}
-.cal-day.ev-amistoso{background:#DAEEFF;color:#00529F;font-weight:700;border-radius:4px}
-.cal-day.ev-champions{background:#EFE0FA;color:#6B21A8;font-weight:700;border-radius:4px}
-.cal-day.ev-seleccion_esp{background:#FFE0E0;color:#B91C1C;font-weight:700;border-radius:4px}
-.cal-day.ev-seleccion_ext{background:#D1FAF0;color:#0F7560;font-weight:700;border-radius:4px}
-.cal-day.ev-multi{background:linear-gradient(135deg,#FEF3B0 50%,#DAEEFF 50%);color:#1A1A22;font-weight:700;border-radius:4px}
-.cal-day.weekend{color:var(--gray-400)}
-.cal-day.ev-torneo.weekend,.cal-day.ev-amistoso.weekend,.cal-day.ev-champions.weekend,.cal-day.ev-seleccion_esp.weekend,.cal-day.ev-seleccion_ext.weekend{color:inherit}
-.cal-legend{display:flex;flex-wrap:wrap;gap:8px;padding:8px 14px;border-top:1px solid var(--gray-100);background:var(--gray-50)}
-.legend-item{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--gray-600)}
-.legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+/* 1er Equipo panel special styling */
+.panel.primer-equipo{border-color:var(--gold-border);background:linear-gradient(180deg,var(--gold-bg) 0%,var(--surface) 40px);}
+.panel.primer-equipo .panel-header{border-bottom-color:var(--gold-border);}
+.panel.primer-equipo .panel-title{color:var(--gold);}
+.primer-equipo-badge{display:inline-flex;align-items:center;gap:4px;font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;background:var(--gold-bg);color:var(--gold);border:1px solid var(--gold-border);text-transform:uppercase;letter-spacing:.4px;flex-shrink:0;margin-left:4px;}
 
-/* ===== RIGHT PANELS ===== */
-.right-panels{display:flex;flex-direction:column;gap:14px}
-.panel{background:var(--white);border-radius:var(--r2);border:1px solid var(--gray-100);overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
-.panel-header{padding:8px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
-.panel-header-left{display:flex;align-items:center;gap:8px}
-.panel-color-bar{width:4px;height:16px;border-radius:2px;flex-shrink:0}
-.panel-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em}
-.panel-count{font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px}
-.panel-chevron{font-size:11px;color:var(--gray-400);transition:transform 0.2s}
-.panel-chevron.open{transform:rotate(180deg)}
-.panel-body{border-top:1px solid var(--gray-100)}
-.panel-table{width:100%;border-collapse:collapse}
-.panel-table th{font-size:9px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.06em;padding:6px 10px;background:var(--gray-50);border-bottom:1px solid var(--gray-100);white-space:nowrap}
-.panel-table td{padding:6px 10px;border-bottom:1px solid var(--gray-100);font-size:12px;color:var(--gray-900);vertical-align:middle}
-.panel-table tr:last-child td{border-bottom:none}
-.panel-table tr:hover td{background:var(--gray-50)}
-.panel-table tr.empty-row td{color:var(--gray-400);font-style:italic;font-size:11px}
-.td-date{font-size:11px;color:var(--gray-600);white-space:nowrap;min-width:64px}
-.td-rival{font-weight:500}
-.td-status{white-space:nowrap}
-.td-actions{white-space:nowrap}
-.status-badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;white-space:nowrap}
-.s-pendiente{background:var(--amber-light);color:var(--amber)}
-.s-por-confirmar{background:#EEF2FF;color:#4338CA}
-.s-confirmado{background:var(--green-light);color:var(--green)}
-.s-cerrado{background:var(--gray-100);color:var(--gray-600)}
-.s-cancelado{background:var(--red-light);color:var(--red)}
-.btn-icon{background:none;border:none;cursor:pointer;padding:3px 5px;border-radius:4px;color:var(--gray-400);font-size:12px;transition:all 0.12s}
-.btn-icon:hover{background:var(--blue-light);color:var(--blue)}
-.btn-add-row{display:flex;align-items:center;gap:6px;padding:7px 14px;font-size:11px;color:var(--blue);font-weight:600;cursor:pointer;background:none;border:none;border-top:1px solid var(--gray-100);width:100%;font-family:inherit;transition:background 0.12s}
-.btn-add-row:hover{background:var(--blue-light)}
+/* Calendar */
+.cal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;}
+.cal-month{border:1px solid var(--border-light);border-radius:var(--radius);background:var(--surface-alt);transition:box-shadow var(--transition);overflow:hidden;}
+.cal-month:hover{box-shadow:var(--shadow-md);}
+.cal-month-head{padding:4px 8px;background:var(--accent);color:#fff;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:center;}
+.cal-month-head .cal-year{font-weight:400;opacity:.7;font-size:9px;}
+.cal-days-header{display:grid;grid-template-columns:repeat(7,1fr);padding:2px 4px 0;}
+.cal-days-header span{text-align:center;font-size:7px;font-weight:700;color:var(--text-muted);text-transform:uppercase;padding:1px 0;}
+.cal-days{display:grid;grid-template-columns:repeat(7,1fr);padding:1px 4px 3px;gap:1px;}
+.cal-day{text-align:center;font-size:8px;color:var(--text-secondary);padding:1.5px 0;border-radius:2px;line-height:1.7;cursor:default;}
+.cal-day.empty{visibility:hidden;}
+.cal-day.weekend{color:var(--text-faint);}
+.cal-day.has-torneo{background:var(--accent-light);color:var(--accent);font-weight:700;}
+.cal-day.has-amistoso{background:var(--amber-light);color:#9a6c1e;font-weight:700;}
+.cal-day.has-campeon{background:var(--green-bg);color:var(--green);font-weight:700;}
+.cal-day.has-primer{background:var(--gold-bg);color:var(--gold);font-weight:700;box-shadow:inset 0 0 0 1px var(--gold-border);}
+.cal-events{padding:2px 5px 4px;display:flex;flex-direction:column;gap:1px;}
+.cal-event{font-size:8px;padding:1px 4px;border-radius:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:default;line-height:1.4;}
+.cal-event.torneo{background:var(--accent-light);color:var(--accent);border-left:2px solid var(--accent);}
+.cal-event.amistoso{background:var(--amber-light);color:#9a6c1e;border-left:2px solid var(--amber);}
+.cal-event.campeon{background:var(--green-bg);color:var(--green);border-left:2px solid var(--green);}
+.cal-event.primer{background:var(--gold-bg);color:var(--gold);border-left:2px solid var(--gold-border);}
 
-/* ===== TORNEOS color bars ===== */
-.ph-torneos .panel-color-bar{background:#F5C700}
-.ph-torneos .panel-title{color:#8B6F00}
-.ph-torneos .panel-count{background:#FEF9E0;color:#8B6F00}
-.ph-amistosos .panel-color-bar{background:var(--blue)}
-.ph-amistosos .panel-title{color:var(--blue-dark)}
-.ph-amistosos .panel-count{background:var(--blue-light);color:var(--blue)}
-.ph-champions .panel-color-bar{background:var(--purple)}
-.ph-champions .panel-title{color:var(--purple)}
-.ph-champions .panel-count{background:var(--purple-light);color:var(--purple)}
-.ph-seleccion .panel-color-bar{background:var(--red)}
-.ph-seleccion .panel-title{color:var(--red)}
-.ph-seleccion .panel-count{background:var(--red-light);color:var(--red)}
-.ph-seleccion2 .panel-color-bar{background:var(--teal)}
-.ph-seleccion2 .panel-title{color:var(--teal)}
-.ph-seleccion2 .panel-count{background:var(--teal-light);color:var(--teal)}
+.right-col{display:flex;flex-direction:column;gap:20px;}
+.card-list{display:flex;flex-direction:column;gap:8px;}
 
-/* ===== MODAL ===== */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:500;align-items:center;justify-content:center}
-.modal-overlay.open{display:flex}
-.modal{background:var(--white);border-radius:var(--r3);width:100%;max-width:440px;overflow:hidden;box-shadow:var(--shadow-lg)}
-.modal-header{padding:16px 20px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between}
-.modal-title{font-size:15px;font-weight:700}
-.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--gray-400);line-height:1;padding:0 4px}
-.modal-body{padding:20px}
-.form-row{margin-bottom:14px}
-.form-label{display:block;font-size:11px;font-weight:600;color:var(--gray-600);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.04em}
-.form-input,.form-select{width:100%;padding:9px 12px;border:1px solid var(--gray-200);border-radius:var(--r);font-size:13px;font-family:inherit;background:var(--white);color:var(--gray-900);transition:border-color 0.15s}
-.form-input:focus,.form-select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,82,159,0.1)}
-.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
-.modal-footer{padding:14px 20px;border-top:1px solid var(--gray-100);display:flex;gap:8px;justify-content:flex-end}
-.btn{padding:9px 18px;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:all 0.15s}
-.btn-primary{background:var(--blue);color:var(--white)}
-.btn-primary:hover{background:var(--blue-dark)}
-.btn-primary:disabled{opacity:0.5;cursor:default}
-.btn-secondary{background:var(--gray-100);color:var(--gray-700)}
-.btn-secondary:hover{background:var(--gray-200)}
-.btn-danger{background:var(--red-light);color:var(--red);margin-right:auto}
-.btn-danger:hover{background:#FDDCDA}
+.item-card{border:1px solid var(--border-light);border-radius:var(--radius);padding:10px 12px;background:var(--surface);transition:box-shadow var(--transition),border-color var(--transition);position:relative;}
+.item-card:hover{box-shadow:var(--shadow-md);border-color:var(--border);}
+.item-card.campeon{border-left:3px solid var(--green);background:linear-gradient(135deg,var(--green-bg) 0%,var(--surface) 60%);}
+.item-card.subcampeon{border-left:3px solid var(--blue);}
+.item-card.tercero{border-left:3px solid var(--bronze);}
 
-/* ===== MOBILE ===== */
-.mobile-nav{display:none;background:var(--blue-deep);padding:10px 16px;align-items:center;gap:10px;flex-shrink:0}
-.mobile-team-select{flex:1;padding:8px 12px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:var(--r);color:var(--white);font-size:13px;font-weight:600;font-family:inherit;appearance:none;-webkit-appearance:none}
-.mobile-menu-btn{background:none;border:none;color:var(--white);font-size:20px;cursor:pointer;padding:6px}
-@media(max-width:900px){
-  .sidebar{display:none}
-  .mobile-nav{display:flex}
-  .page{grid-template-columns:1fr;gap:16px;padding:16px}
-  .topbar{padding:0 16px}
-  .app{flex-direction:column}
-  .main{height:calc(100vh - 52px - 44px)}
-}
-@media(max-width:600px){
-  .topbar-fullname{display:none}
-  .topbar-badge{display:none}
-  .panel-table th:nth-child(3),.panel-table td:nth-child(3){display:none}
+.item-top{display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap;}
+.status-badge{font-size:9px;padding:1px 6px;border-radius:20px;font-weight:600;flex-shrink:0;display:inline-flex;align-items:center;gap:2px;}
+.status-badge.provisional{background:#fff8e6;color:#a07d1e;border:1px solid #f0d96b;}
+.status-badge.definitivo{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);}
+.item-name{font-size:12px;font-weight:600;color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.item-actions{display:flex;gap:2px;flex-shrink:0;opacity:0;transition:opacity var(--transition);}
+.item-card:hover .item-actions{opacity:1;}
+.item-actions button{background:none;border:none;cursor:pointer;width:22px;height:22px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;color:var(--text-muted);transition:background var(--transition),color var(--transition);}
+.item-actions button:hover{background:var(--bg);color:var(--text);}
+
+.item-meta{display:flex;align-items:center;gap:10px;font-size:10px;color:var(--text-muted);margin-bottom:3px;flex-wrap:wrap;}
+.item-meta svg{width:11px;height:11px;vertical-align:-2px;margin-right:2px;stroke:currentColor;fill:none;stroke-width:1.8;}
+
+.result-tag{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:600;padding:1px 6px;border-radius:3px;margin-top:2px;}
+.result-tag.campeon{background:var(--green-bg);color:var(--green);}
+.result-tag.subcampeon{background:var(--blue-bg);color:var(--blue);}
+.result-tag.tercero{background:var(--bronze-bg);color:var(--bronze);}
+.result-tag.neutral{background:var(--bg);color:var(--text-secondary);}
+.result-tag.ganado{background:var(--green-bg);color:var(--green);}
+.result-tag.empate{background:#fff8e6;color:#a07d1e;}
+.result-tag.perdido{background:var(--red-light);color:var(--red);}
+
+.obs-icon{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:3px;background:#f0f1f4;cursor:pointer;position:relative;color:var(--text-muted);flex-shrink:0;transition:background var(--transition);}
+.obs-icon:hover{background:#e4e6eb;}
+.obs-tooltip{display:none;position:absolute;bottom:calc(100% + 6px);right:-4px;background:var(--text);color:#fff;font-size:10px;padding:5px 9px;border-radius:var(--radius-sm);max-width:220px;white-space:normal;z-index:50;box-shadow:var(--shadow-lg);line-height:1.4;font-weight:400;}
+.obs-tooltip::after{content:'';position:absolute;top:100%;right:10px;border:5px solid transparent;border-top-color:var(--text);}
+.obs-icon:hover .obs-tooltip{display:block;}
+
+.trophy-icon{font-size:12px;margin-right:1px;}
+
+.btn-add{display:inline-flex;align-items:center;gap:3px;padding:5px 10px;font-size:10px;font-weight:600;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--font);transition:background var(--transition);}
+.btn-add:hover{background:var(--accent-hover);}
+.btn-add svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.2;}
+.btn-add.gold{background:var(--gold);}
+.btn-add.gold:hover{background:#7a5c10;}
+
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;justify-content:center;align-items:center;padding:20px;}
+.modal-overlay.active{display:flex;}
+.modal{background:var(--surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);width:100%;max-width:440px;max-height:90vh;overflow-y:auto;}
+.modal-head{padding:14px 18px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;}
+.modal-head h3{font-size:13px;font-weight:600;}
+.modal-close{background:none;border:none;cursor:pointer;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:17px;transition:background var(--transition);}
+.modal-close:hover{background:var(--bg);}
+.modal-body{padding:16px 18px;}
+.modal-body label{display:block;font-size:10px;font-weight:600;color:var(--text-secondary);margin-bottom:2px;margin-top:10px;text-transform:uppercase;letter-spacing:.3px;}
+.modal-body label:first-child{margin-top:0;}
+.modal-body input,.modal-body select,.modal-body textarea{width:100%;padding:6px 9px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:11px;font-family:var(--font);color:var(--text);background:var(--surface);transition:border-color var(--transition);}
+.modal-body input:focus,.modal-body select:focus,.modal-body textarea:focus{outline:none;border-color:var(--accent);}
+.modal-body textarea{resize:vertical;min-height:50px;}
+.modal-foot{padding:10px 18px;border-top:1px solid var(--border-light);display:flex;justify-content:flex-end;gap:6px;}
+.btn-secondary{padding:5px 12px;font-size:10px;font-weight:600;background:var(--bg);color:var(--text-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-family:var(--font);}
+.btn-secondary:hover{background:#e8eaee;}
+.btn-primary{padding:5px 12px;font-size:10px;font-weight:600;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--font);}
+.btn-primary:hover{background:var(--accent-hover);}
+.btn-danger{padding:5px 12px;font-size:10px;font-weight:600;background:var(--red-light);color:var(--red);border:1px solid #f0c8c8;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--font);margin-right:auto;}
+.btn-danger:hover{background:#f8d4d4;}
+.empty-state{text-align:center;padding:18px 12px;color:var(--text-muted);font-size:11px;}
+.active-team-label{font-size:11px;color:var(--accent);font-weight:600;margin-left:4px;}
+
+@media(max-width:1100px){.main{grid-template-columns:1fr;}.cal-grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:640px){
+  .header{padding:8px 12px;flex-wrap:wrap;}
+  .header h1{font-size:13px;}
+  .season-selector{margin-left:0;width:100%;justify-content:flex-end;}
+  .team-bar{padding:6px 12px;top:auto;position:relative;gap:3px;}
+  .team-btn{padding:4px 8px;font-size:10px;}
+  .main{padding:10px 12px;gap:12px;}
+  .cal-grid{grid-template-columns:repeat(2,1fr);gap:5px;}
+  .panel-body{padding:8px 10px;}
+  .item-actions{opacity:1;}
 }
 </style>
 </head>
 <body>
-<div class="app">
 
-  <!-- SIDEBAR desktop -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-logo">
-        <div class="sidebar-shield">RM</div>
-        <div class="sidebar-name">Fútbol Base</div>
-      </div>
-      <div class="sidebar-season">Temporada 25 · 26</div>
+<div class="header">
+  <div class="header-logo">RM</div>
+  <h1>Planificación de Temporada <span id="headerSeason">2026/2027</span></h1>
+  <div class="season-selector">
+    <label for="seasonSelect">Temporada</label>
+    <select id="seasonSelect" onchange="changeSeason()">
+      <option value="2025/2026">2025/2026</option>
+      <option value="2026/2027" selected>2026/2027</option>
+      <option value="2027/2028">2027/2028</option>
+    </select>
+  </div>
+</div>
+
+<div class="team-bar" id="teamBar"></div>
+
+<div class="main">
+  <!-- LEFT: CALENDAR -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">Calendario de Temporada <span class="active-team-label" id="calTeamLabel"></span></div>
     </div>
-    <div class="sidebar-section">Equipos</div>
-    <div id="sidebar-teams"></div>
-  </aside>
+    <div class="panel-body"><div class="cal-grid" id="calGrid"></div></div>
+  </div>
 
-  <!-- MAIN -->
-  <div class="main">
-
-    <!-- Mobile top nav -->
-    <div class="mobile-nav">
-      <select class="mobile-team-select" id="mobile-team-select"></select>
+  <!-- RIGHT -->
+  <div class="right-col">
+    <!-- 1er EQUIPO (shared) -->
+    <div class="panel primer-equipo">
+      <div class="panel-header">
+        <div class="panel-title">⚽ 1er Equipo</div>
+        <button class="btn-add gold" onclick="openModal('primer')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Añadir</button>
+      </div>
+      <div class="panel-body"><div class="card-list" id="primerList"></div></div>
     </div>
 
-    <!-- Topbar -->
-    <div class="topbar">
-      <div class="topbar-left">
-        <div class="topbar-team" id="tb-team">—</div>
-        <div class="topbar-fullname" id="tb-fullname"></div>
+    <!-- TORNEOS -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Torneos</div>
+        <button class="btn-add" onclick="openModal('torneo')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Añadir</button>
       </div>
-      <div class="topbar-right">
-        <div class="topbar-badge tb-preseason" id="tb-preseason" style="display:none"></div>
-        <div class="topbar-badge tb-competition" id="tb-competition" style="display:none"></div>
-        <div class="status-pill"><div class="status-dot" id="status-dot"></div><span id="status-text">Conectando…</span></div>
-      </div>
+      <div class="panel-body"><div class="card-list" id="torneoList"></div></div>
     </div>
 
-    <!-- Page content -->
-    <div class="page" id="page">
-      <div class="cal-panel" id="cal-panel">
-        <div class="cal-panel-header">
-          <span class="cal-panel-title">Calendario Temporada</span>
-          <div class="cal-meta">
-            <div class="cal-meta-item"><div class="cal-meta-label">Eventos</div><div class="cal-meta-val" id="cal-total">0</div></div>
-            <div class="cal-meta-item"><div class="cal-meta-label">Torneos</div><div class="cal-meta-val" id="cal-torneos">0</div></div>
-            <div class="cal-meta-item"><div class="cal-meta-label">Amistosos</div><div class="cal-meta-val" id="cal-amistosos">0</div></div>
-          </div>
-        </div>
-        <div id="cal-body"></div>
-        <div class="cal-legend">
-          <div class="legend-item"><div class="legend-dot" style="background:#FEF3B0;border:1px solid #D4AA00"></div>Torneo</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#DAEEFF;border:1px solid #00529F"></div>Amistoso</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#EFE0FA;border:1px solid #8E44AD"></div>Champions</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#FFE0E0;border:1px solid #E74C3C"></div>Sel. Española</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#D1FAF0;border:1px solid #16A085"></div>Sel. Extranjera</div>
-          <div class="legend-item"><div class="legend-dot" style="background:var(--blue);border-radius:50%"></div>Hoy</div>
-        </div>
+    <!-- AMISTOSOS -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Amistosos</div>
+        <button class="btn-add" onclick="openModal('amistoso')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Añadir</button>
       </div>
-
-      <div class="right-panels" id="right-panels">
-        <!-- Injected by JS -->
-      </div>
+      <div class="panel-body"><div class="card-list" id="amistosoList"></div></div>
     </div>
   </div>
 </div>
 
-<!-- Modal evento -->
-<div class="modal-overlay" id="modal">
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="modal-title">Nuevo evento</div>
-      <button class="modal-close" id="modal-close">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-row">
-        <label class="form-label">Tipo de panel</label>
-        <select class="form-select" id="f-panel">
-          <option value="torneo">Torneo</option>
-          <option value="amistoso">Amistoso</option>
-          <option value="champions">Partido Champions 1er Equipo</option>
-          <option value="seleccion_esp">Convocatoria Selección Española</option>
-          <option value="seleccion_ext">Convocatoria Selección Extranjera</option>
-        </select>
-      </div>
-      <div class="form-row-2">
-        <div>
-          <label class="form-label">Fecha inicio</label>
-          <input class="form-input" type="date" id="f-date"/>
-        </div>
-        <div>
-          <label class="form-label">Fecha fin</label>
-          <input class="form-input" type="date" id="f-date-end"/>
-        </div>
-      </div>
-      <div class="form-row">
-        <label class="form-label">Rival / Nombre evento</label>
-        <input class="form-input" id="f-rival" placeholder="Nombre del rival o torneo…"/>
-      </div>
-      <div class="form-row-2">
-        <div>
-          <label class="form-label">Sede / lugar</label>
-          <input class="form-input" id="f-location" placeholder="Ciudad, campo…"/>
-        </div>
-        <div>
-          <label class="form-label">Estado</label>
-          <select class="form-select" id="f-status">
-            <option value="pendiente">Pendiente</option>
-            <option value="por confirmar">Por confirmar</option>
-            <option value="confirmado">Confirmado</option>
-            <option value="cerrado">Cerrado</option>
-            <option value="cancelado">Cancelado</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-row">
-        <label class="form-label">Notas</label>
-        <input class="form-input" id="f-notes" placeholder="Observaciones…"/>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-danger" id="btn-delete" style="display:none">Eliminar</button>
-      <button class="btn btn-secondary" id="btn-cancel">Cancelar</button>
-      <button class="btn btn-primary" id="btn-save">Guardar</button>
-    </div>
+    <div class="modal-head"><h3 id="modalTitle"></h3><button class="modal-close" onclick="closeModal()">&times;</button></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot" id="modalFoot"></div>
   </div>
 </div>
 
-<script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+<script>
+const TEAMS=[
+  {key:'CAS',name:'Castilla'},{key:'RMC',name:'RM Castilla'},
+  {key:'JA',name:'Juvenil A'},{key:'JB',name:'Juvenil B'},{key:'JC',name:'Juvenil C'},
+  {key:'CA',name:'Cadete A'},{key:'CB',name:'Cadete B'},
+  {key:'IA',name:'Infantil A'},{key:'IB',name:'Infantil B'},
+  {key:'AA',name:'Alevín A'},{key:'AB',name:'Alevín B'},
+  {key:'BA',name:'Benjamín A'},{key:'BB',name:'Benjamín B'},
+  {key:'PA',name:'Prebenjamín A'},{key:'PB',name:'Prebenjamín B'},
+  {key:'DB',name:'Debutante'},
+];
+let activeTeam='JA';
 
-const FB = {
-  apiKey:"AIzaSyAyPmMciYVe1RHaRYMww4kEg2nSAEc_dfw",
-  authDomain:"amistosos-y-torneos.firebaseapp.com",
-  projectId:"amistosos-y-torneos",
-  storageBucket:"amistosos-y-torneos.firebasestorage.app",
-  messagingSenderId:"7038951639",
-  appId:"1:7038951639:web:8daf47f203ca91f00a5092"
+// Per-team data
+const allData={};
+TEAMS.forEach(t=>{allData[t.key]={torneos:[],amistosos:[]};});
+
+// SHARED: 1er Equipo (global, visible in all teams)
+let primerEquipo=[
+  {id:900,rival:'FC Barcelona',fecha:'26 octubre',mes:'octubre',dias:[26],estado:'definitivo',resultado:'',obs:'El Clásico — Liga'},
+  {id:901,rival:'Manchester City',fecha:'12 febrero',mes:'febrero',dias:[12],estado:'provisional',resultado:'',obs:'Champions League — Ida octavos'},
+];
+
+// Sample JA
+allData['JA'].torneos=[
+  {id:1,nombre:'Torneo Internacional de Verano',fechas:'12-14 septiembre',mes:'septiembre',dias:[12,13,14],estado:'provisional',resultado:'',sede:'',obs:'Hablar con el organizador'},
+  {id:2,nombre:'Torneo Ciudad Deportiva',fechas:'3-5 enero',mes:'enero',dias:[3,4,5],estado:'definitivo',resultado:'Campeones',sede:'',obs:'Hotel ya confirmado'},
+  {id:3,nombre:'Copa Primavera',fechas:'20-22 marzo',mes:'marzo',dias:[20,21,22],estado:'definitivo',resultado:'Terceros',sede:'',obs:'Revisar horarios de llegada'},
+];
+allData['JA'].amistosos=[
+  {id:4,rival:'Selección Sub-16',fecha:'',mes:'',dias:[],estado:'provisional',resultado:'',obs:'Esperando confirmación de campo'},
+  {id:5,rival:'Club Deportivo Norte',fecha:'18 febrero',mes:'febrero',dias:[18],estado:'definitivo',resultado:'Ganado 2-1',obs:'Partido jugado según lo previsto'},
+  {id:6,rival:'Academia Este',fecha:'10 abril',mes:'abril',dias:[10],estado:'provisional',resultado:'',obs:'Pendiente de cerrar hora'},
+];
+
+// Sample CA
+allData['CA'].torneos=[
+  {id:10,nombre:'Torneo Navideño',fechas:'27-29 diciembre',mes:'diciembre',dias:[27,28,29],estado:'definitivo',resultado:'Subcampeones',sede:'Valdebebas',obs:''},
+];
+allData['CA'].amistosos=[
+  {id:11,rival:'Atlético Sub-14',fecha:'5 noviembre',mes:'noviembre',dias:[5],estado:'definitivo',resultado:'Ganado 3-0',obs:''},
+];
+
+let nextId=1000;
+
+function getData(){return allData[activeTeam];}
+function getTorneos(){return getData().torneos;}
+function getAmistosos(){return getData().amistosos;}
+
+const MESES=['julio','agosto','septiembre','octubre','noviembre','diciembre','enero','febrero','marzo','abril','mayo','junio'];
+const ML={julio:'Julio',agosto:'Agosto',septiembre:'Septiembre',octubre:'Octubre',noviembre:'Noviembre',diciembre:'Diciembre',enero:'Enero',febrero:'Febrero',marzo:'Marzo',abril:'Abril',mayo:'Mayo',junio:'Junio'};
+const DN=['L','M','X','J','V','S','D'];
+
+function renderTeamBar(){
+  document.getElementById('teamBar').innerHTML=TEAMS.map(t=>
+    `<button class="team-btn ${t.key===activeTeam?'active':''}" onclick="selectTeam('${t.key}')">${t.key}</button>`
+  ).join('');
+}
+function selectTeam(k){activeTeam=k;renderTeamBar();renderAll();}
+
+function getSeasonYears(){const s=document.getElementById('seasonSelect').value;const[a,b]=s.split('/').map(Number);return{first:a,second:b};}
+function getMonthYear(m){const sy=getSeasonYears();return['julio','agosto','septiembre','octubre','noviembre','diciembre'].includes(m)?sy.first:sy.second;}
+function getMI(m){return{enero:0,febrero:1,marzo:2,abril:3,mayo:4,junio:5,julio:6,agosto:7,septiembre:8,octubre:9,noviembre:10,diciembre:11}[m];}
+function getDIM(m){return new Date(getMonthYear(m),getMI(m)+1,0).getDate();}
+function getFDOW(m){let d=new Date(getMonthYear(m),getMI(m),1).getDay();return d===0?6:d-1;}
+function parseDays(s){if(!s)return[];const r=s.match(/(\d+)\s*-\s*(\d+)/);if(r){const a=+r[1],b=+r[2],arr=[];for(let i=a;i<=b;i++)arr.push(i);return arr;}const s2=s.match(/(\d+)/);return s2?[+s2[1]]:[];}
+function changeSeason(){document.getElementById('headerSeason').textContent=document.getElementById('seasonSelect').value;renderAll();}
+
+function buildHL(){
+  const h={};MESES.forEach(m=>h[m]={});
+  // 1er Equipo (shared) — shown in all teams
+  primerEquipo.forEach(p=>{if(!p.mes||!p.dias.length)return;p.dias.forEach(d=>{h[p.mes][d]={type:'primer',label:'1er Eq: '+p.rival};});});
+  // Team torneos
+  getTorneos().forEach(t=>{if(!t.mes||!t.dias.length)return;const c=getRC(t.resultado);const tp=c==='campeon'?'campeon':'torneo';t.dias.forEach(d=>{h[t.mes][d]={type:tp,label:t.nombre};});});
+  // Team amistosos
+  getAmistosos().forEach(a=>{if(!a.mes||!a.dias.length)return;a.dias.forEach(d=>{h[a.mes][d]={type:'amistoso',label:a.rival};});});
+  return h;
+}
+
+function renderCalendar(){
+  const g=document.getElementById('calGrid');g.innerHTML='';const hl=buildHL();
+  const teamObj=TEAMS.find(t=>t.key===activeTeam);
+  document.getElementById('calTeamLabel').textContent='— '+teamObj.name;
+  MESES.forEach(m=>{
+    const yr=getMonthYear(m),dc=getDIM(m),fd=getFDOW(m),h=hl[m];
+    let days='';
+    for(let i=0;i<fd;i++)days+='<span class="cal-day empty"></span>';
+    for(let d=1;d<=dc;d++){
+      const dow=(fd+d-1)%7,we=dow>=5;
+      let cls='cal-day',tt='';
+      if(h[d]){cls+=' has-'+h[d].type;tt=` title="${esc(h[d].label)}"`;}else if(we){cls+=' weekend';}
+      days+=`<span class="${cls}"${tt}>${d}</span>`;
+    }
+    let ev='';
+    // 1er Equipo events in calendar
+    primerEquipo.filter(p=>p.mes===m).forEach(p=>{ev+=`<div class="cal-event primer" title="1er Eq: ${esc(p.rival)} — ${esc(p.fecha)}">⚽ ${p.rival}</div>`;});
+    // Team events
+    getTorneos().filter(t=>t.mes===m).forEach(t=>{const c=getRC(t.resultado);ev+=`<div class="cal-event ${c==='campeon'?'campeon':'torneo'}" title="${esc(t.nombre)} — ${esc(t.fechas)}">${c==='campeon'?'🏆 ':''}${t.nombre}</div>`;});
+    getAmistosos().filter(a=>a.mes===m).forEach(a=>{ev+=`<div class="cal-event amistoso" title="${esc(a.rival)} — ${esc(a.fecha)}">${a.rival}</div>`;});
+    const div=document.createElement('div');div.className='cal-month';
+    div.innerHTML=`<div class="cal-month-head"><span>${ML[m]}</span><span class="cal-year">${yr}</span></div><div class="cal-days-header">${DN.map(n=>`<span>${n}</span>`).join('')}</div><div class="cal-days">${days}</div>${ev?`<div class="cal-events">${ev}</div>`:''}`;
+    g.appendChild(div);
+  });
+}
+
+function getRC(r){if(!r)return '';const l=r.toLowerCase();if(l.includes('campeon')&&!l.includes('sub'))return 'campeon';if(l.includes('subcampeon'))return 'subcampeon';if(l.includes('tercer'))return 'tercero';if(l.startsWith('ganado')||l.startsWith('victoria'))return 'ganado';if(l.startsWith('empate'))return 'empate';if(l.startsWith('perdido')||l.startsWith('derrota'))return 'perdido';return 'neutral';}
+function getRL(r){const c=getRC(r);if(!r)return '';let ic=c==='campeon'?'<span class="trophy-icon">🏆</span>':'';return `<span class="result-tag ${c}">${ic}${esc(r)}</span>`;}
+
+const IC={
+  cal:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+  edit:'<svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
+  del:'<svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.8"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>',
+  note:'<svg viewBox="0 0 24 24" style="width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>',
 };
-const app = initializeApp(FB);
-const db = getFirestore(app);
-const SEASON = '25-26';
 
-const TEAMS = [
-  {code:'CASTILLA',name:'Castilla',order:1},
-  {code:'RMC',name:'Real Madrid C',order:2},
-  {code:'JA',name:'Juvenil A',order:3},
-  {code:'JB',name:'Juvenil B',order:4},
-  {code:'JC',name:'Juvenil C',order:5},
-  {code:'CA',name:'Cadete A',order:6},
-  {code:'CB',name:'Cadete B',order:7},
-  {code:'IA',name:'Infantil A',order:8},
-  {code:'IB',name:'Infantil B',order:9},
-  {code:'AA',name:'Alevín A',order:10},
-  {code:'AB',name:'Alevín B',order:11},
-  {code:'AC',name:'Alevín C',order:12},
-  {code:'BB',name:'Benjamín A',order:13},
-  {code:'BA',name:'Benjamín B',order:14},
-  {code:'PB',name:'Prebenjamín A',order:15},
-  {code:'PA',name:'Prebenjamín B',order:16},
-  {code:'DB',name:'Debutantes',order:17},
-];
+// ── 1er EQUIPO ──
+function renderPrimer(){
+  const l=document.getElementById('primerList');
+  if(!primerEquipo.length){l.innerHTML='<div class="empty-state">Sin partidos de 1er Equipo.</div>';return;}
+  l.innerHTML=primerEquipo.map(p=>{const rc=getRC(p.resultado);return`
+  <div class="item-card ${rc}"><div class="item-top">
+    <span class="status-badge ${p.estado}">${p.estado==='provisional'?'⏳':'✅'} ${p.estado==='provisional'?'Prov.':'Def.'}</span>
+    <span class="item-name">${esc(p.rival)}</span>
+    <span class="primer-equipo-badge">TODOS</span>
+    ${p.obs?`<span class="obs-icon">${IC.note}<span class="obs-tooltip">${esc(p.obs)}</span></span>`:''}
+    <div class="item-actions"><button onclick="openModal('primer',${p.id})" title="Editar">${IC.edit}</button><button onclick="delItem('primer',${p.id})" title="Borrar">${IC.del}</button></div>
+  </div><div class="item-meta"><span>${IC.cal} ${esc(p.fecha)||'Sin fecha'}</span></div>
+  ${p.resultado?getRL(p.resultado):'<span class="result-tag neutral">Pendiente</span>'}</div>`;}).join('');
+}
 
-// Season months: Jul 2025 – Jun 2026
-const SEASON_MONTHS = [
-  {y:2025,m:6},{y:2025,m:7},{y:2025,m:8},
-  {y:2025,m:9},{y:2025,m:10},{y:2025,m:11},
-  {y:2026,m:0},{y:2026,m:1},{y:2026,m:2},
-  {y:2026,m:3},{y:2026,m:4},{y:2026,m:5}
-];
-const MES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-const MES_FULL = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-const DOW = ['L','M','X','J','V','S','D'];
+function renderTorneos(){
+  const items=getTorneos(),l=document.getElementById('torneoList');
+  if(!items.length){l.innerHTML='<div class="empty-state">Sin torneos para este equipo.</div>';return;}
+  l.innerHTML=items.map(t=>{const rc=getRC(t.resultado);return`
+  <div class="item-card ${rc}"><div class="item-top">
+    <span class="status-badge ${t.estado}">${t.estado==='provisional'?'⏳':'✅'} ${t.estado==='provisional'?'Prov.':'Def.'}</span>
+    <span class="item-name">${esc(t.nombre)}</span>
+    ${t.obs?`<span class="obs-icon">${IC.note}<span class="obs-tooltip">${esc(t.obs)}</span></span>`:''}
+    <div class="item-actions"><button onclick="openModal('torneo',${t.id})" title="Editar">${IC.edit}</button><button onclick="delItem('torneo',${t.id})" title="Borrar">${IC.del}</button></div>
+  </div><div class="item-meta"><span>${IC.cal} ${esc(t.fechas)||'Sin fecha'}</span></div>
+  ${t.resultado?getRL(t.resultado):'<span class="result-tag neutral">Pendiente</span>'}</div>`;}).join('');
+}
 
-const PANELS = [
-  {key:'torneo',     label:'Torneos',                        cls:'ph-torneos',   cols:['Rival / Nombre','Fecha inicio','Fecha fin','Sede','Estado']},
-  {key:'amistoso',   label:'Amistosos',                      cls:'ph-amistosos', cols:['Rival','Fecha','Sede','Estado']},
-  {key:'champions',  label:'Partidos Champions 1er Equipo',  cls:'ph-champions', cols:['Rival','Fecha','Estado','Notas']},
-  {key:'seleccion_esp', label:'Convocatorias Selección Española',  cls:'ph-seleccion',  cols:['Jugador / Selección','Fecha','Estado']},
-  {key:'seleccion_ext', label:'Convocatorias Selección Extranjera',cls:'ph-seleccion2', cols:['Jugador / Selección','Fecha','Estado']},
-];
+function renderAmistosos(){
+  const items=getAmistosos(),l=document.getElementById('amistosoList');
+  if(!items.length){l.innerHTML='<div class="empty-state">Sin amistosos para este equipo.</div>';return;}
+  l.innerHTML=items.map(a=>{const rc=getRC(a.resultado);return`
+  <div class="item-card ${rc}"><div class="item-top">
+    <span class="status-badge ${a.estado}">${a.estado==='provisional'?'⏳':'✅'} ${a.estado==='provisional'?'Prov.':'Def.'}</span>
+    <span class="item-name">${esc(a.rival)}</span>
+    ${a.obs?`<span class="obs-icon">${IC.note}<span class="obs-tooltip">${esc(a.obs)}</span></span>`:''}
+    <div class="item-actions"><button onclick="openModal('amistoso',${a.id})" title="Editar">${IC.edit}</button><button onclick="delItem('amistoso',${a.id})" title="Borrar">${IC.del}</button></div>
+  </div><div class="item-meta"><span>${IC.cal} ${esc(a.fecha)||'Sin fecha'}</span></div>
+  ${a.resultado?getRL(a.resultado):'<span class="result-tag neutral">Pendiente</span>'}</div>`;}).join('');
+}
 
-let events = [];
-let currentTeam = TEAMS[0].code;
-let editingId = null;
-let currentPanelKey = 'torneo';
+function esc(s){if(!s)return '';const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
 
-// Firebase listener
-const q = query(collection(db,'seasons',SEASON,'events'), orderBy('date'));
-onSnapshot(q, snap => {
-  events = snap.docs.map(d=>({id:d.id,...d.data()}));
-  document.getElementById('status-dot').className='status-dot';
-  document.getElementById('status-text').textContent='En línea';
+// ── MODAL ──
+let eType=null,eId=null;
+function openModal(type,id){
+  eType=type;eId=id||null;
+  const ov=document.getElementById('modalOverlay'),ti=document.getElementById('modalTitle'),bo=document.getElementById('modalBody'),fo=document.getElementById('modalFoot');
+
+  if(type==='primer'){
+    const p=id?primerEquipo.find(x=>x.id===id):null;
+    ti.textContent=p?'Editar — 1er Equipo':'Añadir — 1er Equipo';
+    bo.innerHTML=`
+      <label>Rival / Partido</label><input id="mN" value="${p?esc(p.rival):''}" placeholder="Rival o descripción">
+      <label>Fecha</label><input id="mF" value="${p?esc(p.fecha):''}" placeholder="Ej: 26 octubre">
+      <label>Mes (calendario)</label><select id="mM"><option value="">— Sin mes —</option>${MESES.map(m=>`<option value="${m}" ${p&&p.mes===m?'selected':''}>${ML[m]}</option>`).join('')}</select>
+      <label>Estado</label><select id="mE"><option value="provisional" ${!p||p.estado==='provisional'?'selected':''}>⏳ Provisional</option><option value="definitivo" ${p&&p.estado==='definitivo'?'selected':''}>✅ Definitivo</option></select>
+      <label>Resultado</label><input id="mR" value="${p?esc(p.resultado):''}" placeholder="Ej: Ganado 2-1">
+      <label>Observaciones</label><textarea id="mO" placeholder="Notas...">${p?esc(p.obs):''}</textarea>`;
+    fo.innerHTML=`${p?'<button class="btn-danger" onclick="delItem(\'primer\','+p.id+');closeModal()">Borrar</button>':''}<button class="btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn-primary" onclick="saveP()">Guardar</button>`;
+  } else if(type==='torneo'){
+    const t=id?getTorneos().find(x=>x.id===id):null;
+    ti.textContent=t?'Editar Torneo':'Añadir Torneo';
+    bo.innerHTML=`
+      <label>Nombre</label><input id="mN" value="${t?esc(t.nombre):''}" placeholder="Nombre del torneo">
+      <label>Fechas</label><input id="mF" value="${t?esc(t.fechas):''}" placeholder="Ej: 12-14 septiembre">
+      <label>Mes (calendario)</label><select id="mM"><option value="">— Sin mes —</option>${MESES.map(m=>`<option value="${m}" ${t&&t.mes===m?'selected':''}>${ML[m]}</option>`).join('')}</select>
+      <label>Sede / Lugar</label><input id="mS" value="${t?esc(t.sede):''}" placeholder="Opcional">
+      <label>Estado</label><select id="mE"><option value="provisional" ${!t||t.estado==='provisional'?'selected':''}>⏳ Provisional</option><option value="definitivo" ${t&&t.estado==='definitivo'?'selected':''}>✅ Definitivo</option></select>
+      <label>Resultado</label><select id="mR"><option value="" ${!t||!t.resultado?'selected':''}>Pendiente</option><option value="Campeones" ${t&&t.resultado==='Campeones'?'selected':''}>🏆 Campeones</option><option value="Subcampeones" ${t&&t.resultado==='Subcampeones'?'selected':''}>Subcampeones</option><option value="Terceros" ${t&&t.resultado==='Terceros'?'selected':''}>Terceros</option><option value="Semifinalistas" ${t&&t.resultado==='Semifinalistas'?'selected':''}>Semifinalistas</option><option value="Cuartos" ${t&&t.resultado==='Cuartos'?'selected':''}>Cuartos</option><option value="Fase de grupos" ${t&&t.resultado==='Fase de grupos'?'selected':''}>Fase de grupos</option></select>
+      <label>Observaciones</label><textarea id="mO" placeholder="Notas...">${t?esc(t.obs):''}</textarea>`;
+    fo.innerHTML=`${t?'<button class="btn-danger" onclick="delItem(\'torneo\','+t.id+');closeModal()">Borrar</button>':''}<button class="btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn-primary" onclick="saveT()">Guardar</button>`;
+  } else {
+    const a=id?getAmistosos().find(x=>x.id===id):null;
+    ti.textContent=a?'Editar Amistoso':'Añadir Amistoso';
+    bo.innerHTML=`
+      <label>Rival / Nombre</label><input id="mN" value="${a?esc(a.rival):''}" placeholder="Rival">
+      <label>Fecha</label><input id="mF" value="${a?esc(a.fecha):''}" placeholder="Ej: 18 febrero">
+      <label>Mes (calendario)</label><select id="mM"><option value="">— Sin mes —</option>${MESES.map(m=>`<option value="${m}" ${a&&a.mes===m?'selected':''}>${ML[m]}</option>`).join('')}</select>
+      <label>Estado</label><select id="mE"><option value="provisional" ${!a||a.estado==='provisional'?'selected':''}>⏳ Provisional</option><option value="definitivo" ${a&&a.estado==='definitivo'?'selected':''}>✅ Definitivo</option></select>
+      <label>Resultado</label><input id="mR" value="${a?esc(a.resultado):''}" placeholder="Ej: Ganado 2-1">
+      <label>Observaciones</label><textarea id="mO" placeholder="Notas...">${a?esc(a.obs):''}</textarea>`;
+    fo.innerHTML=`${a?'<button class="btn-danger" onclick="delItem(\'amistoso\','+a.id+');closeModal()">Borrar</button>':''}<button class="btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn-primary" onclick="saveA()">Guardar</button>`;
+  }
+  ov.classList.add('active');
+}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('active');eType=null;eId=null;}
+
+function saveP(){
+  const f=document.getElementById('mF').value.trim();
+  const d={rival:document.getElementById('mN').value.trim()||'Sin rival',fecha:f,mes:document.getElementById('mM').value,dias:parseDays(f),estado:document.getElementById('mE').value,resultado:document.getElementById('mR').value.trim(),obs:document.getElementById('mO').value.trim()};
+  if(eId){const p=primerEquipo.find(x=>x.id===eId);if(p)Object.assign(p,d);}else{d.id=++nextId;primerEquipo.push(d);}
+  closeModal();renderAll();
+}
+function saveT(){
+  const f=document.getElementById('mF').value.trim();
+  const d={nombre:document.getElementById('mN').value.trim()||'Sin nombre',fechas:f,mes:document.getElementById('mM').value,dias:parseDays(f),sede:document.getElementById('mS')?document.getElementById('mS').value.trim():'',estado:document.getElementById('mE').value,resultado:document.getElementById('mR').value,obs:document.getElementById('mO').value.trim()};
+  const items=getTorneos();
+  if(eId){const t=items.find(x=>x.id===eId);if(t)Object.assign(t,d);}else{d.id=++nextId;items.push(d);}
+  closeModal();renderAll();
+}
+function saveA(){
+  const f=document.getElementById('mF').value.trim();
+  const d={rival:document.getElementById('mN').value.trim()||'Sin rival',fecha:f,mes:document.getElementById('mM').value,dias:parseDays(f),estado:document.getElementById('mE').value,resultado:document.getElementById('mR').value.trim(),obs:document.getElementById('mO').value.trim()};
+  const items=getAmistosos();
+  if(eId){const a=items.find(x=>x.id===eId);if(a)Object.assign(a,d);}else{d.id=++nextId;items.push(d);}
+  closeModal();renderAll();
+}
+function delItem(t,id){
+  if(!confirm('¿Eliminar?'))return;
+  if(t==='primer'){primerEquipo=primerEquipo.filter(x=>x.id!==id);}
+  else if(t==='torneo'){getData().torneos=getData().torneos.filter(x=>x.id!==id);}
+  else{getData().amistosos=getData().amistosos.filter(x=>x.id!==id);}
   renderAll();
-  updateSidebarDots();
-}, () => {
-  document.getElementById('status-dot').className='status-dot off';
-  document.getElementById('status-text').textContent='Sin conexión';
-});
-
-function teamEvents(code){ return events.filter(e=>e.team===code); }
-function teamByCode(c){ return TEAMS.find(t=>t.code===c)||{code:c,name:c}; }
-function fmtDate(d){ if(!d) return '—'; const [y,m,day]=d.split('-'); return `${parseInt(day)} ${MES[parseInt(m)-1]}`; }
-function fmtDateFull(d){ if(!d) return '—'; const [y,m,day]=d.split('-'); return `${parseInt(day)} ${MES_FULL[parseInt(m)-1]} ${y}`; }
-function today(){ return new Date().toISOString().slice(0,10); }
-
-function selectTeam(code){
-  currentTeam = code;
-  document.querySelectorAll('.team-btn').forEach(b=>b.classList.toggle('active', b.dataset.code===code));
-  const msel = document.getElementById('mobile-team-select');
-  if(msel) msel.value = code;
-  renderAll();
 }
+function renderAll(){renderCalendar();renderPrimer();renderTorneos();renderAmistosos();}
 
-function renderAll(){
-  const t = teamByCode(currentTeam);
-  document.getElementById('tb-team').textContent = t.code;
-  document.getElementById('tb-fullname').textContent = t.name;
-
-  const evs = teamEvents(currentTeam);
-  document.getElementById('cal-total').textContent = evs.length;
-  document.getElementById('cal-torneos').textContent = evs.filter(e=>e.panel==='torneo').length;
-  document.getElementById('cal-amistosos').textContent = evs.filter(e=>e.panel==='amistoso').length;
-
-  renderCalendar(evs, t);
-  renderPanels(evs);
-}
-
-// Priority order for color when multiple events on same day
-const PANEL_PRIORITY = ['torneo','amistoso','champions','seleccion_esp','seleccion_ext'];
-
-function renderCalendar(evs, team){
-  // Build map: date -> { types: Set, labels: [] }
-  const eventDates = {};
-  evs.forEach(e => {
-    if(!e.date) return;
-    const start = e.date;
-    const end = e.dateEnd||e.date;
-    let cur = new Date(start+'T12:00:00');
-    const endD = new Date(end+'T12:00:00');
-    while(cur<=endD){
-      const ds = cur.toISOString().slice(0,10);
-      if(!eventDates[ds]) eventDates[ds]={types:new Set(),labels:[]};
-      const panel = e.panel||'amistoso';
-      eventDates[ds].types.add(panel);
-      if(e.rival) eventDates[ds].labels.push(e.rival);
-      cur = new Date(cur.getTime()+86400000);
-    }
-  });
-
-  const todayStr = today();
-  let html = '';
-  let lastYear = null;
-
-  SEASON_MONTHS.forEach(({y,m}) => {
-    if(y !== lastYear){
-      html += `<div class="cal-year-label">${y}</div><div class="cal-months-grid">`;
-      lastYear = y;
-    }
-
-    const daysInMonth = new Date(y,m+1,0).getDate();
-    let startOffset = new Date(y,m,1).getDay()-1;
-    if(startOffset<0) startOffset=6;
-
-    html += `<div class="cal-month"><div class="cal-month-name">${MES[m]}</div><div class="cal-dow">`;
-    DOW.forEach(d=>{ html+=`<div class="cal-dow-h">${d}</div>`; });
-
-    for(let i=0;i<startOffset;i++) html+=`<div class="cal-day empty">·</div>`;
-
-    for(let d=1;d<=daysInMonth;d++){
-      const ds = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-      const dow = (new Date(ds+'T12:00:00').getDay()+6)%7; // 0=Mon
-      let cls = 'cal-day';
-      let tooltip = ds;
-
-      if(ds===todayStr){
-        cls += ' today';
-      } else if(eventDates[ds]){
-        const types = eventDates[ds].types;
-        const labels = eventDates[ds].labels;
-        // Pick highest priority type for the color class
-        const dominant = PANEL_PRIORITY.find(p=>types.has(p)) || 'amistoso';
-        if(types.size > 1){
-          cls += ' ev-multi';
-        } else {
-          cls += ` ev-${dominant}`;
-        }
-        tooltip = labels.length>0 ? labels.join(', ') : dominant;
-      }
-
-      if(dow>=5) cls += ' weekend';
-      html+=`<div class="${cls}" title="${tooltip}">${d}</div>`;
-    }
-
-    html += `</div></div>`;
-
-    // Close the months grid every 3 months
-    if((m===8&&y===2025)||(m===11&&y===2025)||(m===2&&y===2026)||(m===5&&y===2026)){
-      html += `</div>`;
-      lastYear = null;
-    }
-  });
-
-  document.getElementById('cal-body').innerHTML = html;
-}
-
-function renderPanels(evs){
-  const container = document.getElementById('right-panels');
-  let html = '';
-
-  PANELS.forEach(panel => {
-    const panelEvs = evs.filter(e=>(e.panel||'amistoso')===panel.key).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
-
-    html += `<div class="panel">
-      <div class="panel-header" onclick="togglePanel('${panel.key}')">
-        <div class="panel-header-left">
-          <div class="panel-color-bar ${panel.cls}"></div>
-          <span class="panel-title ${panel.cls}">${panel.label}</span>
-          <span class="panel-count ${panel.cls}">${panelEvs.length}</span>
-        </div>
-        <span class="panel-chevron open" id="chev-${panel.key}">▾</span>
-      </div>
-      <div class="panel-body" id="pb-${panel.key}">
-        <table class="panel-table">
-          <thead><tr>`;
-
-    panel.cols.forEach(c=>{ html+=`<th>${c}</th>`; });
-    html+=`<th></th></tr></thead><tbody>`;
-
-    if(panelEvs.length===0){
-      html+=`<tr class="empty-row"><td colspan="${panel.cols.length+1}">Sin eventos — haz clic en + para añadir</td></tr>`;
-    } else {
-      panelEvs.forEach(e=>{
-        html+=`<tr>`;
-        if(panel.key==='torneo'){
-          html+=`<td class="td-rival">${e.rival||'—'}</td>
-                 <td class="td-date">${fmtDate(e.date)}</td>
-                 <td class="td-date">${fmtDate(e.dateEnd)}</td>
-                 <td>${e.location||'—'}</td>`;
-        } else if(panel.key==='amistoso'){
-          html+=`<td class="td-rival">${e.rival||'—'}</td>
-                 <td class="td-date">${fmtDate(e.date)}</td>
-                 <td>${e.location||'—'}</td>`;
-        } else if(panel.key==='champions'){
-          html+=`<td class="td-rival">${e.rival||'—'}</td>
-                 <td class="td-date">${fmtDate(e.date)}</td>
-                 <td></td>
-                 <td>${e.notes||'—'}</td>`;
-        } else {
-          html+=`<td class="td-rival">${e.rival||'—'}</td>
-                 <td class="td-date">${fmtDate(e.date)}</td>
-                 <td></td>`;
-        }
-        const st = e.status||'pendiente';
-        html+=`<td class="td-status"><span class="status-badge s-${st.replace(' ','-')}">${st}</span></td>`;
-        html+=`<td class="td-actions">
-          <button class="btn-icon" onclick="openEdit('${e.id}')" title="Editar">✏️</button>
-        </td></tr>`;
-      });
-    }
-
-    html+=`</tbody></table>
-      <button class="btn-add-row" onclick="openNew('${panel.key}')">＋ Añadir ${panel.label.toLowerCase()}</button>
-    </div></div>`;
-  });
-
-  container.innerHTML = html;
-}
-
-function updateSidebarDots(){
-  TEAMS.forEach(t=>{
-    const btn = document.querySelector(`.team-btn[data-code="${t.code}"]`);
-    if(!btn) return;
-    if(teamEvents(t.code).length>0) btn.classList.add('has-events');
-    else btn.classList.remove('has-events');
-  });
-}
-
-window.togglePanel = function(key){
-  const pb = document.getElementById('pb-'+key);
-  const chev = document.getElementById('chev-'+key);
-  if(!pb) return;
-  const open = pb.style.display!=='none';
-  pb.style.display = open?'none':'block';
-  chev.classList.toggle('open',!open);
-};
-
-window.openNew = function(panelKey){
-  editingId = null;
-  currentPanelKey = panelKey;
-  document.getElementById('modal-title').textContent = 'Nuevo evento';
-  document.getElementById('btn-delete').style.display='none';
-  document.getElementById('f-panel').value = panelKey;
-  document.getElementById('f-date').value='';
-  document.getElementById('f-date-end').value='';
-  document.getElementById('f-rival').value='';
-  document.getElementById('f-location').value='';
-  document.getElementById('f-status').value='pendiente';
-  document.getElementById('f-notes').value='';
-  document.getElementById('modal').classList.add('open');
-};
-
-window.openEdit = function(id){
-  const ev = events.find(e=>e.id===id);
-  if(!ev) return;
-  editingId = id;
-  document.getElementById('modal-title').textContent='Editar evento';
-  document.getElementById('btn-delete').style.display='block';
-  document.getElementById('f-panel').value=ev.panel||'amistoso';
-  document.getElementById('f-date').value=ev.date||'';
-  document.getElementById('f-date-end').value=ev.dateEnd||'';
-  document.getElementById('f-rival').value=ev.rival||'';
-  document.getElementById('f-location').value=ev.location||'';
-  document.getElementById('f-status').value=ev.status||'pendiente';
-  document.getElementById('f-notes').value=ev.notes||'';
-  document.getElementById('modal').classList.add('open');
-};
-
-// Auto-fill end date
-document.getElementById('f-date').addEventListener('change',function(){
-  if(!document.getElementById('f-date-end').value) document.getElementById('f-date-end').value=this.value;
-});
-
-document.getElementById('btn-save').addEventListener('click', async ()=>{
-  const date = document.getElementById('f-date').value;
-  const rival = document.getElementById('f-rival').value.trim();
-  if(!date&&!rival){ alert('Introduce al menos una fecha o rival'); return; }
-  const btn = document.getElementById('btn-save');
-  btn.disabled=true; btn.textContent='Guardando…';
-  const data = {
-    team: currentTeam,
-    panel: document.getElementById('f-panel').value,
-    date, rival,
-    dateEnd: document.getElementById('f-date-end').value||date,
-    location: document.getElementById('f-location').value.trim()||null,
-    status: document.getElementById('f-status').value,
-    notes: document.getElementById('f-notes').value.trim()||null,
-    updatedAt: serverTimestamp(),
-    season: SEASON,
-  };
-  try{
-    if(editingId) await updateDoc(doc(db,'seasons',SEASON,'events',editingId),data);
-    else{ data.createdAt=serverTimestamp(); await addDoc(collection(db,'seasons',SEASON,'events'),data); }
-    document.getElementById('modal').classList.remove('open');
-  } catch(e){ alert('Error: '+e.message); }
-  btn.disabled=false; btn.textContent='Guardar';
-});
-
-document.getElementById('btn-delete').addEventListener('click', async ()=>{
-  if(!editingId||!confirm('¿Eliminar este evento?')) return;
-  await deleteDoc(doc(db,'seasons',SEASON,'events',editingId));
-  document.getElementById('modal').classList.remove('open');
-});
-
-document.getElementById('btn-cancel').addEventListener('click',()=>document.getElementById('modal').classList.remove('open'));
-document.getElementById('modal-close').addEventListener('click',()=>document.getElementById('modal').classList.remove('open'));
-document.getElementById('modal').addEventListener('click',e=>{ if(e.target===document.getElementById('modal')) document.getElementById('modal').classList.remove('open'); });
-
-// Build sidebar + mobile select
-const sidebarTeams = document.getElementById('sidebar-teams');
-const mobileSelect = document.getElementById('mobile-team-select');
-TEAMS.forEach(t=>{
-  const btn = document.createElement('button');
-  btn.className='team-btn'+(t.code===currentTeam?' active':'');
-  btn.dataset.code=t.code;
-  btn.innerHTML=`<span class="team-btn-code">${t.code}</span><span class="team-btn-name">${t.name}</span><span class="sidebar-dot"></span>`;
-  btn.addEventListener('click',()=>selectTeam(t.code));
-  sidebarTeams.appendChild(btn);
-
-  const opt = document.createElement('option');
-  opt.value=t.code; opt.textContent=`${t.code} — ${t.name}`;
-  mobileSelect.appendChild(opt);
-});
-mobileSelect.addEventListener('change',e=>selectTeam(e.target.value));
-
-// Initial render with empty data
+renderTeamBar();
 renderAll();
 </script>
 </body>
