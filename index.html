@@ -35,7 +35,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .chevron.collapsed{transform:rotate(-90deg)}
 .panel-body{padding:10px 12px;overflow:hidden;transition:max-height .3s ease,padding .3s ease}
 .panel-body.collapsed{max-height:0!important;padding:0 12px;overflow:hidden}
-.shared-badge{font-size:7px;font-weight:700;padding:1px 5px;border-radius:3px;background:#fdf6e3;color:#8b6914;border:1px solid #e8d48b;text-transform:uppercase;letter-spacing:.3px;flex-shrink:0}
 .cal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .cal-month{border:1px solid var(--border-light);border-radius:var(--r);background:var(--surface);overflow:hidden;transition:box-shadow var(--tr)}
 .cal-month:hover{box-shadow:var(--sh-md)}
@@ -47,18 +46,14 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .cal-d{text-align:center;font-size:9px;color:var(--text-sec);padding:3px 0;border-radius:3px;line-height:1.6;cursor:default;position:relative}
 .cal-d.e{visibility:hidden}.cal-d.w{color:var(--text-faint)}
 .cal-d.has-event{cursor:help;font-weight:700}
-
-/* Custom hover popup for calendar days */
 .cal-d.has-event:hover .day-tooltip{display:block}
-.day-tooltip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--text);color:#fff;font-size:10px;padding:6px 9px;border-radius:var(--rs);min-width:160px;max-width:220px;text-align:left;z-index:60;box-shadow:var(--sh-lg);font-weight:400;line-height:1.4;white-space:normal}
+.day-tooltip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--text);color:#fff;font-size:10px;padding:6px 9px;border-radius:var(--rs);min-width:160px;max-width:240px;text-align:left;z-index:60;box-shadow:var(--sh-lg);font-weight:400;line-height:1.4;white-space:normal}
 .day-tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--text)}
 .day-tt-event{display:flex;align-items:center;gap:5px;padding:2px 0}
 .day-tt-event:not(:last-child){border-bottom:1px solid rgba(255,255,255,.15);padding-bottom:4px;margin-bottom:2px}
 .day-tt-dot{width:7px;height:7px;border-radius:2px;flex-shrink:0}
-.day-tt-loc{font-size:10px}
 .day-tt-name{font-weight:600}
 .day-tt-cat{font-size:8px;opacity:.7;margin-left:auto;text-transform:uppercase;letter-spacing:.3px;font-weight:600}
-
 .right-col{display:flex;flex-direction:column;gap:14px}
 .card-list{display:flex;flex-direction:column;gap:4px}
 .item-card{border:1px solid var(--border-light);border-radius:var(--rs);padding:7px 10px;background:var(--surface);transition:box-shadow var(--tr),border-color var(--tr);position:relative}
@@ -87,14 +82,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .res-tag.ganado{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bdr)}
 .res-tag.empate{background:#fff8e6;color:#a07d1e;border:1px solid #f0d96b}
 .res-tag.perdido{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bdr)}
-
-/* Observation popup — improved, expandable */
 .obs-dot{width:18px;height:18px;border-radius:3px;background:var(--rm-blue-bg);cursor:pointer;position:relative;color:var(--rm-blue);flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:9px;transition:background var(--tr)}
 .obs-dot:hover{background:var(--rm-blue);color:#fff}
 .obs-tt{display:none;position:absolute;bottom:calc(100% + 6px);right:-4px;background:var(--text);color:#fff;font-size:11px;padding:8px 11px;border-radius:var(--rs);min-width:200px;max-width:340px;width:max-content;white-space:normal;z-index:50;box-shadow:var(--sh-lg);line-height:1.5;font-weight:400;text-align:left;word-wrap:break-word}
 .obs-tt::after{content:'';position:absolute;top:100%;right:8px;border:5px solid transparent;border-top-color:var(--text)}
-.obs-dot:hover .obs-tt,.obs-dot:focus .obs-tt{display:block}
-
+.obs-dot:hover .obs-tt{display:block}
 .btn-add{display:inline-flex;align-items:center;gap:3px;padding:4px 10px;font-size:10px;font-weight:600;background:var(--rm-blue);color:#fff;border:none;border-radius:var(--rs);cursor:pointer;font-family:var(--font);transition:background var(--tr)}
 .btn-add:hover{background:var(--rm-blue-lt)}
 .btn-add svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2.2}
@@ -112,8 +104,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .loc-opt{display:flex;align-items:center;gap:4px;cursor:pointer;font-size:11px;color:var(--text-sec)}
 .loc-opt input{margin:0;width:auto}
 .loc-opt span{font-size:14px}
-
-/* Team scope multiselect */
 .team-scope-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:4px;padding:8px;background:var(--surface-alt);border:1px solid var(--border);border-radius:var(--rs)}
 .team-scope-cb{display:flex;align-items:center;gap:4px;cursor:pointer;font-size:10px;color:var(--text-sec);padding:3px 5px;border-radius:3px}
 .team-scope-cb:hover{background:var(--rm-blue-bg)}
@@ -121,7 +111,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .scope-radio-group{display:flex;flex-direction:column;gap:5px;margin-top:4px}
 .scope-radio{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:11px;color:var(--text-sec)}
 .scope-radio input{margin:0;width:auto}
-
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;justify-content:center;align-items:center;padding:16px}
 .modal-overlay.active{display:flex}
 .modal{background:var(--surface);border-radius:var(--rl);box-shadow:var(--sh-lg);width:100%;max-width:460px;max-height:90vh;overflow-y:auto}
@@ -141,11 +130,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .btn-p{padding:5px 12px;font-size:10px;font-weight:600;background:var(--rm-blue);color:#fff;border:none;border-radius:var(--rs);cursor:pointer;font-family:var(--font)}.btn-p:hover{background:var(--rm-blue-lt)}
 .btn-d{padding:5px 12px;font-size:10px;font-weight:600;background:var(--red-bg);color:var(--red);border:1px solid var(--red-bdr);border-radius:var(--rs);cursor:pointer;font-family:var(--font);margin-right:auto}.btn-d:hover{background:#f8d4d4}
 .empty-st{text-align:center;padding:14px 8px;color:var(--text-mut);font-size:10px}
-.loading{text-align:center;padding:40px;color:var(--text-mut);font-size:13px}
 .sync-dot{width:8px;height:8px;border-radius:50%;display:inline-block;vertical-align:middle}
-.sync-dot.ok{background:#16a34a}.sync-dot.saving{background:#eab308;animation:pulse .8s infinite alternate}
+.sync-dot.ok{background:#16a34a}.sync-dot.saving{background:#eab308;animation:pulse .8s infinite alternate}.sync-dot.error{background:#dc2626}
 @keyframes pulse{from{opacity:1}to{opacity:.3}}
-
 @media(max-width:1100px){.main{grid-template-columns:1fr}.cal-grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:640px){.header{padding:10px 14px;flex-wrap:wrap}.header h1{font-size:14px}.season-area{margin-left:0;width:100%;justify-content:flex-end}.team-bar{padding:8px 14px;top:auto;position:relative;gap:4px}.team-btn{padding:5px 12px;font-size:11px}.main{padding:10px 12px;gap:12px}.cal-grid{grid-template-columns:repeat(2,1fr);gap:6px}.item-acts{opacity:1}.team-scope-grid{grid-template-columns:repeat(3,1fr)}}
 </style>
@@ -153,7 +140,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 <body>
 <div class="header">
   <div class="header-logo">
-    <!-- Real Madrid crest simplified SVG -->
     <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
       <circle cx="50" cy="50" r="48" fill="#fff" stroke="#FEBE10" stroke-width="2"/>
       <path d="M50 8 C30 8 15 23 15 45 C15 65 30 88 50 92 C70 88 85 65 85 45 C85 23 70 8 50 8 Z" fill="#fff" stroke="#1a3c8e" stroke-width="2.5"/>
@@ -181,14 +167,12 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 <script>
 firebase.initializeApp({apiKey:"AIzaSyAdG-vHgm8jBzJBAgNVybYaqWdhF6GF53k",authDomain:"amistosos-y-torneos-c5270.firebaseapp.com",projectId:"amistosos-y-torneos-c5270",storageBucket:"amistosos-y-torneos-c5270.firebasestorage.app",messagingSenderId:"103829351335",appId:"1:103829351335:web:fd88a9704bb21931d7e482"});
 const db=firebase.firestore();
-function showSync(state){const d=document.getElementById('syncDot');d.className='sync-dot '+state;d.title=state==='ok'?'Guardado':'Guardando...';}
+function showSync(state){const d=document.getElementById('syncDot');if(d){d.className='sync-dot '+state;d.title=state==='ok'?'Guardado':(state==='error'?'Error':'Guardando...');}}
 
 const COLORS=[{h:'#2563eb',n:'Azul'},{h:'#3b82f6',n:'Azul Claro'},{h:'#1e3a6e',n:'Azul Oscuro'},{h:'#0891b2',n:'Cian'},{h:'#0d9488',n:'Teal'},{h:'#16a34a',n:'Verde'},{h:'#059669',n:'Esmeralda'},{h:'#65a30d',n:'Lima'},{h:'#eab308',n:'Amarillo'},{h:'#facc15',n:'Amarillo Claro'},{h:'#ca8a04',n:'Amarillo Oscuro'},{h:'#f59e0b',n:'Ámbar'},{h:'#d97706',n:'Ámbar Oscuro'},{h:'#ea580c',n:'Naranja'},{h:'#f97316',n:'Naranja Claro'},{h:'#dc2626',n:'Rojo'},{h:'#ef4444',n:'Rojo Claro'},{h:'#e11d48',n:'Rosa'},{h:'#db2777',n:'Fucsia'},{h:'#9333ea',n:'Morado'},{h:'#7c3aed',n:'Violeta'},{h:'#4f46e5',n:'Índigo'},{h:'#6366f1',n:'Índigo Claro'},{h:'#475569',n:'Gris'},{h:'#78716c',n:'Gris Cálido'},{h:'#92400e',n:'Marrón'},{h:'#b45309',n:'Marrón Claro'},{h:'#1a1a1a',n:'Negro'}];
 function cpHTML(sel){return '<div class="color-palette">'+COLORS.map(c=>`<div class="csw ${c.h===sel?'sel':''}" style="background:${c.h}" onclick="pickC(this,'${c.h}')" title="${c.n}"><span class="ck">✓</span></div>`).join('')+'</div>';}
 function pickC(el,h){el.closest('.color-palette').querySelectorAll('.csw').forEach(s=>{s.classList.remove('sel');s.querySelector('.ck').style.display='none'});el.classList.add('sel');el.querySelector('.ck').style.display='block';document.getElementById('mColor').value=h;}
 const LOC_EMOJI={casa:'🏠',fuera:'✈️','':''};
-
-// Result categories
 const RESULT_OPTIONS=[
   {v:'Campeones',color:'green',icon:'🏆'},
   {v:'2º',color:'orange',icon:''},
@@ -204,65 +188,69 @@ function getResIcon(r){const o=RESULT_OPTIONS.find(x=>x.v===r);return o?o.icon:'
 
 const TEAMS=[{key:'CAS',name:'Castilla'},{key:'RMC',name:'Real Madrid C'},{key:'JA',name:'Juvenil A'},{key:'JB',name:'Juvenil B'},{key:'JC',name:'Juvenil C'},{key:'CA',name:'Cadete A'},{key:'CB',name:'Cadete B'},{key:'IA',name:'Infantil A'},{key:'IB',name:'Infantil B'},{key:'AA',name:'Alevín A'},{key:'AB',name:'Alevín B'},{key:'BA',name:'Benjamín A'},{key:'BB',name:'Benjamín B'},{key:'PA',name:'Prebenjamín A'},{key:'PB',name:'Prebenjamín B'},{key:'DB',name:'Debutante'}];
 let activeTeam='JA',activeSeason='2026/2027';
-let seasons=['2026/2027'],categories=[];
-// New structure: items per category+season; each item has teams[] array
-// itemsCache[catId+'_'+season] = [items]
+let seasons=['2026/2027'];
+// DEFAULT categories — used always until Firebase loads. This guarantees calendar renders.
+let categories=[
+  {id:'torneos',title:'Torneos',color:'#2563eb',hasRange:true,hasResultSelect:true,isMatch:false,order:0},
+  {id:'amistosos',title:'Amistosos',color:'#d97706',hasRange:false,hasResultSelect:false,isMatch:true,order:1},
+  {id:'primer',title:'1er Equipo',color:'#92400e',hasRange:false,hasResultSelect:false,isMatch:true,order:2},
+];
 let itemsCache={};
 const collapsed={};
 
 const seasonsRef=()=>db.collection('planificacion_seasons');
 const catsRef=()=>db.collection('planificacion_categories');
 const itemsRef=()=>db.collection('planificacion_items_v2');
-
 function itemsKey(catId,season){return catId+'_'+season.replace('/','-');}
 
 async function loadSeasons(){
-  const snap=await seasonsRef().orderBy('order').get();
-  if(snap.empty){await seasonsRef().doc('2026-2027').set({name:'2026/2027',order:0});seasons=['2026/2027'];}
-  else seasons=snap.docs.map(d=>d.data().name);
-  activeSeason=seasons[0];renderSeasons();
+  try{
+    const snap=await seasonsRef().orderBy('order').get();
+    if(snap.empty){await seasonsRef().doc('2026-2027').set({name:'2026/2027',order:0});seasons=['2026/2027'];}
+    else seasons=snap.docs.map(d=>d.data().name);
+    activeSeason=seasons[0]||'2026/2027';
+  }catch(e){console.error('loadSeasons',e);showSync('error');}
+  renderSeasons();
 }
 async function loadCategories(){
-  const snap=await catsRef().orderBy('order').get();
-  if(snap.empty){
-    const defaults=[
-      {id:'torneos',title:'Torneos',color:'#2563eb',hasRange:true,hasResultSelect:true,isMatch:false,order:0},
-      {id:'amistosos',title:'Amistosos',color:'#d97706',hasRange:false,hasResultSelect:false,isMatch:true,order:1},
-      {id:'primer',title:'1er Equipo',color:'#92400e',hasRange:false,hasResultSelect:false,isMatch:true,order:2},
-    ];
-    const batch=db.batch();defaults.forEach(c=>batch.set(catsRef().doc(c.id),c));await batch.commit();
-    categories=defaults;
-  } else {
-    categories=snap.docs.map(d=>{const data={id:d.id,...d.data()};if(data.isMatch===undefined)data.isMatch=(d.id==='amistosos'||d.id==='primer');return data;});
-  }
+  try{
+    const snap=await catsRef().orderBy('order').get();
+    if(snap.empty){
+      // First time: write defaults
+      const batch=db.batch();categories.forEach(c=>batch.set(catsRef().doc(c.id),c));await batch.commit();
+    } else {
+      categories=snap.docs.map(d=>{
+        const data={id:d.id,...d.data()};
+        if(data.isMatch===undefined)data.isMatch=(d.id==='amistosos'||d.id==='primer');
+        if(data.hasRange===undefined)data.hasRange=(d.id==='torneos');
+        if(data.hasResultSelect===undefined)data.hasResultSelect=(d.id==='torneos');
+        return data;
+      });
+    }
+  }catch(e){console.error('loadCategories',e);showSync('error');}
 }
 async function loadItemsForSeason(season){
   for(const cat of categories){
     const k=itemsKey(cat.id,season);
     if(itemsCache[k])continue;
-    const doc=await itemsRef().doc(k).get();
-    itemsCache[k]=doc.exists?(doc.data().items||[]):[];
+    try{
+      const doc=await itemsRef().doc(k).get();
+      itemsCache[k]=doc.exists?(doc.data().items||[]):[];
+    }catch(e){console.error('loadItems',cat.id,e);itemsCache[k]=[];}
   }
 }
-function getAllItems(catId){
-  const k=itemsKey(catId,activeSeason);
-  if(!itemsCache[k])itemsCache[k]=[];
-  return itemsCache[k];
-}
-// items visible in active team: those whose teams[] includes activeTeam OR is empty (legacy) — actually items have explicit teams arr
-function getVisibleItems(catId){
-  return getAllItems(catId).filter(it=>!it.teams||it.teams.length===0||it.teams.includes(activeTeam));
-}
+function getAllItems(catId){const k=itemsKey(catId,activeSeason);if(!itemsCache[k])itemsCache[k]=[];return itemsCache[k];}
+function getVisibleItems(catId){return getAllItems(catId).filter(it=>!it.teams||it.teams.length===0||it.teams.includes(activeTeam));}
 async function saveItems(catId){
   showSync('saving');
   const k=itemsKey(catId,activeSeason);
-  await itemsRef().doc(k).set({items:itemsCache[k]||[],season:activeSeason,catId});
-  showSync('ok');
+  try{await itemsRef().doc(k).set({items:itemsCache[k]||[],season:activeSeason,catId});showSync('ok');}
+  catch(e){console.error('saveItems',e);showSync('error');}
 }
 
 function renderSeasons(){const sel=document.getElementById('seasonSel');sel.innerHTML=seasons.map(s=>`<option value="${s}" ${s===activeSeason?'selected':''}>${s}</option>`).join('');document.getElementById('headerSeason').textContent=activeSeason;}
-async function changeSeason(){activeSeason=document.getElementById('seasonSel').value;document.getElementById('headerSeason').textContent=activeSeason;await loadItemsForSeason(activeSeason);renderAll();}
-async function addSeason(){const last=seasons[seasons.length-1];const[a,b]=last.split('/').map(Number);const ns=b+'/'+(b+1);if(!seasons.includes(ns)){seasons.push(ns);const id=ns.replace('/','-');await seasonsRef().doc(id).set({name:ns,order:seasons.length-1});activeSeason=ns;renderSeasons();await loadItemsForSeason(activeSeason);renderAll();}}
+async function changeSeason(){activeSeason=document.getElementById('seasonSel').value;document.getElementById('headerSeason').textContent=activeSeason;renderAll();await loadItemsForSeason(activeSeason);renderAll();}
+async function addSeason(){const last=seasons[seasons.length-1];const[a,b]=last.split('/').map(Number);const ns=b+'/'+(b+1);if(!seasons.includes(ns)){seasons.push(ns);try{const id=ns.replace('/','-');await seasonsRef().doc(id).set({name:ns,order:seasons.length-1});}catch(e){console.error(e);}activeSeason=ns;renderSeasons();await loadItemsForSeason(activeSeason);renderAll();}}
 function renderTeamBar(){document.getElementById('teamBar').innerHTML=TEAMS.map(t=>`<button class="team-btn ${t.key===activeTeam?'active':''}" onclick="selectTeam('${t.key}')">${t.key}</button>`).join('');}
 function selectTeam(k){activeTeam=k;renderTeamBar();renderAll();}
 function togglePanel(id){const b=document.getElementById(id),c=document.getElementById('chev_'+id);if(!b||!c)return;collapsed[id]=!collapsed[id];if(collapsed[id]){b.classList.add('collapsed');c.classList.add('collapsed');}else{b.classList.remove('collapsed');c.classList.remove('collapsed');}}
@@ -270,57 +258,56 @@ function togglePanel(id){const b=document.getElementById(id),c=document.getEleme
 const MESES=['julio','agosto','septiembre','octubre','noviembre','diciembre','enero','febrero','marzo','abril','mayo','junio'];
 const ML={julio:'Julio',agosto:'Agosto',septiembre:'Septiembre',octubre:'Octubre',noviembre:'Noviembre',diciembre:'Diciembre',enero:'Enero',febrero:'Febrero',marzo:'Marzo',abril:'Abril',mayo:'Mayo',junio:'Junio'};
 const DN=['L','M','X','J','V','S','D'];
-
-// FIX: parse fechas correctly; ISO format YYYY-MM-DD already includes year, no remapping needed
+const monthNumToKey={1:'enero',2:'febrero',3:'marzo',4:'abril',5:'mayo',6:'junio',7:'julio',8:'agosto',9:'septiembre',10:'octubre',11:'noviembre',12:'diciembre'};
 function dtD(iso){if(!iso)return 'Sin fecha';const[y,m,d]=iso.split('-');return`${+d}/${+m}/${y}`;}
 function dtR(a,b){if(!a)return 'Sin fecha';if(!b||b===a)return dtD(a);return dtD(a)+' — '+dtD(b);}
-function parseISO(iso){if(!iso)return null;const[y,m,d]=iso.split('-').map(Number);return{y,m,d};}
-function dtDays(a,b){if(!a)return[];const sp=parseISO(a),ep=b?parseISO(b):sp;const arr=[];const start=new Date(sp.y,sp.m-1,sp.d),end=new Date(ep.y,ep.m-1,ep.d);for(let dt=new Date(start);dt<=end;dt.setDate(dt.getDate()+1)){arr.push({y:dt.getFullYear(),m:dt.getMonth()+1,d:dt.getDate()});}return arr;}
-function getSY(){const[a,b]=activeSeason.split('/').map(Number);return{f:a,s:b};}
-// Map month name to expected year in active season
+function parseISO(iso){if(!iso)return null;const p=iso.split('-');if(p.length!==3)return null;return{y:+p[0],m:+p[1],d:+p[2]};}
+function dtDays(a,b){const sp=parseISO(a);if(!sp)return[];const ep=parseISO(b)||sp;const arr=[];const start=new Date(sp.y,sp.m-1,sp.d),end=new Date(ep.y,ep.m-1,ep.d);if(isNaN(start)||isNaN(end))return[];for(let dt=new Date(start);dt<=end;dt.setDate(dt.getDate()+1)){arr.push({y:dt.getFullYear(),m:dt.getMonth()+1,d:dt.getDate()});}return arr;}
+function getSY(){const p=activeSeason.split('/').map(Number);return{f:p[0]||2026,s:p[1]||2027};}
 function getMY(m){const sy=getSY();return['julio','agosto','septiembre','octubre','noviembre','diciembre'].includes(m)?sy.f:sy.s;}
 function gMI(m){return{enero:0,febrero:1,marzo:2,abril:3,mayo:4,junio:5,julio:6,agosto:7,septiembre:8,octubre:9,noviembre:10,diciembre:11}[m];}
 function gDIM(m){return new Date(getMY(m),gMI(m)+1,0).getDate();}
 function gFD(m){let d=new Date(getMY(m),gMI(m),1).getDay();return d===0?6:d-1;}
-function contrast(h){const r=parseInt(h.substr(1,2),16),g=parseInt(h.substr(3,2),16),b=parseInt(h.substr(5,2),16);return(r*299+g*587+b*114)/1000>140?'#1a1d23':'#fff';}
-
-const monthNumToKey={1:'enero',2:'febrero',3:'marzo',4:'abril',5:'mayo',6:'junio',7:'julio',8:'agosto',9:'septiembre',10:'octubre',11:'noviembre',12:'diciembre'};
+function contrast(h){if(!h||h.length<7)return '#fff';const r=parseInt(h.substr(1,2),16),g=parseInt(h.substr(3,2),16),b=parseInt(h.substr(5,2),16);return(r*299+g*587+b*114)/1000>140?'#1a1d23':'#fff';}
 
 function buildHL(){
-  // For each month-day in current season, list events. Use REAL date (year+month+day) instead of just month name.
-  const sy=getSY();
   const h={};MESES.forEach(m=>h[m]={});
-  categories.forEach(cat=>{
-    getVisibleItems(cat.id).forEach(it=>{
-      if(!it.fechaInicio)return;
-      const days=dtDays(it.fechaInicio,it.fechaFin||it.fechaInicio);
-      days.forEach(({y,m,d})=>{
-        // Check this date belongs to active season
-        const monthKey=monthNumToKey[m];
-        if(!monthKey)return;
-        const expectedY=getMY(monthKey);
-        if(y!==expectedY)return; // different season
-        if(!h[monthKey][d])h[monthKey][d]=[];
-        h[monthKey][d].push({color:cat.color,name:it.nombre,catTitle:cat.title,loc:it.ubicacion||'',res:it.resultado||''});
+  try{
+    categories.forEach(cat=>{
+      const items=getVisibleItems(cat.id);
+      items.forEach(it=>{
+        if(!it||!it.fechaInicio)return;
+        const days=dtDays(it.fechaInicio,it.fechaFin||it.fechaInicio);
+        days.forEach(({y,m,d})=>{
+          const monthKey=monthNumToKey[m];
+          if(!monthKey)return;
+          const expectedY=getMY(monthKey);
+          if(y!==expectedY)return;
+          if(!h[monthKey][d])h[monthKey][d]=[];
+          h[monthKey][d].push({color:cat.color||'#2563eb',name:it.nombre||'',catTitle:cat.title||'',loc:it.ubicacion||'',res:it.resultado||''});
+        });
       });
     });
-  });
+  }catch(e){console.error('buildHL',e);}
   return h;
 }
 
 function renderCalendar(){
-  const g=document.getElementById('calGrid');g.innerHTML='';const hl=buildHL();
-  document.getElementById('calTeamLabel').textContent='— '+(TEAMS.find(t=>t.key===activeTeam)||{}).name;
+  const g=document.getElementById('calGrid');
+  if(!g)return;
+  g.innerHTML='';
+  const hl=buildHL();
+  const teamObj=TEAMS.find(t=>t.key===activeTeam);
+  document.getElementById('calTeamLabel').textContent=teamObj?'— '+teamObj.name:'';
   MESES.forEach(m=>{
-    const yr=getMY(m),dc=gDIM(m),fd=gFD(m),h=hl[m];
+    const yr=getMY(m),dc=gDIM(m),fd=gFD(m),h=hl[m]||{};
     let ds='';
     for(let i=0;i<fd;i++)ds+='<span class="cal-d e"></span>';
     for(let d=1;d<=dc;d++){
       const dow=(fd+d-1)%7,we=dow>=5;
       if(h[d]&&h[d].length){
-        // Multi-event: pick first color as background, build tooltip listing all
         const first=h[d][0];const fg=contrast(first.color);
-        const ttHTML=h[d].map(ev=>`<div class="day-tt-event"><span class="day-tt-dot" style="background:${ev.color}"></span>${ev.loc?`<span class="day-tt-loc">${LOC_EMOJI[ev.loc]||''}</span>`:''}<span class="day-tt-name">${esc(ev.name)}</span><span class="day-tt-cat">${esc(ev.catTitle)}</span></div>`).join('');
+        const ttHTML=h[d].map(ev=>`<div class="day-tt-event"><span class="day-tt-dot" style="background:${ev.color}"></span>${ev.loc?`<span>${LOC_EMOJI[ev.loc]||''}</span>`:''}<span class="day-tt-name">${esc(ev.name)}</span><span class="day-tt-cat">${esc(ev.catTitle)}</span></div>`).join('');
         ds+=`<span class="cal-d has-event" style="background:${first.color};color:${fg}">${d}<div class="day-tooltip">${ttHTML}</div></span>`;
       } else {
         ds+=`<span class="cal-d${we?' w':''}">${d}</span>`;
@@ -335,48 +322,40 @@ function renderCalendar(){
 const IC={ed:'<svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',dl:'<svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.8"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>',cfg:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>'};
 
 function renderRight(){
-  const col=document.getElementById('rightCol');col.innerHTML='';
+  const col=document.getElementById('rightCol');if(!col)return;col.innerHTML='';
   const sorted=[...categories].sort((a,b)=>(a.order||0)-(b.order||0));
   sorted.forEach(cat=>{
     const items=getVisibleItems(cat.id),bodyId='catBody_'+cat.id,isCol=collapsed[bodyId];
     const p=document.createElement('div');p.className='panel cat-panel';
-    p.innerHTML=`<div class="panel-header" onclick="togglePanel('${bodyId}')"><div class="panel-title"><span class="chevron ${isCol?'collapsed':''}" id="chev_${bodyId}">▼</span><span class="panel-color-dot" style="background:${cat.color}"></span>${cat.title} <span style="font-size:9px;color:var(--text-mut);font-weight:400;margin-left:2px">(${items.length})</span></div><div class="cat-acts" onclick="event.stopPropagation()"><button class="btn-cfg" onclick="openCatCfg('${cat.id}')" title="Configurar">${IC.cfg}</button><button class="btn-add" onclick="openModal('${cat.id}')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Añadir</button></div></div><div class="panel-body ${isCol?'collapsed':''}" id="${bodyId}"><div class="card-list" id="list_${cat.id}"></div></div>`;
+    p.innerHTML=`<div class="panel-header" onclick="togglePanel('${bodyId}')"><div class="panel-title"><span class="chevron ${isCol?'collapsed':''}" id="chev_${bodyId}">▼</span><span class="panel-color-dot" style="background:${cat.color}"></span>${esc(cat.title)} <span style="font-size:9px;color:var(--text-mut);font-weight:400;margin-left:2px">(${items.length})</span></div><div class="cat-acts" onclick="event.stopPropagation()"><button class="btn-cfg" onclick="openCatCfg('${cat.id}')" title="Configurar">${IC.cfg}</button><button class="btn-add" onclick="openModal('${cat.id}')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Añadir</button></div></div><div class="panel-body ${isCol?'collapsed':''}" id="${bodyId}"><div class="card-list" id="list_${cat.id}"></div></div>`;
     col.appendChild(p);renderItems(cat);
   });
   const ad=document.createElement('div');ad.style.padding='2px 0';
   ad.innerHTML=`<button class="btn-new-cat" onclick="openNewCat()">+ Nueva categoría</button>`;col.appendChild(ad);
 }
 
-function teamScopeBadge(teams){
-  if(!teams||teams.length===0)return '';
-  if(teams.length===TEAMS.length)return '<span class="item-team-tag" title="Todos los equipos">TODOS</span>';
-  if(teams.length===1)return '';
-  if(teams.length<=3)return `<span class="item-team-tag" title="${teams.join(', ')}">${teams.join('+')}</span>`;
-  return `<span class="item-team-tag" title="${teams.join(', ')}">${teams.length} EQ</span>`;
-}
+function teamScopeBadge(teams){if(!teams||teams.length===0)return '';if(teams.length===TEAMS.length)return '<span class="item-team-tag" title="Todos los equipos">TODOS</span>';if(teams.length===1)return '';if(teams.length<=3)return `<span class="item-team-tag" title="${teams.join(', ')}">${teams.join('+')}</span>`;return `<span class="item-team-tag" title="${teams.join(', ')}">${teams.length} EQ</span>`;}
 
 function renderItems(cat){
-  // Items shown: visible in current team, sorted by date
-  const items=getVisibleItems(cat.id).slice().sort((a,b)=>{if(!a.fechaInicio)return 1;if(!b.fechaInicio)return -1;return a.fechaInicio.localeCompare(b.fechaInicio);});
+  const visible=getVisibleItems(cat.id).slice().sort((a,b)=>{if(!a.fechaInicio)return 1;if(!b.fechaInicio)return -1;return a.fechaInicio.localeCompare(b.fechaInicio);});
   const allItems=getAllItems(cat.id);
   const l=document.getElementById('list_'+cat.id);if(!l)return;
-  if(!items.length){l.innerHTML='<div class="empty-st">Sin elementos para este equipo.</div>';return;}
-  l.innerHTML=items.map(it=>{
+  if(!visible.length){l.innerHTML='<div class="empty-st">Sin elementos para este equipo.</div>';return;}
+  l.innerHTML=visible.map(it=>{
     const realIdx=allItems.indexOf(it);
     const rcolor=getResColor(it.resultado);
     let resCls='';if(rcolor==='green')resCls='res-green';else if(rcolor==='orange')resCls='res-orange';else if(rcolor==='red')resCls='res-red';
     const dt=cat.hasRange?dtR(it.fechaInicio,it.fechaFin):dtD(it.fechaInicio);
     const locE=cat.isMatch&&it.ubicacion?LOC_EMOJI[it.ubicacion]||'':'';
     const tBadge=teamScopeBadge(it.teams||[]);
-    return`<div class="item-card ${resCls}"><div class="item-row"><span class="st-badge ${it.estado}">${it.estado==='provisional'?'⏳':'✅'}</span>${locE?`<span class="item-loc">${locE}</span>`:''}<span class="item-nm">${esc(it.nombre)}</span>${tBadge}<span class="item-dt">${dt}</span>${it.obs?`<span class="obs-dot" tabindex="0">💬<span class="obs-tt">${esc(it.obs)}</span></span>`:''}<div class="item-acts"><button onclick="openModal('${cat.id}',${realIdx})" title="Editar">${IC.ed}</button><button onclick="delItem('${cat.id}',${realIdx})" title="Borrar">${IC.dl}</button></div></div>${it.resultado?`<div class="item-sub"><span class="res-tag ${rcolor}">${getResIcon(it.resultado)}${getResIcon(it.resultado)?' ':''}${esc(it.resultado)}</span></div>`:''}</div>`;
+    return`<div class="item-card ${resCls}"><div class="item-row"><span class="st-badge ${it.estado||'provisional'}">${(it.estado||'provisional')==='provisional'?'⏳':'✅'}</span>${locE?`<span class="item-loc">${locE}</span>`:''}<span class="item-nm">${esc(it.nombre)}</span>${tBadge}<span class="item-dt">${dt}</span>${it.obs?`<span class="obs-dot" tabindex="0">💬<span class="obs-tt">${esc(it.obs)}</span></span>`:''}<div class="item-acts"><button onclick="openModal('${cat.id}',${realIdx})" title="Editar">${IC.ed}</button><button onclick="delItem('${cat.id}',${realIdx})" title="Borrar">${IC.dl}</button></div></div>${it.resultado?`<div class="item-sub"><span class="res-tag ${rcolor}">${getResIcon(it.resultado)}${getResIcon(it.resultado)?' ':''}${esc(it.resultado)}</span></div>`:''}</div>`;
   }).join('');
 }
 
-function esc(s){if(!s)return '';const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+function esc(s){if(s==null)return '';const d=document.createElement('div');d.textContent=String(s);return d.innerHTML;}
 
 function teamScopeUI(currentTeams){
-  // currentTeams: array of team keys ([] = none yet → default to active)
-  const tms=currentTeams||[];
+  const tms=Array.isArray(currentTeams)?currentTeams:[activeTeam];
   const mode=tms.length===0?'this':(tms.length===TEAMS.length?'all':(tms.length===1&&tms[0]===activeTeam?'this':'multi'));
   const cbGrid=TEAMS.map(t=>`<label class="team-scope-cb"><input type="checkbox" name="mTms" value="${t.key}" ${tms.includes(t.key)?'checked':''}> ${t.key}</label>`).join('');
   return `<label>Aplica a equipo(s)</label>
@@ -387,26 +366,18 @@ function teamScopeUI(currentTeams){
     </div>
     <div class="team-scope-grid" id="teamScopeGrid" style="display:${mode==='multi'?'grid':'none'}">${cbGrid}</div>`;
 }
-function updScope(){
-  const mode=document.querySelector('input[name="mScope"]:checked').value;
-  document.getElementById('teamScopeGrid').style.display=mode==='multi'?'grid':'none';
-}
-function getScopeTeams(){
-  const mode=document.querySelector('input[name="mScope"]:checked').value;
-  if(mode==='this')return[activeTeam];
-  if(mode==='all')return TEAMS.map(t=>t.key);
-  const checks=Array.from(document.querySelectorAll('input[name="mTms"]:checked')).map(c=>c.value);
-  return checks.length?checks:[activeTeam];
-}
+function updScope(){const m=document.querySelector('input[name="mScope"]:checked').value;document.getElementById('teamScopeGrid').style.display=m==='multi'?'grid':'none';}
+function getScopeTeams(){const mode=document.querySelector('input[name="mScope"]:checked').value;if(mode==='this')return[activeTeam];if(mode==='all')return TEAMS.map(t=>t.key);const ck=Array.from(document.querySelectorAll('input[name="mTms"]:checked')).map(c=>c.value);return ck.length?ck:[activeTeam];}
 
 let eT=null,eI=null;
 function openModal(cid,idx){
   eT=cid;eI=idx!=null?idx:null;
   const cat=categories.find(c=>c.id===cid);
+  if(!cat){alert('Categoría no encontrada');return;}
   const items=getAllItems(cid);
   const it=eI!=null?items[eI]:null;
   document.getElementById('mt').textContent=(it?'Editar':'Añadir')+' — '+cat.title;
-  let dH=cat.hasRange?`<label>Fechas</label><div class="dr"><input id="mFI" type="date" value="${it?it.fechaInicio:''}"><span>a</span><input id="mFF" type="date" value="${it?it.fechaFin:''}"></div>`:`<label>Fecha</label><input id="mFI" type="date" value="${it?it.fechaInicio:''}">`;
+  let dH=cat.hasRange?`<label>Fechas</label><div class="dr"><input id="mFI" type="date" value="${it?it.fechaInicio||'':''}"><span>a</span><input id="mFF" type="date" value="${it?it.fechaFin||'':''}"></div>`:`<label>Fecha</label><input id="mFI" type="date" value="${it?it.fechaInicio||'':''}">`;
   let rH;
   if(cat.hasResultSelect){
     const opts=RESULT_OPTIONS.map(o=>`<option value="${o.v}" ${it&&it.resultado===o.v?'selected':''}>${o.icon?o.icon+' ':''}${o.v}</option>`).join('');
@@ -414,7 +385,6 @@ function openModal(cid,idx){
   } else {
     rH=`<label>Resultado</label><input id="mR" value="${it?esc(it.resultado):''}" placeholder="Ej: Ganado 2-1">`;
   }
-  // Location ONLY for matches (not for tournaments)
   const curLoc=it?it.ubicacion||'':'';
   const locH=cat.isMatch?`<label>Ubicación</label><div class="loc-opts"><label class="loc-opt"><input type="radio" name="mLoc" value="" ${curLoc===''?'checked':''}> Sin definir</label><label class="loc-opt"><input type="radio" name="mLoc" value="casa" ${curLoc==='casa'?'checked':''}><span>🏠</span> Casa</label><label class="loc-opt"><input type="radio" name="mLoc" value="fuera" ${curLoc==='fuera'?'checked':''}><span>✈️</span> Fuera</label></div>`:'';
   const sedeH=`<label>Sede / Lugar</label><input id="mS" value="${it&&it.sede?esc(it.sede):''}" placeholder="Opcional">`;
@@ -425,7 +395,7 @@ function openModal(cid,idx){
 }
 
 async function saveItem(){
-  const cat=categories.find(c=>c.id===eT);
+  const cat=categories.find(c=>c.id===eT);if(!cat)return;
   const fi=document.getElementById('mFI').value;
   const ff=cat.hasRange&&document.getElementById('mFF')?document.getElementById('mFF').value:fi;
   const rEl=document.getElementById('mR');
@@ -433,10 +403,10 @@ async function saveItem(){
   const teams=getScopeTeams();
   const d={
     nombre:document.getElementById('mN').value.trim()||'Sin nombre',
-    fechaInicio:fi,fechaFin:ff||fi,
+    fechaInicio:fi||'',fechaFin:ff||fi||'',
     sede:document.getElementById('mS').value.trim(),
     estado:document.getElementById('mE').value,
-    resultado:rEl?(rEl.value.trim?rEl.value.trim():rEl.value):'',
+    resultado:rEl?(typeof rEl.value==='string'?rEl.value.trim():rEl.value):'',
     ubicacion:locEl?locEl.value:'',
     obs:document.getElementById('mO').value.trim(),
     teams,
@@ -446,14 +416,10 @@ async function saveItem(){
   await saveItems(eT);closeModal();renderAll();
 }
 
-async function delItem(cid,idx){
-  if(!confirm('¿Eliminar?'))return;
-  const items=getAllItems(cid);items.splice(idx,1);
-  await saveItems(cid);renderAll();
-}
+async function delItem(cid,idx){if(!confirm('¿Eliminar?'))return;const items=getAllItems(cid);items.splice(idx,1);await saveItems(cid);renderAll();}
 
 function openCatCfg(cid){
-  const cat=categories.find(c=>c.id===cid);eT='__cfg';eI=cid;
+  const cat=categories.find(c=>c.id===cid);if(!cat)return;eT='__cfg';eI=cid;
   document.getElementById('mt').textContent='Configurar — '+cat.title;
   document.getElementById('mbd').innerHTML=`<label>Título</label><input id="mCT" value="${esc(cat.title)}">
     <label>Tipo de fecha</label><select id="mCR"><option value="0" ${!cat.hasRange?'selected':''}>Fecha única</option><option value="1" ${cat.hasRange?'selected':''}>Período (inicio — fin)</option></select>
@@ -465,22 +431,28 @@ function openCatCfg(cid){
 }
 
 async function saveCatCfg(){
-  const cat=categories.find(c=>c.id===eI);
+  const cat=categories.find(c=>c.id===eI);if(!cat)return;
   cat.title=document.getElementById('mCT').value.trim()||cat.title;
   cat.hasRange=document.getElementById('mCR').value==='1';
   cat.hasResultSelect=document.getElementById('mCRT').value==='1';
   cat.isMatch=document.getElementById('mCM').value==='1';
   cat.color=document.getElementById('mColor').value;
-  showSync('saving');await catsRef().doc(cat.id).set({...cat});showSync('ok');closeModal();renderAll();
+  showSync('saving');
+  try{await catsRef().doc(cat.id).set({...cat});showSync('ok');}catch(e){console.error(e);showSync('error');}
+  closeModal();renderAll();
 }
 
 async function delCat(cid){
   if(!confirm('¿Eliminar categoría y todos sus datos?'))return;
   categories=categories.filter(c=>c.id!==cid);
-  showSync('saving');await catsRef().doc(cid).delete();
-  const snap=await itemsRef().where('catId','==',cid).get();
-  const batch=db.batch();snap.docs.forEach(d=>batch.delete(d.ref));await batch.commit();
-  showSync('ok');closeModal();renderAll();
+  showSync('saving');
+  try{
+    await catsRef().doc(cid).delete();
+    const snap=await itemsRef().where('catId','==',cid).get();
+    const batch=db.batch();snap.docs.forEach(d=>batch.delete(d.ref));await batch.commit();
+    showSync('ok');
+  }catch(e){console.error(e);showSync('error');}
+  closeModal();renderAll();
 }
 
 function openNewCat(){
@@ -500,18 +472,24 @@ async function saveNewCat(){
   const id='cat_'+Date.now();
   const cat={id,title:t,color:document.getElementById('mColor').value,hasRange:document.getElementById('mCR').value==='1',hasResultSelect:document.getElementById('mCRT').value==='1',isMatch:document.getElementById('mCM').value==='1',order:categories.length};
   categories.push(cat);
-  showSync('saving');await catsRef().doc(id).set(cat);showSync('ok');closeModal();renderAll();
+  showSync('saving');
+  try{await catsRef().doc(id).set(cat);showSync('ok');}catch(e){console.error(e);showSync('error');}
+  closeModal();renderAll();
 }
 
 function closeModal(){document.getElementById('mo').classList.remove('active');eT=null;eI=null;}
-function renderAll(){renderCalendar();renderRight();}
+function renderAll(){try{renderCalendar();renderRight();}catch(e){console.error('renderAll',e);}}
 
-async function init(){
-  document.getElementById('rightCol').innerHTML='<div class="loading">Cargando datos...</div>';
-  await loadSeasons();await loadCategories();await loadItemsForSeason(activeSeason);
-  renderTeamBar();renderAll();
+// INIT — render UI immediately, then load data
+function initUI(){renderSeasons();renderTeamBar();renderAll();}
+async function loadData(){
+  await loadSeasons();
+  await loadCategories();
+  await loadItemsForSeason(activeSeason);
+  renderAll();
 }
-init();
+initUI();
+loadData().catch(e=>{console.error('init',e);showSync('error');});
 </script>
 </body>
 </html>
