@@ -216,6 +216,25 @@ function itemsKey(catId,season,forTeam){
   return catId+'_'+seasonPart;
 }
 
+// ── LocalStorage backup ──
+function lsKey(name){return 'planif_'+name;}
+function lsSave(name,data){try{localStorage.setItem(lsKey(name),JSON.stringify(data));}catch(e){}}
+function lsLoad(name){try{var s=localStorage.getItem(lsKey(name));return s?JSON.parse(s):null;}catch(e){return null;}}
+
+function saveAllToLS(){
+  lsSave('seasons',seasons);
+  lsSave('activeSeason',activeSeason);
+  lsSave('categories',categories);
+  lsSave('itemsCache',itemsCache);
+}
+
+function loadAllFromLS(){
+  var s=lsLoad('seasons');if(s&&s.length)seasons=s;
+  var as=lsLoad('activeSeason');if(as)activeSeason=as;
+  var c=lsLoad('categories');if(c&&c.length)categories=c;
+  var ic=lsLoad('itemsCache');if(ic)itemsCache=ic;
+}
+
 // ── Load ──
 async function loadSeasons(){
   try{
@@ -223,6 +242,8 @@ async function loadSeasons(){
     if(snap.empty){await seasonsRef().doc('2026-2027').set({name:'2026/2027',order:0});seasons=['2026/2027'];}
     else{seasons=snap.docs.map(d=>d.data().name).filter(Boolean);if(!seasons.length)seasons=['2026/2027'];}
     activeSeason=seasons[0];
+    lsSave('seasons',seasons);
+    lsSave('activeSeason',activeSeason);
   }catch(e){console.error('loadSeasons',e);showBanner('No se pudo conectar a Firebase para cargar temporadas: '+(e.message||e),true);}
 }
 
@@ -242,6 +263,7 @@ async function loadCategories(){
         return data;
       });
     }
+    lsSave('categories',categories);
   }catch(e){console.error('loadCategories',e);showBanner('No se pudieron cargar categorías: '+(e.message||e),true);}
 }
 
@@ -254,20 +276,34 @@ async function loadItemsForSeason(season){
       itemsCache[k]=doc.exists?(doc.data().items||[]):[];
     }catch(e){console.error('loadItems',cat.id,e);itemsCache[k]=[];}
   }
+  lsSave('itemsCache',itemsCache);
 }
 
 function getAllItems(catId){const k=itemsKey(catId,activeSeason);if(!itemsCache[k])itemsCache[k]=[];return itemsCache[k];}
 
 function isCatVisibleForTeam(cat,team){
   if(!cat)return false;
-  const mode=cat.scopeMode||'each';
+  var mode=cat.scopeMode||'each';
   if(mode==='all')return true;
-  if(!cat.teams||cat.teams.length===0)return true;
-  return cat.teams.includes(team);
+  // 'each': category appears in ALL teams (each has its own items via itemsKey)
+  // But if cat.teams has specific entries, only those teams see it
+  if(mode==='each'){
+    if(!cat.teams||cat.teams.length===0)return true; // default 'each' = visible everywhere, items separated by team
+    return cat.teams.includes(team);
+  }
+  // 'multi': only visible in selected teams
+  if(mode==='multi'){
+    if(!cat.teams||cat.teams.length===0)return false;
+    return cat.teams.includes(team);
+  }
+  return false;
 }
 
 async function saveItemsToFirebase(catId){
-  const k=itemsKey(catId,activeSeason);
+  var k=itemsKey(catId,activeSeason);
+  // Always save to localStorage immediately
+  saveAllToLS();
+  // Then try Firebase
   showSync('saving');
   try{
     await itemsRef().doc(k).set({items:itemsCache[k]||[],season:activeSeason,catId});
@@ -299,6 +335,7 @@ function addSeason(){
     if(seasons.includes(ns)){showBanner('La temporada '+ns+' ya existe',true);return;}
     seasons.push(ns);
     activeSeason=ns;
+    saveAllToLS();
     renderSeasons();
     renderAll();
     showBanner('Temporada '+ns+' creada');
@@ -319,6 +356,7 @@ function delSeason(){
   seasons=seasons.filter(function(s){return s!==toDelete;});
   activeSeason=seasons[0];
   Object.keys(itemsCache).forEach(function(k){if(k.indexOf('_'+idDoc)!==-1)delete itemsCache[k];});
+  saveAllToLS();
   renderSeasons();
   renderAll();
   showBanner('Temporada '+toDelete+' eliminada');
@@ -470,6 +508,15 @@ function getCatScope(){
 }
 
 // ── Item modal ──
+function syncDateMin(){
+  var fi=document.getElementById('mFI');
+  var ff=document.getElementById('mFF');
+  if(fi&&ff){
+    ff.min=fi.value||'';
+    // If end date is before start date, reset it
+    if(ff.value&&fi.value&&ff.value<fi.value)ff.value=fi.value;
+  }
+}
 let eT=null,eI=null;
 function openModal(cid,idx){
   eT=cid;eI=idx!=null?idx:null;
@@ -478,7 +525,7 @@ function openModal(cid,idx){
   const items=getAllItems(cid);
   const it=eI!=null?items[eI]:null;
   document.getElementById('mt').textContent=(it?'Editar':'Añadir')+' — '+cat.title;
-  let dH=cat.hasRange?`<label>Fechas</label><div class="dr"><input id="mFI" type="date" value="${it?it.fechaInicio||'':''}"><span>a</span><input id="mFF" type="date" value="${it?it.fechaFin||'':''}"></div>`:`<label>Fecha</label><input id="mFI" type="date" value="${it?it.fechaInicio||'':''}">`;
+  let dH=cat.hasRange?`<label>Fechas</label><div class="dr"><input id="mFI" type="date" value="${it?it.fechaInicio||'':''}" onchange="syncDateMin()"><span>a</span><input id="mFF" type="date" value="${it?it.fechaFin||'':''}" min="${it&&it.fechaInicio?it.fechaInicio:''}"></div>`:`<label>Fecha</label><input id="mFI" type="date" value="${it?it.fechaInicio||'':''}">`;
   let rH;
   if(cat.hasResultSelect){
     const opts=RESULT_OPTIONS.map(o=>`<option value="${o.v}" ${it&&it.resultado===o.v?'selected':''}>${o.icon?o.icon+' ':''}${o.v}</option>`).join('');
@@ -521,6 +568,7 @@ function saveItem(){
     const catId=eT;
     const items=getAllItems(catId);
     if(eI!=null&&eI>=0&&eI<items.length){Object.assign(items[eI],d);}else{items.push(d);}
+    saveAllToLS();
     closeModal();
     renderAll();
     saveItemsToFirebase(catId);
@@ -588,6 +636,7 @@ function saveCatCfg(){
     const colorEl=document.getElementById('mColor');
     cat.color=colorEl?colorEl.value:cat.color;
     var sc=getCatScope();cat.scopeMode=sc.scopeMode;cat.teams=sc.teams;
+    saveAllToLS();
     closeModal();
     renderAll();
     showSync('saving');
@@ -598,6 +647,7 @@ function saveCatCfg(){
 function delCat(cid){
   if(!confirm('¿Eliminar categoría y todos sus datos?'))return;
   categories=categories.filter(function(c){return c.id!==cid;});
+  saveAllToLS();
   closeModal();
   renderAll();
   showBanner('Categoría eliminada');
@@ -645,6 +695,7 @@ function saveNewCat(){
       order:categories.length
     };
     categories.push(cat);
+    saveAllToLS();
     closeModal();
     renderAll();
     showBanner('Categoría "'+t+'" creada');
@@ -661,8 +712,15 @@ function closeModal(){document.getElementById('mo').classList.remove('active');e
 function renderAll(){try{renderCalendar();renderRight();}catch(e){console.error('renderAll',e);}}
 
 // ── Init ──
-function initUI(){renderSeasons();renderTeamBar();renderAll();}
+function initUI(){
+  // Load from localStorage first (instant)
+  loadAllFromLS();
+  renderSeasons();
+  renderTeamBar();
+  renderAll();
+}
 async function loadData(){
+  // Then load from Firebase (overwrites localStorage data if successful)
   await loadSeasons();
   renderSeasons();
   await loadCategories();
@@ -670,7 +728,7 @@ async function loadData(){
   renderAll();
 }
 initUI();
-loadData().catch(e=>{console.error('init',e);showBanner('Error al cargar datos: '+(e.message||e),true);});
+loadData().catch(function(e){console.error('init',e);showBanner('Error al cargar datos de Firebase: '+(e.message||e)+'. Usando datos locales.',true);});
 </script>
 </body>
 </html>
