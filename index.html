@@ -290,45 +290,45 @@ async function changeSeason(){
   renderAll();
 }
 
-async function addSeason(){
+function addSeason(){
   try{
-    const last=seasons[seasons.length-1];
-    const parts=last.split('/').map(Number);
+    var last=seasons[seasons.length-1];
+    var parts=last.split('/').map(Number);
     if(parts.length<2||isNaN(parts[1])){showBanner('Última temporada inválida: '+last,true);return;}
-    const ns=parts[1]+'/'+(parts[1]+1);
+    var ns=parts[1]+'/'+(parts[1]+1);
     if(seasons.includes(ns)){showBanner('La temporada '+ns+' ya existe',true);return;}
     seasons.push(ns);
     activeSeason=ns;
     renderSeasons();
     renderAll();
     showBanner('Temporada '+ns+' creada');
-    try{
-      await seasonsRef().doc(ns.replace('/','-')).set({name:ns,order:seasons.length-1});
-      await loadItemsForSeason(activeSeason);
-      renderAll();
-    }catch(e){console.error(e);showBanner('Creada localmente. Firebase: '+(e.message||e),true);}
+    showSync('saving');
+    seasonsRef().doc(ns.replace('/','-')).set({name:ns,order:seasons.length-1})
+      .then(function(){return loadItemsForSeason(activeSeason);})
+      .then(function(){showSync('ok');renderAll();})
+      .catch(function(e){console.error(e);showSync('error');showBanner('Firebase: '+(e.message||e),true);});
   }catch(e){console.error('addSeason',e);showBanner('Error: '+(e.message||e),true);}
 }
 
-async function delSeason(){
+function delSeason(){
   if(seasons.length<=1){showBanner('Debe haber al menos una temporada',true);return;}
-  if(!confirm('¿Eliminar la temporada '+activeSeason+'?\n\nSe borrarán TODOS sus datos. Esta acción no se puede deshacer.'))return;
-  if(!confirm('¿Confirmas? Última oportunidad.\n\nTemporada a eliminar: '+activeSeason))return;
-  const toDelete=activeSeason;
-  const idDoc=toDelete.replace('/','-');
-  seasons=seasons.filter(s=>s!==toDelete);
+  if(!confirm('¿Eliminar la temporada '+activeSeason+'?\nSe borrarán TODOS sus datos.'))return;
+  if(!confirm('Última confirmación: ¿Eliminar '+activeSeason+'?'))return;
+  var toDelete=activeSeason;
+  var idDoc=toDelete.replace('/','-');
+  seasons=seasons.filter(function(s){return s!==toDelete;});
   activeSeason=seasons[0];
-  Object.keys(itemsCache).forEach(k=>{if(k.includes('_'+idDoc))delete itemsCache[k];});
+  Object.keys(itemsCache).forEach(function(k){if(k.indexOf('_'+idDoc)!==-1)delete itemsCache[k];});
   renderSeasons();
   renderAll();
   showBanner('Temporada '+toDelete+' eliminada');
-  try{
-    await seasonsRef().doc(idDoc).delete();
-    const snap=await itemsRef().where('season','==',toDelete).get();
-    if(!snap.empty){const batch=db.batch();snap.docs.forEach(d=>batch.delete(d.ref));await batch.commit();}
-    await loadItemsForSeason(activeSeason);
-    renderAll();
-  }catch(e){console.error('delSeason',e);showBanner('Firebase: '+(e.message||e),true);}
+  showSync('saving');
+  seasonsRef().doc(idDoc).delete()
+    .then(function(){return itemsRef().where('season','==',toDelete).get();})
+    .then(function(snap){if(!snap.empty){var batch=db.batch();snap.docs.forEach(function(d){batch.delete(d.ref);});return batch.commit();}})
+    .then(function(){return loadItemsForSeason(activeSeason);})
+    .then(function(){showSync('ok');renderAll();})
+    .catch(function(e){console.error(e);showSync('error');showBanner('Firebase: '+(e.message||e),true);});
 }
 
 // ── Teams ──
@@ -459,7 +459,15 @@ function catScopeUI(scopeMode,teams){
     <div class="team-scope-grid" id="multiTeamGrid" style="display:${mode==='multi'?'grid':'none'}">${cbGrid}</div>`;
 }
 function updScope(){const m=document.querySelector('input[name="mScope"]:checked').value;document.getElementById('eachTeamWrap').style.display=m==='each'?'block':'none';document.getElementById('multiTeamGrid').style.display=m==='multi'?'grid':'none';}
-function getCatScope(){const mode=document.querySelector('input[name="mScope"]:checked').value;if(mode==='all')return{scopeMode:'all',teams:[]};if(mode==='each'){const t=document.getElementById('mEachTeam').value;return{scopeMode:'each',teams:[t]};}const ck=Array.from(document.querySelectorAll('input[name="mTms"]:checked')).map(c=>c.value);return{scopeMode:'multi',teams:ck.length?ck:[activeTeam]};}
+function getCatScope(){
+  const el=document.querySelector('input[name="mScope"]:checked');
+  if(!el)return{scopeMode:'each',teams:[activeTeam]};
+  const mode=el.value;
+  if(mode==='all')return{scopeMode:'all',teams:[]};
+  if(mode==='each'){const t=document.getElementById('mEachTeam');return{scopeMode:'each',teams:[t?t.value:activeTeam]};}
+  const ck=Array.from(document.querySelectorAll('input[name="mTms"]:checked')).map(c=>c.value);
+  return{scopeMode:'multi',teams:ck.length?ck:[activeTeam]};
+}
 
 // ── Item modal ──
 let eT=null,eI=null;
@@ -565,33 +573,40 @@ function openCatCfg(cid){
   document.getElementById('mo').classList.add('active');
 }
 
-async function saveCatCfg(){
+function saveCatCfg(){
   try{
-    const cat=categories.find(c=>c.id===eI);if(!cat)return;
-    cat.title=document.getElementById('mCT').value.trim()||cat.title;
-    cat.hasRange=document.getElementById('mCR').value==='1';
-    cat.hasResultSelect=document.getElementById('mCRT').value==='1';
-    cat.isMatch=document.getElementById('mCM').value==='1';
-    cat.color=document.getElementById('mColor').value;
-    const sc=getCatScope();cat.scopeMode=sc.scopeMode;cat.teams=sc.teams;
-    closeModal();renderAll();
+    const cat=categories.find(function(c){return c.id===eI;});
+    if(!cat){showBanner('Categoría no encontrada',true);return;}
+    const ctEl=document.getElementById('mCT');
+    cat.title=ctEl?ctEl.value.trim()||cat.title:cat.title;
+    const crEl=document.getElementById('mCR');
+    cat.hasRange=crEl?crEl.value==='1':cat.hasRange;
+    const crtEl=document.getElementById('mCRT');
+    cat.hasResultSelect=crtEl?crtEl.value==='1':cat.hasResultSelect;
+    const cmEl=document.getElementById('mCM');
+    cat.isMatch=cmEl?cmEl.value==='1':cat.isMatch;
+    const colorEl=document.getElementById('mColor');
+    cat.color=colorEl?colorEl.value:cat.color;
+    var sc=getCatScope();cat.scopeMode=sc.scopeMode;cat.teams=sc.teams;
+    closeModal();
+    renderAll();
     showSync('saving');
-    try{await catsRef().doc(cat.id).set({...cat});showSync('ok');}
-    catch(e){console.error(e);showSync('error');showBanner('Firebase: '+(e.message||e),true);}
+    catsRef().doc(cat.id).set(Object.assign({},cat)).then(function(){showSync('ok');}).catch(function(e){console.error(e);showSync('error');showBanner('Firebase: '+(e.message||e),true);});
   }catch(e){showBanner('Error: '+(e.message||e),true);}
 }
 
-async function delCat(cid){
+function delCat(cid){
   if(!confirm('¿Eliminar categoría y todos sus datos?'))return;
-  categories=categories.filter(c=>c.id!==cid);
-  closeModal();renderAll();
+  categories=categories.filter(function(c){return c.id!==cid;});
+  closeModal();
+  renderAll();
+  showBanner('Categoría eliminada');
   showSync('saving');
-  try{
-    await catsRef().doc(cid).delete();
-    const snap=await itemsRef().where('catId','==',cid).get();
-    if(!snap.empty){const batch=db.batch();snap.docs.forEach(d=>batch.delete(d.ref));await batch.commit();}
-    showSync('ok');
-  }catch(e){console.error(e);showSync('error');showBanner('Firebase: '+(e.message||e),true);}
+  catsRef().doc(cid).delete().then(function(){
+    return itemsRef().where('catId','==',cid).get();
+  }).then(function(snap){
+    if(!snap.empty){var batch=db.batch();snap.docs.forEach(function(d){batch.delete(d.ref);});return batch.commit();}
+  }).then(function(){showSync('ok');}).catch(function(e){console.error(e);showSync('error');showBanner('Firebase: '+(e.message||e),true);});
 }
 
 function openNewCat(){
@@ -607,19 +622,39 @@ function openNewCat(){
   document.getElementById('mo').classList.add('active');
 }
 
-async function saveNewCat(){
+function saveNewCat(){
   try{
-    const t=document.getElementById('mCT').value.trim();
-    if(!t){showBanner('Escribe un título',true);return;}
+    const tEl=document.getElementById('mCT');
+    const t=tEl?tEl.value.trim():'';
+    if(!t){showBanner('Escribe un título para la categoría',true);return;}
     const id='cat_'+Date.now();
     const sc=getCatScope();
-    const cat={id,title:t,color:document.getElementById('mColor').value,hasRange:document.getElementById('mCR').value==='1',hasResultSelect:document.getElementById('mCRT').value==='1',isMatch:document.getElementById('mCM').value==='1',scopeMode:sc.scopeMode,teams:sc.teams,order:categories.length};
+    const colorEl=document.getElementById('mColor');
+    const crEl=document.getElementById('mCR');
+    const crtEl=document.getElementById('mCRT');
+    const cmEl=document.getElementById('mCM');
+    const cat={
+      id:id,
+      title:t,
+      color:colorEl?colorEl.value:'#2563eb',
+      hasRange:crEl?crEl.value==='1':false,
+      hasResultSelect:crtEl?crtEl.value==='1':false,
+      isMatch:cmEl?cmEl.value==='1':false,
+      scopeMode:sc.scopeMode,
+      teams:sc.teams,
+      order:categories.length
+    };
     categories.push(cat);
-    closeModal();renderAll();
+    closeModal();
+    renderAll();
+    showBanner('Categoría "'+t+'" creada');
+    // Firebase persist in background
     showSync('saving');
-    try{await catsRef().doc(id).set(cat);showSync('ok');}
-    catch(e){console.error(e);showSync('error');showBanner('Firebase: '+(e.message||e),true);}
-  }catch(e){showBanner('Error: '+(e.message||e),true);}
+    catsRef().doc(id).set(cat).then(function(){showSync('ok');}).catch(function(e){console.error(e);showSync('error');showBanner('Firebase: '+(e.message||e),true);});
+  }catch(e){
+    console.error('saveNewCat',e);
+    showBanner('Error creando categoría: '+(e.message||e),true);
+  }
 }
 
 function closeModal(){document.getElementById('mo').classList.remove('active');eT=null;eI=null;}
