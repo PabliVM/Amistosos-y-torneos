@@ -374,7 +374,7 @@ function renderTeamBar(){
       activeTeam=k;
       renderTeamBar();
       renderAll();
-      loadItemsForSeason(activeSeason,true).then(function(){renderAll();});
+      loadItemsForSeason(activeSeason,true).then(function(){return loadFechasClave();}).then(function(){renderAll();});
     });
   });
 }
@@ -399,6 +399,17 @@ function contrast(h){if(!h||h.length<7)return'#fff';var r=parseInt(h.substr(1,2)
 
 function buildHL(){
   var h={};MESES.forEach(function(m){h[m]={};});
+  // Fechas Clave
+  var fc=getFechasClave();
+  if(fc.pretemporada){
+    var dd=dtDays(fc.pretemporada,fc.pretemporada);
+    dd.forEach(function(d){var mk=m2k[d.m];if(mk&&d.y===getMY(mk)){if(!h[mk][d.d])h[mk][d.d]=[];h[mk][d.d].push({color:fc.pretemporadaColor||'#16a34a',name:'Inicio Pretemporada',cat:'Fechas Clave',loc:''});}});
+  }
+  if(fc.competicion){
+    var dd2=dtDays(fc.competicion,fc.competicion);
+    dd2.forEach(function(d){var mk=m2k[d.m];if(mk&&d.y===getMY(mk)){if(!h[mk][d.d])h[mk][d.d]=[];h[mk][d.d].push({color:fc.competicionColor||'#dc2626',name:'Inicio Competición',cat:'Fechas Clave',loc:''});}});
+  }
+  // Categories
   categories.forEach(function(cat){
     if(!catVisible(cat,activeTeam))return;
     getAllItems(cat.id).forEach(function(it){
@@ -448,8 +459,66 @@ function scopeBadge(cat){
   return '';
 }
 
+// ── FECHAS CLAVE (per team+season) ──
+var fechasClaveCache={};
+function fcKey(){return activeSeason.replace('/','-')+'_'+activeTeam;}
+function getFechasClave(){
+  var k=fcKey();
+  if(!fechasClaveCache[k])fechasClaveCache[k]={pretemporada:'',pretemporadaColor:'#16a34a',competicion:'',competicionColor:'#dc2626'};
+  return fechasClaveCache[k];
+}
+function loadFechasClave(){
+  var k=fcKey();
+  return db.collection('planificacion_fechas_clave').doc(k).get().then(function(doc){
+    if(doc.exists)fechasClaveCache[k]=doc.data();
+  }).catch(function(e){console.error('loadFC',e);});
+}
+function saveFechasClave(){
+  var k=fcKey(),data=getFechasClave();
+  showSync('saving');
+  db.collection('planificacion_fechas_clave').doc(k).set(data).then(function(){showSync('ok');}).catch(function(e){showSync('error');showBanner('Firebase: '+e.message,true);});
+}
+function openFCModal(){
+  eT='__fc';eI=null;
+  var fc=getFechasClave();
+  document.getElementById('mt').textContent='Fechas clave — '+activeTeam;
+  document.getElementById('mbd').innerHTML=
+    '<label>Inicio de Pretemporada</label>'+
+    '<div style="display:flex;gap:8px;align-items:center"><input id="fcPre" type="date" value="'+esc(fc.pretemporada)+'" style="flex:1"><input id="fcPreColor" type="color" value="'+(fc.pretemporadaColor||'#16a34a')+'" style="width:32px;height:28px;padding:1px;border:1px solid var(--border);border-radius:4px;cursor:pointer"></div>'+
+    '<label>Inicio de Competición</label>'+
+    '<div style="display:flex;gap:8px;align-items:center"><input id="fcComp" type="date" value="'+esc(fc.competicion)+'" style="flex:1"><input id="fcCompColor" type="color" value="'+(fc.competicionColor||'#dc2626')+'" style="width:32px;height:28px;padding:1px;border:1px solid var(--border);border-radius:4px;cursor:pointer"></div>';
+  document.getElementById('mft').innerHTML='<button class="btn-s" onclick="closeModal()">Cancelar</button><button class="btn-p" onclick="saveFCModal()">Guardar</button>';
+  document.getElementById('mo').classList.add('active');
+}
+function saveFCModal(){
+  var fc=getFechasClave();
+  fc.pretemporada=(document.getElementById('fcPre')||{}).value||'';
+  fc.pretemporadaColor=(document.getElementById('fcPreColor')||{}).value||'#16a34a';
+  fc.competicion=(document.getElementById('fcComp')||{}).value||'';
+  fc.competicionColor=(document.getElementById('fcCompColor')||{}).value||'#dc2626';
+  closeModal();renderAll();
+  saveFechasClave();
+}
+
 function renderRight(){
   var col=document.getElementById('rightCol');if(!col)return;col.innerHTML='';
+
+  // Fechas Clave panel — always first
+  var fc=getFechasClave();
+  var fcBid='cb_fechasclave',fcCol=collapsed[fcBid];
+  var fcPanel=document.createElement('div');fcPanel.className='panel';
+  var fcItems='';
+  if(fc.pretemporada){
+    fcItems+='<div style="display:flex;align-items:center;gap:6px;padding:4px 0"><span style="width:10px;height:10px;border-radius:50%;background:'+(fc.pretemporadaColor||'#16a34a')+';flex-shrink:0"></span><span style="font-size:11px;font-weight:600">Inicio Pretemporada</span><span style="font-size:10px;color:var(--text-mut);margin-left:auto">'+dtD(fc.pretemporada)+'</span></div>';
+  }
+  if(fc.competicion){
+    fcItems+='<div style="display:flex;align-items:center;gap:6px;padding:4px 0"><span style="width:10px;height:10px;border-radius:50%;background:'+(fc.competicionColor||'#dc2626')+';flex-shrink:0"></span><span style="font-size:11px;font-weight:600">Inicio Competición</span><span style="font-size:10px;color:var(--text-mut);margin-left:auto">'+dtD(fc.competicion)+'</span></div>';
+  }
+  if(!fcItems)fcItems='<div class="empty-st">Sin fechas definidas.</div>';
+  fcPanel.innerHTML='<div class="panel-header" onclick="togglePanel(\''+fcBid+'\')"><div class="panel-title"><span class="chevron '+(fcCol?'collapsed':'')+'" id="chev_'+fcBid+'">▼</span>📅 Fechas Clave</div><div class="cat-acts" onclick="event.stopPropagation()"><button class="btn-add" onclick="openFCModal()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Editar</button></div></div><div class="panel-body '+(fcCol?'collapsed':'')+'" id="'+fcBid+'">'+fcItems+'</div>';
+  col.appendChild(fcPanel);
+
+  // Categories
   var sorted=categories.slice().sort(function(a,b){return(a.order||0)-(b.order||0);});
   sorted.forEach(function(cat){
     if(!catVisible(cat,activeTeam))return;
@@ -697,8 +766,9 @@ loadSeasons().then(function(){
 }).then(function(){
   return loadItemsForSeason(activeSeason);
 }).then(function(){
+  return loadFechasClave();
+}).then(function(){
   renderAll();
-  // Test write permission
   return testFirebaseWrite();
 }).then(function(canWrite){
   if(canWrite){
