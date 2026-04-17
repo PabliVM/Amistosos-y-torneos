@@ -288,14 +288,15 @@ function loadCategories(){
   }).catch(function(e){console.error(e);showBanner('Firebase: '+e.message,true);});
 }
 
-function loadItemsForSeason(season){
+function loadItemsForSeason(season,forceReload){
   var promises=[];
   categories.forEach(function(cat){
     var k=itemsKey(cat.id,season);
-    if(itemsCache[k]!=null)return;
+    if(itemsCache[k]!=null&&!forceReload)return;
     var p=itemsRef().doc(k).get().then(function(doc){
       itemsCache[k]=doc.exists?(doc.data().items||[]):[];
-    }).catch(function(e){console.error(e);itemsCache[k]=[];});
+      console.log('LOADED:', k, 'items:', itemsCache[k].length);
+    }).catch(function(e){console.error('LOAD FAILED:',k,e);itemsCache[k]=[];});
     promises.push(p);
   });
   return Promise.all(promises);
@@ -314,8 +315,17 @@ function catVisible(cat,team){
 
 function saveItemsFB(catId){
   var k=itemsKey(catId,activeSeason);
+  var data={items:itemsCache[k]||[],season:activeSeason,catId:catId};
   showSync('saving');
-  return itemsRef().doc(k).set({items:itemsCache[k]||[],season:activeSeason,catId:catId}).then(function(){showSync('ok');}).catch(function(e){console.error(e);showSync('error');showBanner('Firebase: '+e.message,true);});
+  console.log('SAVING to Firebase:', k, 'items:', data.items.length);
+  return itemsRef().doc(k).set(data).then(function(){
+    showSync('ok');
+    console.log('SAVED OK:', k);
+  }).catch(function(e){
+    console.error('SAVE FAILED:', k, e);
+    showSync('error');
+    showBanner('❌ No se pudo guardar: '+e.message,true);
+  });
 }
 
 // SEASONS
@@ -324,9 +334,8 @@ function renderSeasons(){var sel=document.getElementById('seasonSel');sel.innerH
 function changeSeason(){
   activeSeason=document.getElementById('seasonSel').value;
   document.getElementById('headerSeason').textContent=activeSeason;
-  itemsCache={};
   renderAll();
-  loadItemsForSeason(activeSeason).then(function(){renderAll();});
+  loadItemsForSeason(activeSeason,true).then(function(){renderAll();});
 }
 
 function addSeason(){
@@ -364,14 +373,9 @@ function renderTeamBar(){
     btn.addEventListener('click',function(){
       var k=this.getAttribute('data-team');
       activeTeam=k;
-      // Clear per-team cache
-      Object.keys(itemsCache).forEach(function(key){
-        // Remove 'each' scoped keys that have a team suffix
-        if(key.match(/_[A-Z]{2}$/))delete itemsCache[key];
-      });
       renderTeamBar();
       renderAll();
-      loadItemsForSeason(activeSeason).then(function(){renderAll();});
+      loadItemsForSeason(activeSeason,true).then(function(){renderAll();});
     });
   });
 }
