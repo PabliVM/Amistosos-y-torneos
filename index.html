@@ -237,10 +237,10 @@ var TEAMS=[{key:'CAS',name:'Castilla'},{key:'RMC',name:'Real Madrid C'},{key:'JA
 var activeTeam='JA',activeSeason='2026/2027';
 var seasons=['2026/2027'];
 var categories=[
-  {id:'torneos',title:'Torneos',color:'#2563eb',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:0},
-  {id:'amistosos',title:'Amistosos',color:'#d97706',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:1},
-  {id:'aplazados',title:'Aplazados',color:'#dc2626',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:2},
-  {id:'primer',title:'1er Equipo',color:'#92400e',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'all',teams:[],order:3},
+  {id:'torneos',title:'Torneos',color:'#eab308',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:0},
+  {id:'amistosos',title:'Amistosos',color:'#3b82f6',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:1},
+  {id:'aplazados',title:'Aplazados',color:'#16a34a',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:2},
+  {id:'primer',title:'1er Equipo',color:'#9333ea',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'all',teams:[],order:3},
 ];
 var itemsCache={};
 var collapsed={};
@@ -268,10 +268,10 @@ function loadSeasons(){
 }
 
 var DEFAULTS=[
-  {id:'torneos',title:'Torneos',color:'#2563eb',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:0},
-  {id:'amistosos',title:'Amistosos',color:'#d97706',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:1},
-  {id:'aplazados',title:'Aplazados',color:'#dc2626',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:2},
-  {id:'primer',title:'1er Equipo',color:'#92400e',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'all',teams:[],order:3},
+  {id:'torneos',title:'Torneos',color:'#eab308',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:0},
+  {id:'amistosos',title:'Amistosos',color:'#3b82f6',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:1},
+  {id:'aplazados',title:'Aplazados',color:'#16a34a',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:2},
+  {id:'primer',title:'1er Equipo',color:'#9333ea',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'all',teams:[],order:3},
 ];
 var BASE_IDS=['torneos','amistosos','aplazados','primer'];
 
@@ -501,10 +501,10 @@ function renderPlanTable(){
       var fk=activeSeason.replace('/','-')+'_'+t.key;
       var fc=fechasClaveCache[fk]||{};
       if(fc.pretemporada===day.iso){
-        cell+='<span class="plan-fc" style="background:'+(fc.pretemporadaColor||'#16a34a')+';color:'+contrast(fc.pretemporadaColor||'#16a34a')+'">PRETEM</span>';
+        cell+='<span class="plan-fc" style="background:'+(fc.pretemporadaColor||'#1a1a1a')+';color:'+contrast(fc.pretemporadaColor||'#1a1a1a')+'">PRETEM</span>';
       }
       if(fc.competicion===day.iso){
-        cell+='<span class="plan-fc" style="background:'+(fc.competicionColor||'#dc2626')+';color:'+contrast(fc.competicionColor||'#dc2626')+'">COMPET</span>';
+        cell+='<span class="plan-fc" style="background:'+(fc.competicionColor||'#1a1a1a')+';color:'+contrast(fc.competicionColor||'#1a1a1a')+'">COMPET</span>';
       }
       // Events from all visible categories
       categories.forEach(function(cat){
@@ -519,7 +519,10 @@ function renderPlanTable(){
               var vd=it.victoriaDerrota==='victoria'?'✅':(it.victoriaDerrota==='derrota'?'❌':'');
               var sc=it.marcador||'';
               var extra=(vd||sc)?' '+(vd+(sc?' '+sc:'')).trim():'';
-              cell+='<span class="plan-evt" style="background:'+cat.color+';color:'+contrast(cat.color)+'" title="'+esc(it.nombre)+(it.sede?' — '+esc(it.sede):'')+extra+'">'+esc(it.nombre)+extra+'</span>';
+              var prov=(it.estado||'provisional')!=='definitivo';
+              var provStyle=prov?'border:1px dashed rgba(0,0,0,.3);opacity:.75':'';
+              var provIcon=prov?'⏳ ':'';
+              cell+='<span class="plan-evt" style="background:'+cat.color+';color:'+contrast(cat.color)+';'+provStyle+'" title="'+esc(it.nombre)+(prov?' (provisional)':'')+( it.sede?' — '+esc(it.sede):'')+extra+'">'+provIcon+esc(it.nombre)+extra+'</span>';
             }
           });
         });
@@ -557,11 +560,11 @@ function buildHL(){
   var fc=getFechasClave();
   if(fc.pretemporada){
     var dd=dtDays(fc.pretemporada,fc.pretemporada);
-    dd.forEach(function(d){var mk=m2k[d.m];if(mk&&d.y===getMY(mk)){if(!h[mk][d.d])h[mk][d.d]=[];h[mk][d.d].push({color:fc.pretemporadaColor||'#16a34a',name:'Inicio Pretemporada',cat:'Fechas de Inicios',loc:''});}});
+    dd.forEach(function(d){var mk=m2k[d.m];if(mk&&d.y===getMY(mk)){if(!h[mk][d.d])h[mk][d.d]=[];h[mk][d.d].push({color:fc.pretemporadaColor||'#1a1a1a',name:'Inicio Pretemporada',cat:'Fechas de Inicios',loc:''});}});
   }
   if(fc.competicion){
     var dd2=dtDays(fc.competicion,fc.competicion);
-    dd2.forEach(function(d){var mk=m2k[d.m];if(mk&&d.y===getMY(mk)){if(!h[mk][d.d])h[mk][d.d]=[];h[mk][d.d].push({color:fc.competicionColor||'#dc2626',name:'Inicio Competición',cat:'Fechas de Inicios',loc:''});}});
+    dd2.forEach(function(d){var mk=m2k[d.m];if(mk&&d.y===getMY(mk)){if(!h[mk][d.d])h[mk][d.d]=[];h[mk][d.d].push({color:fc.competicionColor||'#1a1a1a',name:'Inicio Competición',cat:'Fechas de Inicios',loc:''});}});
   }
   // Categories
   categories.forEach(function(cat){
@@ -618,7 +621,7 @@ var fechasClaveCache={};
 function fcKey(){return activeSeason.replace('/','-')+'_'+activeTeam;}
 function getFechasClave(){
   var k=fcKey();
-  if(!fechasClaveCache[k])fechasClaveCache[k]={pretemporada:'',pretemporadaColor:'#16a34a',competicion:'',competicionColor:'#dc2626'};
+  if(!fechasClaveCache[k])fechasClaveCache[k]={pretemporada:'',pretemporadaColor:'#1a1a1a',competicion:'',competicionColor:'#1a1a1a'};
   return fechasClaveCache[k];
 }
 function loadFechasClave(){
@@ -643,13 +646,13 @@ function openFCModal(){
     '<label>Inicio de Pretemporada</label>'+
     '<input id="fcPre" type="date" value="'+esc(fc.pretemporada)+'">'+
     '<label>Color</label>'+
-    '<input type="hidden" id="fcPreColor" value="'+(fc.pretemporadaColor||'#16a34a')+'">'+
-    fcPaletteHTML('fcPreColor',fc.pretemporadaColor||'#16a34a')+
+    '<input type="hidden" id="fcPreColor" value="'+(fc.pretemporadaColor||'#1a1a1a')+'">'+
+    fcPaletteHTML('fcPreColor',fc.pretemporadaColor||'#1a1a1a')+
     '<label style="margin-top:14px">Inicio de Competición</label>'+
     '<input id="fcComp" type="date" value="'+esc(fc.competicion)+'">'+
     '<label>Color</label>'+
-    '<input type="hidden" id="fcCompColor" value="'+(fc.competicionColor||'#dc2626')+'">'+
-    fcPaletteHTML('fcCompColor',fc.competicionColor||'#dc2626');
+    '<input type="hidden" id="fcCompColor" value="'+(fc.competicionColor||'#1a1a1a')+'">'+
+    fcPaletteHTML('fcCompColor',fc.competicionColor||'#1a1a1a');
   document.getElementById('mft').innerHTML='<button class="btn-s" onclick="closeModal()">Cancelar</button><button class="btn-p" onclick="saveFCModal()">Guardar</button>';
   document.getElementById('mo').classList.add('active');
 }
@@ -678,10 +681,10 @@ function renderRight(){
   fcPanel.style.cssText='background:linear-gradient(135deg,#fef9e7 0%,#fdf6e3 100%);border:1.5px solid #e8d88e';
   var fcItems='';
   if(fc.pretemporada){
-    fcItems+='<div style="display:flex;align-items:center;gap:8px;padding:5px 0"><span style="width:12px;height:12px;border-radius:50%;background:'+(fc.pretemporadaColor||'#16a34a')+';flex-shrink:0;border:1px solid rgba(0,0,0,.1)"></span><span style="font-size:11px;font-weight:600">Inicio Pretemporada</span><span style="font-size:10px;color:var(--text-mut);margin-left:auto">'+dtD(fc.pretemporada)+'</span></div>';
+    fcItems+='<div style="display:flex;align-items:center;gap:8px;padding:5px 0"><span style="width:12px;height:12px;border-radius:50%;background:'+(fc.pretemporadaColor||'#1a1a1a')+';flex-shrink:0;border:1px solid rgba(0,0,0,.1)"></span><span style="font-size:11px;font-weight:600">Inicio Pretemporada</span><span style="font-size:10px;color:var(--text-mut);margin-left:auto">'+dtD(fc.pretemporada)+'</span></div>';
   }
   if(fc.competicion){
-    fcItems+='<div style="display:flex;align-items:center;gap:8px;padding:5px 0"><span style="width:12px;height:12px;border-radius:50%;background:'+(fc.competicionColor||'#dc2626')+';flex-shrink:0;border:1px solid rgba(0,0,0,.1)"></span><span style="font-size:11px;font-weight:600">Inicio Competición</span><span style="font-size:10px;color:var(--text-mut);margin-left:auto">'+dtD(fc.competicion)+'</span></div>';
+    fcItems+='<div style="display:flex;align-items:center;gap:8px;padding:5px 0"><span style="width:12px;height:12px;border-radius:50%;background:'+(fc.competicionColor||'#1a1a1a')+';flex-shrink:0;border:1px solid rgba(0,0,0,.1)"></span><span style="font-size:11px;font-weight:600">Inicio Competición</span><span style="font-size:10px;color:var(--text-mut);margin-left:auto">'+dtD(fc.competicion)+'</span></div>';
   }
   if(!fcItems)fcItems='<div class="empty-st" style="color:#8b6914">Sin fechas definidas.</div>';
   fcPanel.innerHTML='<div class="panel-header" style="border-bottom:1px solid #e8d88e" onclick="togglePanel(\''+fcBid+'\')"><div class="panel-title" style="color:#8b6914"><span class="chevron '+(fcCol?'collapsed':'')+'" id="chev_'+fcBid+'" style="color:#c4a82b">▼</span>📅 FECHAS DE INICIOS</div><div class="cat-acts" onclick="event.stopPropagation()"><button class="btn-add" style="background:#c4a82b" onclick="openFCModal()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Editar</button></div></div><div class="panel-body '+(fcCol?'collapsed':'')+'" id="'+fcBid+'">'+fcItems+'</div>';
