@@ -164,6 +164,25 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 
 @media(max-width:1100px){.main{grid-template-columns:1fr}.cal-grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:640px){.header{padding:8px 12px}.header h1{font-size:14px}.season-area{margin-left:0;width:100%;justify-content:flex-end}.team-bar{padding:8px 12px;top:auto;position:relative}.main{padding:10px 12px;gap:10px}.cal-grid{grid-template-columns:repeat(2,1fr);gap:6px}.item-acts{opacity:1}.team-grid{grid-template-columns:repeat(4,1fr)}}
+/* PLANIFICACIÓN VIEW */
+.plan-view{display:none;padding:0 12px 20px}
+.plan-view.active{display:block}
+.main.hidden{display:none}
+.plan-wrap{overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 140px);border:1px solid var(--border);border-radius:var(--rl);background:var(--surface)}
+.plan-table{border-collapse:collapse;font-size:9px;width:100%;min-width:800px}
+.plan-table th{position:sticky;top:0;z-index:10;background:var(--rm-blue);color:#fff;padding:6px 4px;font-weight:700;font-size:9px;text-align:center;border:1px solid rgba(255,255,255,.2);white-space:nowrap;letter-spacing:.3px}
+.plan-table th.date-col{width:70px;min-width:70px;text-align:left;padding-left:8px}
+.plan-table td{padding:2px 3px;border:1px solid var(--border-light);vertical-align:top;min-width:55px;max-width:90px}
+.plan-table tr.month-sep td,.plan-table tr.month-sep th{border-top:2px solid var(--rm-blue)}
+.plan-table tr.weekend{background:#f8f9fb}
+.plan-date{font-weight:600;font-size:9px;white-space:nowrap;color:var(--text-sec);padding:1px 0}
+.plan-date.weekend{color:var(--text-faint)}
+.plan-evt{font-size:8px;padding:2px 4px;border-radius:3px;margin:1px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:85px;line-height:1.4;cursor:default;display:block}
+.plan-evt:hover{opacity:.85}
+.plan-fc{font-size:7px;font-weight:700;padding:1px 3px;border-radius:2px;text-transform:uppercase;letter-spacing:.3px;display:block;margin:1px 0}
+.btn-plan{padding:5px 14px;font-size:11px;font-weight:700;font-family:var(--font);border:1.5px solid #9333ea;border-radius:20px;background:#f3e8ff;color:#7c3aed;cursor:pointer;white-space:nowrap;transition:all var(--tr);margin-left:6px}
+.btn-plan:hover{background:#7c3aed;color:#fff}
+.btn-plan.active{background:#7c3aed;color:#fff;border-color:#7c3aed}
 </style>
 </head>
 <body>
@@ -183,12 +202,15 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 <div class="banner" id="banner"><span id="bannerMsg"></span><button class="bx" onclick="document.getElementById('banner').className='banner'">×</button></div>
 <div id="obsTip"></div>
 <div class="team-bar" id="teamBar"></div>
-<div class="main">
+<div class="main" id="mainView">
   <div class="panel">
     <div class="panel-header" onclick="togglePanel('calBody')"><div class="panel-title"><span class="chevron" id="chev_calBody">▼</span> Calendario de Temporada <span style="font-size:10px;color:var(--rm-blue);font-weight:500;margin-left:4px" id="calTeamLabel"></span></div></div>
     <div class="panel-body" id="calBody"><div class="cal-grid" id="calGrid"></div></div>
   </div>
   <div id="rightCol" class="right-col"></div>
+</div>
+<div class="plan-view" id="planView">
+  <div class="plan-wrap"><table class="plan-table" id="planTable"></table></div>
 </div>
 <div class="modal-overlay" id="mo" onclick="if(event.target===this)closeModal()">
   <div class="modal"><div class="mh"><h3 id="mt"></h3><button class="mx" onclick="closeModal()">&times;</button></div><div class="mb" id="mbd"></div><div class="mf" id="mft"></div></div>
@@ -215,9 +237,10 @@ var TEAMS=[{key:'CAS',name:'Castilla'},{key:'RMC',name:'Real Madrid C'},{key:'JA
 var activeTeam='JA',activeSeason='2026/2027';
 var seasons=['2026/2027'];
 var categories=[
-  {id:'torneos',title:'Torneos',color:'#2563eb',hasRange:true,hasResultSelect:true,isMatch:false,scopeMode:'each',teams:[],order:0},
-  {id:'amistosos',title:'Amistosos',color:'#d97706',hasRange:false,hasResultSelect:false,isMatch:true,scopeMode:'each',teams:[],order:1},
-  {id:'primer',title:'1er Equipo',color:'#92400e',hasRange:false,hasResultSelect:false,isMatch:true,scopeMode:'all',teams:[],order:2},
+  {id:'torneos',title:'Torneos',color:'#2563eb',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:0},
+  {id:'amistosos',title:'Amistosos',color:'#d97706',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:1},
+  {id:'primer',title:'1er Equipo',color:'#92400e',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'all',teams:[],order:2},
+  {id:'aplazados',title:'Aplazados',color:'#dc2626',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:3},
 ];
 var itemsCache={};
 var collapsed={};
@@ -245,43 +268,38 @@ function loadSeasons(){
 }
 
 var DEFAULTS=[
-  {id:'torneos',title:'Torneos',color:'#2563eb',hasRange:true,hasResultSelect:true,isMatch:false,scopeMode:'each',teams:[],order:0},
-  {id:'amistosos',title:'Amistosos',color:'#d97706',hasRange:false,hasResultSelect:false,isMatch:true,scopeMode:'each',teams:[],order:1},
-  {id:'primer',title:'1er Equipo',color:'#92400e',hasRange:false,hasResultSelect:false,isMatch:true,scopeMode:'all',teams:[],order:2},
+  {id:'torneos',title:'Torneos',color:'#2563eb',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:0},
+  {id:'amistosos',title:'Amistosos',color:'#d97706',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:1},
+  {id:'primer',title:'1er Equipo',color:'#92400e',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'all',teams:[],order:2},
+  {id:'aplazados',title:'Aplazados',color:'#dc2626',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:3},
 ];
 
 function loadCategories(){
   return catsRef().orderBy('order').get().then(function(snap){
     if(snap.empty){
-      // First time: write defaults
-      categories=DEFAULTS.slice();
+      categories=DEFAULTS.map(function(d){return Object.assign({},d);});
       var batch=db.batch();
       categories.forEach(function(c){batch.set(catsRef().doc(c.id),c);});
       return batch.commit();
     } else {
       categories=snap.docs.map(function(d){
         var data=Object.assign({id:d.id},d.data());
-        if(data.isMatch===undefined)data.isMatch=(d.id==='amistosos'||d.id==='primer');
-        if(data.hasRange===undefined)data.hasRange=(d.id==='torneos');
-        if(data.hasResultSelect===undefined)data.hasResultSelect=(d.id==='torneos');
         if(!data.scopeMode)data.scopeMode=data.shared?'all':'each';
         if(!Array.isArray(data.teams))data.teams=[];
         return data;
       });
-      // Ensure the 3 base categories exist with correct settings
+      // Ensure all base categories exist
       var batch=db.batch(),changed=false;
       DEFAULTS.forEach(function(def){
         var existing=categories.find(function(c){return c.id===def.id;});
         if(!existing){
-          categories.push(def);
+          categories.push(Object.assign({},def));
           batch.set(catsRef().doc(def.id),def);
           changed=true;
-        } else {
-          // Fix scopeMode if wrong
-          if(def.id==='primer'&&existing.scopeMode!=='all'){existing.scopeMode='all';existing.teams=[];batch.set(catsRef().doc(def.id),Object.assign({},existing));changed=true;}
-          if((def.id==='torneos'||def.id==='amistosos')&&existing.scopeMode==='all'&&!existing._userSet){existing.scopeMode='each';batch.set(catsRef().doc(def.id),Object.assign({},existing));changed=true;}
         }
       });
+      // Sort by order
+      categories.sort(function(a,b){return(a.order||0)-(b.order||0);});
       if(changed)return batch.commit();
     }
   }).catch(function(e){console.error(e);showBanner('Firebase: '+e.message,true);});
@@ -342,7 +360,11 @@ function addSeason(){
   if(parts.length<2||isNaN(parts[1]))return;
   var ns=parts[1]+'/'+(parts[1]+1);
   if(seasons.indexOf(ns)!==-1){showBanner(ns+' ya existe',true);return;}
-  seasons.push(ns);activeSeason=ns;renderSeasons();renderAll();
+  seasons.push(ns);activeSeason=ns;
+  // Clear all caches so the new season starts blank
+  itemsCache={};
+  fechasClaveCache={};
+  renderSeasons();renderAll();
   showSync('saving');
   seasonsRef().doc(ns.replace('/','-')).set({name:ns,order:seasons.length-1}).then(function(){showSync('ok');showBanner('Temporada '+ns+' creada');}).catch(function(e){showSync('error');showBanner('Firebase: '+e.message,true);});
 }
@@ -359,24 +381,138 @@ function delSeason(){
   seasonsRef().doc(id).delete().then(function(){return itemsRef().where('season','==',del).get();}).then(function(snap){if(!snap.empty){var b=db.batch();snap.docs.forEach(function(d){b.delete(d.ref);});return b.commit();}}).then(function(){showSync('ok');showBanner(del+' eliminada');}).catch(function(e){showSync('error');showBanner('Firebase: '+e.message,true);});
 }
 
-// TEAMS — FIX: use non-async onclick
+var showingPlan=false;
+
 function renderTeamBar(){
   var html='';
   for(var i=0;i<TEAMS.length;i++){
     var t=TEAMS[i];
-    html+='<button class="team-btn '+(t.key===activeTeam?'active':'')+'" data-team="'+t.key+'">'+t.key+'</button>';
+    html+='<button class="team-btn '+(!showingPlan&&t.key===activeTeam?'active':'')+'" data-team="'+t.key+'">'+t.key+'</button>';
   }
+  html+='<button class="btn-plan '+(showingPlan?'active':'')+'" onclick="togglePlanView()">Planificación</button>';
   document.getElementById('teamBar').innerHTML=html;
-  // Attach listeners
   document.getElementById('teamBar').querySelectorAll('.team-btn').forEach(function(btn){
     btn.addEventListener('click',function(){
       var k=this.getAttribute('data-team');
       activeTeam=k;
+      if(showingPlan){showingPlan=false;document.getElementById('mainView').classList.remove('hidden');document.getElementById('planView').classList.remove('active');}
       renderTeamBar();
       renderAll();
       loadItemsForSeason(activeSeason,true).then(function(){return loadFechasClave();}).then(function(){renderAll();});
     });
   });
+}
+
+function togglePlanView(){
+  showingPlan=!showingPlan;
+  if(showingPlan){
+    document.getElementById('mainView').classList.add('hidden');
+    document.getElementById('planView').classList.add('active');
+    renderTeamBar();
+    loadAllTeamsData().then(function(){renderPlanTable();});
+  } else {
+    document.getElementById('mainView').classList.remove('hidden');
+    document.getElementById('planView').classList.remove('active');
+    renderTeamBar();
+    renderAll();
+  }
+}
+
+function loadAllTeamsData(){
+  // Load items for ALL teams (for 'each' scoped cats)
+  var promises=[];
+  var savedTeam=activeTeam;
+  TEAMS.forEach(function(t){
+    activeTeam=t.key;
+    categories.forEach(function(cat){
+      var k=itemsKey(cat.id,activeSeason);
+      if(itemsCache[k]!=null)return;
+      var p=itemsRef().doc(k).get().then(function(doc){
+        itemsCache[k]=doc.exists?(doc.data().items||[]):[];
+      }).catch(function(e){itemsCache[k]=[];});
+      promises.push(p);
+    });
+    // Load fechas clave for each team
+    var fk=activeSeason.replace('/','-')+'_'+t.key;
+    if(!fechasClaveCache[fk]){
+      var p2=db.collection('planificacion_fechas_clave').doc(fk).get().then(function(doc){
+        if(doc.exists)fechasClaveCache[fk]=doc.data();
+      }).catch(function(){});
+      promises.push(p2);
+    }
+  });
+  activeTeam=savedTeam;
+  return Promise.all(promises);
+}
+
+function renderPlanTable(){
+  var sy=getSY();
+  // Build all days July 1 → June 30
+  var days=[];
+  var monthOrder=[6,7,8,9,10,11,0,1,2,3,4,5]; // Jul=6..Jun=5 (JS months)
+  var monthNames=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  monthOrder.forEach(function(mi){
+    var yr=mi>=6?sy.f:sy.s;
+    var dim=new Date(yr,mi+1,0).getDate();
+    for(var d=1;d<=dim;d++){
+      var dt=new Date(yr,mi,d);
+      var dow=dt.getDay();
+      days.push({y:yr,m:mi+1,d:d,dow:dow,iso:yr+'-'+String(mi+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'),monthName:monthNames[mi],isWeekend:dow===0||dow===6,isFirst:d===1});
+    }
+  });
+
+  var dn=['D','L','M','X','J','V','S'];
+
+  // Header
+  var hdr='<thead><tr><th class="date-col">Fecha</th>';
+  TEAMS.forEach(function(t){hdr+='<th>'+t.key+'</th>';});
+  hdr+='</tr></thead>';
+
+  // Body
+  var body='<tbody>';
+  var savedTeam=activeTeam;
+  days.forEach(function(day){
+    var cls=(day.isWeekend?'weekend':'')+(day.isFirst?' month-sep':'');
+    var dateStr=dn[day.dow]+' '+day.d+' '+day.monthName.substr(0,3);
+    body+='<tr class="'+cls+'"><td class="plan-date '+(day.isWeekend?'weekend':'')+'">'+dateStr+'</td>';
+
+    TEAMS.forEach(function(t){
+      activeTeam=t.key;
+      var cell='';
+      // Fechas clave
+      var fk=activeSeason.replace('/','-')+'_'+t.key;
+      var fc=fechasClaveCache[fk]||{};
+      if(fc.pretemporada===day.iso){
+        cell+='<span class="plan-fc" style="background:'+(fc.pretemporadaColor||'#16a34a')+';color:'+contrast(fc.pretemporadaColor||'#16a34a')+'">PRETEM</span>';
+      }
+      if(fc.competicion===day.iso){
+        cell+='<span class="plan-fc" style="background:'+(fc.competicionColor||'#dc2626')+';color:'+contrast(fc.competicionColor||'#dc2626')+'">COMPET</span>';
+      }
+      // Events from all visible categories
+      categories.forEach(function(cat){
+        if(!catVisible(cat,t.key))return;
+        var k=itemsKey(cat.id,activeSeason);
+        var items=itemsCache[k]||[];
+        items.forEach(function(it){
+          if(!it||!it.fechaInicio)return;
+          var ds=dtDays(it.fechaInicio,it.fechaFin||it.fechaInicio);
+          ds.forEach(function(dd){
+            if(dd.y===day.y&&dd.m===day.m&&dd.d===day.d){
+              var vd=it.victoriaDerrota==='victoria'?'✅':(it.victoriaDerrota==='derrota'?'❌':'');
+              var sc=it.marcador||'';
+              var extra=(vd||sc)?' '+(vd+(sc?' '+sc:'')).trim():'';
+              cell+='<span class="plan-evt" style="background:'+cat.color+';color:'+contrast(cat.color)+'" title="'+esc(it.nombre)+(it.sede?' — '+esc(it.sede):'')+extra+'">'+esc(it.nombre)+extra+'</span>';
+            }
+          });
+        });
+      });
+      body+='<td>'+cell+'</td>';
+    });
+    body+='</tr>';
+  });
+  activeTeam=savedTeam;
+  body+='</tbody>';
+  document.getElementById('planTable').innerHTML=hdr+body;
 }
 
 function togglePanel(id){var b=document.getElementById(id),c=document.getElementById('chev_'+id);if(!b||!c)return;collapsed[id]=!collapsed[id];if(collapsed[id]){b.classList.add('collapsed');c.classList.add('collapsed');}else{b.classList.remove('collapsed');c.classList.remove('collapsed');}}
@@ -399,15 +535,15 @@ function contrast(h){if(!h||h.length<7)return'#fff';var r=parseInt(h.substr(1,2)
 
 function buildHL(){
   var h={};MESES.forEach(function(m){h[m]={};});
-  // Fechas Clave
+  // Fechas de Inicios
   var fc=getFechasClave();
   if(fc.pretemporada){
     var dd=dtDays(fc.pretemporada,fc.pretemporada);
-    dd.forEach(function(d){var mk=m2k[d.m];if(mk&&d.y===getMY(mk)){if(!h[mk][d.d])h[mk][d.d]=[];h[mk][d.d].push({color:fc.pretemporadaColor||'#16a34a',name:'Inicio Pretemporada',cat:'Fechas Clave',loc:''});}});
+    dd.forEach(function(d){var mk=m2k[d.m];if(mk&&d.y===getMY(mk)){if(!h[mk][d.d])h[mk][d.d]=[];h[mk][d.d].push({color:fc.pretemporadaColor||'#16a34a',name:'Inicio Pretemporada',cat:'Fechas de Inicios',loc:''});}});
   }
   if(fc.competicion){
     var dd2=dtDays(fc.competicion,fc.competicion);
-    dd2.forEach(function(d){var mk=m2k[d.m];if(mk&&d.y===getMY(mk)){if(!h[mk][d.d])h[mk][d.d]=[];h[mk][d.d].push({color:fc.competicionColor||'#dc2626',name:'Inicio Competición',cat:'Fechas Clave',loc:''});}});
+    dd2.forEach(function(d){var mk=m2k[d.m];if(mk&&d.y===getMY(mk)){if(!h[mk][d.d])h[mk][d.d]=[];h[mk][d.d].push({color:fc.competicionColor||'#dc2626',name:'Inicio Competición',cat:'Fechas de Inicios',loc:''});}});
   }
   // Categories
   categories.forEach(function(cat){
@@ -459,7 +595,7 @@ function scopeBadge(cat){
   return '';
 }
 
-// ── FECHAS CLAVE (per team+season) ──
+// ── FECHAS DE INICIOS (per team+season) ──
 var fechasClaveCache={};
 function fcKey(){return activeSeason.replace('/','-')+'_'+activeTeam;}
 function getFechasClave(){
@@ -484,7 +620,7 @@ function fcPaletteHTML(fieldId,sel){
 function openFCModal(){
   eT='__fc';eI=null;
   var fc=getFechasClave();
-  document.getElementById('mt').textContent='Fechas clave — '+activeTeam;
+  document.getElementById('mt').textContent='Fechas de Inicios — '+activeTeam;
   document.getElementById('mbd').innerHTML=
     '<label>Inicio de Pretemporada</label>'+
     '<input id="fcPre" type="date" value="'+esc(fc.pretemporada)+'">'+
@@ -517,7 +653,7 @@ function saveFCModal(){
 function renderRight(){
   var col=document.getElementById('rightCol');if(!col)return;col.innerHTML='';
 
-  // Fechas Clave panel — always first, distinct style
+  // Fechas de Inicios panel — always first, distinct style
   var fc=getFechasClave();
   var fcBid='cb_fechasclave',fcCol=collapsed[fcBid];
   var fcPanel=document.createElement('div');fcPanel.className='panel';
@@ -530,7 +666,7 @@ function renderRight(){
     fcItems+='<div style="display:flex;align-items:center;gap:8px;padding:5px 0"><span style="width:12px;height:12px;border-radius:50%;background:'+(fc.competicionColor||'#dc2626')+';flex-shrink:0;border:1px solid rgba(0,0,0,.1)"></span><span style="font-size:11px;font-weight:600">Inicio Competición</span><span style="font-size:10px;color:var(--text-mut);margin-left:auto">'+dtD(fc.competicion)+'</span></div>';
   }
   if(!fcItems)fcItems='<div class="empty-st" style="color:#8b6914">Sin fechas definidas.</div>';
-  fcPanel.innerHTML='<div class="panel-header" style="border-bottom:1px solid #e8d88e" onclick="togglePanel(\''+fcBid+'\')"><div class="panel-title" style="color:#8b6914"><span class="chevron '+(fcCol?'collapsed':'')+'" id="chev_'+fcBid+'" style="color:#c4a82b">▼</span>📅 FECHAS CLAVE</div><div class="cat-acts" onclick="event.stopPropagation()"><button class="btn-add" style="background:#c4a82b" onclick="openFCModal()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Editar</button></div></div><div class="panel-body '+(fcCol?'collapsed':'')+'" id="'+fcBid+'">'+fcItems+'</div>';
+  fcPanel.innerHTML='<div class="panel-header" style="border-bottom:1px solid #e8d88e" onclick="togglePanel(\''+fcBid+'\')"><div class="panel-title" style="color:#8b6914"><span class="chevron '+(fcCol?'collapsed':'')+'" id="chev_'+fcBid+'" style="color:#c4a82b">▼</span>📅 FECHAS DE INICIOS</div><div class="cat-acts" onclick="event.stopPropagation()"><button class="btn-add" style="background:#c4a82b" onclick="openFCModal()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Editar</button></div></div><div class="panel-body '+(fcCol?'collapsed':'')+'" id="'+fcBid+'">'+fcItems+'</div>';
   col.appendChild(fcPanel);
 
   // Categories
