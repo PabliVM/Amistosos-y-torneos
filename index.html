@@ -105,12 +105,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .res-tag{font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;line-height:1.5}
 .res-tag.green{background:var(--green-bg);color:var(--green)}.res-tag.orange{background:var(--orange-bg);color:var(--orange)}.res-tag.red{background:var(--red-bg);color:var(--red)}.res-tag.neutral{background:var(--bg);color:var(--text-sec)}
 
-/* OBS TOOLTIP — FIXED: wide, wrapping, not cut */
-.obs-dot{width:20px;height:20px;border-radius:4px;background:var(--rm-blue-bg);cursor:pointer;position:relative;color:var(--rm-blue);flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:10px}
+/* OBS TOOLTIP — uses JS positioning to avoid overflow clipping */
+.obs-dot{width:20px;height:20px;border-radius:4px;background:var(--rm-blue-bg);cursor:pointer;color:var(--rm-blue);flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:10px}
 .obs-dot:hover{background:var(--rm-blue);color:#fff}
-.obs-tip{display:none;position:absolute;bottom:calc(100% + 8px);right:0;background:#1e293b;color:#fff;font-size:12px;padding:10px 14px;border-radius:8px;min-width:220px;max-width:380px;width:max-content;white-space:normal;word-wrap:break-word;overflow-wrap:break-word;z-index:200;box-shadow:var(--sh-lg);line-height:1.5;font-weight:400;text-align:left}
-.obs-tip::after{content:'';position:absolute;top:100%;right:12px;border:6px solid transparent;border-top-color:#1e293b}
-.obs-dot:hover .obs-tip{display:block}
+#obsTip{display:none;position:fixed;background:#1e293b;color:#fff;font-size:12px;padding:10px 14px;border-radius:8px;min-width:220px;max-width:380px;width:max-content;white-space:normal;word-wrap:break-word;overflow-wrap:break-word;z-index:300;box-shadow:var(--sh-lg);line-height:1.5;font-weight:400;text-align:left;pointer-events:none}
 
 .btn-add{display:inline-flex;align-items:center;gap:3px;padding:4px 10px;font-size:10px;font-weight:600;background:var(--rm-blue);color:#fff;border:none;border-radius:var(--rs);cursor:pointer;font-family:var(--font);transition:background var(--tr)}
 .btn-add:hover{background:var(--rm-blue-lt)}
@@ -171,7 +169,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 <body>
 <div class="header">
   <div class="header-logo">
-    <img src="https://raw.githubusercontent.com/PabliVM/Amistosos-y-torneos/main/rm_.png" alt="Real Madrid" style="width:100%;height:100%;object-fit:contain;">
+    <img src="https://raw.githubusercontent.com/PabliVM/PLANNING/main/assets/rm.png" alt="Real Madrid" style="width:100%;height:100%;object-fit:contain;" onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/PabliVM/Amistosos-y-torneos/main/rm_.png';">
   </div>
   <h1>Planificación de Temporada <span id="headerSeason">2026/2027</span></h1>
   <span class="sync-dot ok" id="syncDot" style="margin-left:6px"></span>
@@ -183,6 +181,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
   </div>
 </div>
 <div class="banner" id="banner"><span id="bannerMsg"></span><button class="bx" onclick="document.getElementById('banner').className='banner'">×</button></div>
+<div id="obsTip"></div>
 <div class="team-bar" id="teamBar"></div>
 <div class="main">
   <div class="panel">
@@ -473,9 +472,23 @@ function renderItems(cat){
     var cls=rc==='green'?'res-green':rc==='orange'?'res-orange':rc==='red'?'res-red':'';
     var dt=(it.fechaFin&&it.fechaFin!==it.fechaInicio)?dtR(it.fechaInicio,it.fechaFin):dtD(it.fechaInicio);
     var loc=cat.isMatch&&it.ubicacion?LOC_EMOJI[it.ubicacion]||'':'';
-    return '<div class="item-card '+cls+'"><div class="item-row"><span class="st-badge '+((it.estado||'provisional'))+'">'+(it.estado==='definitivo'?'✅':'⏳')+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span><span class="item-dt">'+dt+'</span>'+(it.obs?'<span class="obs-dot">💬<span class="obs-tip">'+esc(it.obs)+'</span></span>':'')+'<div class="item-acts"><button onclick="openItemModal(\''+cat.id+'\','+ri+')">'+IC.ed+'</button><button onclick="delItem(\''+cat.id+'\','+ri+')">'+IC.dl+'</button></div></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'')+'</div>';
+    return '<div class="item-card '+cls+'"><div class="item-row"><span class="st-badge '+((it.estado||'provisional'))+'">'+(it.estado==='definitivo'?'✅':'⏳')+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span><span class="item-dt">'+dt+'</span>'+(it.obs?'<span class="obs-dot" data-obs="'+esc(it.obs).replace(/"/g,'&quot;')+'">💬</span>':'')+'<div class="item-acts"><button onclick="openItemModal(\''+cat.id+'\','+ri+')">'+IC.ed+'</button><button onclick="delItem(\''+cat.id+'\','+ri+')">'+IC.dl+'</button></div></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'')+'</div>';
   }).join('');
-}
+  // Attach obs tooltip listeners
+  l.querySelectorAll('.obs-dot').forEach(function(dot){
+    dot.addEventListener('mouseenter',function(e){
+      var tip=document.getElementById('obsTip');
+      tip.textContent=this.getAttribute('data-obs');
+      tip.style.display='block';
+      var r=this.getBoundingClientRect();
+      tip.style.left=Math.min(r.left,window.innerWidth-400)+'px';
+      tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+      if(parseInt(tip.style.top)<0)tip.style.top=(r.bottom+8)+'px';
+    });
+    dot.addEventListener('mouseleave',function(){
+      document.getElementById('obsTip').style.display='none';
+    });
+  });
 
 function esc(s){if(s==null)return '';var d=document.createElement('div');d.textContent=String(s);return d.innerHTML;}
 
