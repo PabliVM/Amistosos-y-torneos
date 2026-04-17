@@ -169,10 +169,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .plan-view.active{display:block}
 .main.hidden{display:none}
 .plan-wrap{overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 140px);border:1px solid var(--border);border-radius:var(--rl);background:var(--surface)}
-.plan-table{border-collapse:collapse;font-size:9px;width:100%;min-width:800px}
-.plan-table th{position:sticky;top:0;z-index:10;background:var(--rm-blue);color:#fff;padding:6px 4px;font-weight:700;font-size:9px;text-align:center;border:1px solid rgba(255,255,255,.2);white-space:nowrap;letter-spacing:.3px}
-.plan-table th.date-col{width:70px;min-width:70px;text-align:left;padding-left:8px}
-.plan-table td{padding:2px 3px;border:1px solid var(--border-light);vertical-align:top;min-width:55px;max-width:90px}
+.plan-table{border-collapse:collapse;font-size:9px;width:100%;table-layout:fixed}
+.plan-table th{position:sticky;top:0;z-index:10;background:var(--rm-blue);color:#fff;padding:6px 2px;font-weight:700;font-size:8px;text-align:center;border:1px solid rgba(255,255,255,.2);white-space:nowrap;letter-spacing:.3px;overflow:hidden}
+.plan-table th.date-col{width:72px;min-width:72px;text-align:left;padding-left:6px}
+.plan-table td{padding:1px 2px;border:1px solid var(--border-light);vertical-align:top;overflow:hidden}
 .plan-table tr.month-sep td,.plan-table tr.month-sep th{border-top:2px solid var(--rm-blue)}
 .plan-table tr.weekend{background:#f8f9fb}
 .plan-date{font-weight:600;font-size:9px;white-space:nowrap;color:var(--text-sec);padding:1px 0}
@@ -239,8 +239,8 @@ var seasons=['2026/2027'];
 var categories=[
   {id:'torneos',title:'Torneos',color:'#2563eb',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:0},
   {id:'amistosos',title:'Amistosos',color:'#d97706',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:1},
-  {id:'primer',title:'1er Equipo',color:'#92400e',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'all',teams:[],order:2},
-  {id:'aplazados',title:'Aplazados',color:'#dc2626',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:3},
+  {id:'aplazados',title:'Aplazados',color:'#dc2626',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:2},
+  {id:'primer',title:'1er Equipo',color:'#92400e',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'all',teams:[],order:3},
 ];
 var itemsCache={};
 var collapsed={};
@@ -270,36 +270,54 @@ function loadSeasons(){
 var DEFAULTS=[
   {id:'torneos',title:'Torneos',color:'#2563eb',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:0},
   {id:'amistosos',title:'Amistosos',color:'#d97706',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:1},
-  {id:'primer',title:'1er Equipo',color:'#92400e',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'all',teams:[],order:2},
-  {id:'aplazados',title:'Aplazados',color:'#dc2626',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:3},
+  {id:'aplazados',title:'Aplazados',color:'#dc2626',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:2},
+  {id:'primer',title:'1er Equipo',color:'#92400e',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'all',teams:[],order:3},
 ];
+var BASE_IDS=['torneos','amistosos','aplazados','primer'];
 
 function loadCategories(){
   return catsRef().orderBy('order').get().then(function(snap){
+    var batch=db.batch(),changed=false;
     if(snap.empty){
       categories=DEFAULTS.map(function(d){return Object.assign({},d);});
-      var batch=db.batch();
       categories.forEach(function(c){batch.set(catsRef().doc(c.id),c);});
       return batch.commit();
     } else {
-      categories=snap.docs.map(function(d){
-        var data=Object.assign({id:d.id},d.data());
-        if(!data.scopeMode)data.scopeMode=data.shared?'all':'each';
-        if(!Array.isArray(data.teams))data.teams=[];
-        return data;
+      var loaded=snap.docs.map(function(d){
+        return Object.assign({id:d.id},d.data());
       });
-      // Ensure all base categories exist
-      var batch=db.batch(),changed=false;
+      // Remove any categories that are NOT in BASE_IDS and not user-created (cat_ prefix)
+      // Keep base + user-created
+      categories=[];
+      // First add base categories in correct order
       DEFAULTS.forEach(function(def){
-        var existing=categories.find(function(c){return c.id===def.id;});
-        if(!existing){
+        var existing=loaded.find(function(c){return c.id===def.id;});
+        if(existing){
+          if(!existing.scopeMode)existing.scopeMode=def.scopeMode;
+          if(!Array.isArray(existing.teams))existing.teams=[];
+          existing.order=def.order;
+          categories.push(existing);
+        } else {
           categories.push(Object.assign({},def));
           batch.set(catsRef().doc(def.id),def);
           changed=true;
         }
       });
-      // Sort by order
-      categories.sort(function(a,b){return(a.order||0)-(b.order||0);});
+      // Then add user-created categories (id starts with cat_)
+      loaded.forEach(function(c){
+        if(BASE_IDS.indexOf(c.id)===-1&&c.id.indexOf('cat_')===0){
+          if(!c.scopeMode)c.scopeMode='each';
+          if(!Array.isArray(c.teams))c.teams=[];
+          categories.push(c);
+        }
+      });
+      // Delete non-base, non-user categories from Firestore (cleanup old ones)
+      loaded.forEach(function(c){
+        if(BASE_IDS.indexOf(c.id)===-1&&c.id.indexOf('cat_')!==0){
+          batch.delete(catsRef().doc(c.id));
+          changed=true;
+        }
+      });
       if(changed)return batch.commit();
     }
   }).catch(function(e){console.error(e);showBanner('Firebase: '+e.message,true);});
