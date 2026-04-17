@@ -472,8 +472,10 @@ function renderItems(cat){
     var cls=rc==='green'?'res-green':rc==='orange'?'res-orange':rc==='red'?'res-red':'';
     var dt=(it.fechaFin&&it.fechaFin!==it.fechaInicio)?dtR(it.fechaInicio,it.fechaFin):dtD(it.fechaInicio);
     var loc=it.ubicacion?LOC_EMOJI[it.ubicacion]||'':'';
-    var vdIcon=it.victoriaDerrota==='victoria'?'<span style="font-size:12px;margin-left:4px" title="Victoria">✅</span>':(it.victoriaDerrota==='derrota'?'<span style="font-size:12px;margin-left:4px" title="Derrota">❌</span>':'');
-    return '<div class="item-card '+cls+'"><div class="item-row"><span class="st-badge '+((it.estado||'provisional'))+'">'+(it.estado==='definitivo'?'✅':'⏳')+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+vdIcon+'<span class="item-dt">'+dt+'</span>'+(it.obs?'<span class="obs-dot" data-obs="'+esc(it.obs).replace(/"/g,'&quot;')+'">💬</span>':'')+'<div class="item-acts"><button onclick="openItemModal(\''+cat.id+'\','+ri+')">'+IC.ed+'</button><button onclick="delItem(\''+cat.id+'\','+ri+')">'+IC.dl+'</button></div></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'')+'</div>';
+    var vdIcon=it.victoriaDerrota==='victoria'?'✅':(it.victoriaDerrota==='derrota'?'❌':'');
+    var marcTxt=it.marcador||'';
+    var matchInfo=(marcTxt||vdIcon)?'<span style="font-size:10px;font-weight:700;color:var(--text);white-space:nowrap;flex-shrink:0">'+(vdIcon?vdIcon:'')+(marcTxt?' '+marcTxt:'')+'</span>':'';
+    return '<div class="item-card '+cls+'"><div class="item-row"><span class="st-badge '+((it.estado||'provisional'))+'">'+(it.estado==='definitivo'?'✅':'⏳')+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+matchInfo+'<span class="item-dt">'+dt+'</span>'+(it.obs?'<span class="obs-dot" data-obs="'+esc(it.obs).replace(/"/g,'&quot;')+'">💬</span>':'')+'<div class="item-acts"><button onclick="openItemModal(\''+cat.id+'\','+ri+')">'+IC.ed+'</button><button onclick="delItem(\''+cat.id+'\','+ri+')">'+IC.dl+'</button></div></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'')+'</div>';
   }).join('');
   // Attach obs tooltip listeners
   l.querySelectorAll('.obs-dot').forEach(function(dot){
@@ -531,9 +533,11 @@ function openItemModal(cid,idx){
   var isOtro=curRes&&!RESULT_OPTIONS.find(function(o){return o.v===curRes;})&&curRes!=='';
   var opts=RESULT_OPTIONS.map(function(o){return '<option value="'+o.v+'" '+(curRes===o.v?'selected':'')+'>'+(o.i?o.i+' ':'')+o.v+'</option>';}).join('');
   var rH='<label>Resultado</label><select id="mR" onchange="toggleOtroRes()"><option value="">Pendiente</option>'+opts+'<option value="__otro" '+(isOtro?'selected':'')+'>Otro...</option></select><div id="mROtroRow" style="display:'+(isOtro?'flex':'none')+';margin-top:4px"><input id="mROtro" value="'+(isOtro?esc(curRes):'')+'" placeholder="Escribe el resultado"></div>';
-  // Victoria/Derrota
+  // Marcador + Victoria/Derrota — compact single row
   var curVD=it?it.victoriaDerrota||'':'';
-  var vdH='<label>Resultado del partido</label><div class="loc-row"><label class="loc-chip"><input type="radio" name="mVD" value="" '+(curVD===''?'checked':'')+'> —</label><label class="loc-chip"><input type="radio" name="mVD" value="victoria" '+(curVD==='victoria'?'checked':'')+'> ✅ Victoria</label><label class="loc-chip"><input type="radio" name="mVD" value="derrota" '+(curVD==='derrota'?'checked':'')+'> ❌ Derrota</label></div>';
+  var curMarcador=it?it.marcador||'':'';
+  var mParts=curMarcador?curMarcador.split('-'):['',''];
+  var vdH='<label>Marcador</label><div style="display:flex;align-items:center;gap:6px;flex-wrap:nowrap"><input id="mScF" type="number" min="0" style="width:40px;text-align:center;padding:4px 2px" value="'+esc(mParts[0])+'"><span style="font-weight:700;color:var(--text-mut)">-</span><input id="mScC" type="number" min="0" style="width:40px;text-align:center;padding:4px 2px" value="'+esc(mParts[1])+'"><span style="width:12px"></span><label class="loc-chip" style="margin:0"><input type="radio" name="mVD" value="victoria" '+(curVD==='victoria'?'checked':'')+'> ✅</label><label class="loc-chip" style="margin:0"><input type="radio" name="mVD" value="derrota" '+(curVD==='derrota'?'checked':'')+'> ❌</label><label class="loc-chip" style="margin:0"><input type="radio" name="mVD" value="" '+(curVD===''?'checked':'')+'> —</label></div>';
 
   document.getElementById('mbd').innerHTML='<label>Nombre</label><input id="mN" value="'+(it?esc(it.nombre):'')+'" placeholder="Nombre o rival">'+dH+locH+'<label>Sede</label><input id="mS" value="'+(it&&it.sede?esc(it.sede):'')+'" placeholder="Opcional"><label>Estado</label><select id="mE"><option value="provisional" '+(!it||it.estado==='provisional'?'selected':'')+'>⏳ Provisional</option><option value="definitivo" '+(it&&it.estado==='definitivo'?'selected':'')+'>✅ Definitivo</option></select>'+rH+vdH+'<label>Observaciones</label><textarea id="mO" placeholder="Notas...">'+(it?esc(it.obs):'')+'</textarea>';
   document.getElementById('mft').innerHTML=(it!=null?'<button class="btn-d" onclick="delItemModal()">Borrar</button>':'')+'<button class="btn-s" onclick="closeModal()">Cancelar</button><button class="btn-p" onclick="saveItem()">Guardar</button>';
@@ -575,9 +579,12 @@ function saveItem(){
         resultado=rSel.value;
       }
     }
-    // Victoria/Derrota
+    // Victoria/Derrota + Marcador
     var vdEl=document.querySelector('input[name="mVD"]:checked');
     var victoriaDerrota=vdEl?vdEl.value:'';
+    var sf=(document.getElementById('mScF')||{}).value||'';
+    var sc=(document.getElementById('mScC')||{}).value||'';
+    var marcador=(sf!==''||sc!=='')?sf+'-'+sc:'';
 
     var d={
       nombre:((document.getElementById('mN')||{}).value||'').trim()||'Sin nombre',
@@ -586,6 +593,7 @@ function saveItem(){
       estado:(document.getElementById('mE')||{}).value||'provisional',
       resultado:resultado,
       victoriaDerrota:victoriaDerrota,
+      marcador:marcador,
       ubicacion:locEl?locEl.value:'',
       obs:((document.getElementById('mO')||{}).value||'').trim()
     };
