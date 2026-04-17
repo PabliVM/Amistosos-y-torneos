@@ -725,10 +725,11 @@ function renderItems(cat){
     var cls=rc==='green'?'res-green':rc==='orange'?'res-orange':rc==='red'?'res-red':'';
     var dt=(it.fechaFin&&it.fechaFin!==it.fechaInicio)?dtR(it.fechaInicio,it.fechaFin):dtD(it.fechaInicio);
     var loc=it.ubicacion?LOC_EMOJI[it.ubicacion]||'':'';
+    var locTxt=it.ubicacionTexto?'<span style="font-size:9px;color:var(--text-mut);flex-shrink:0">'+esc(it.ubicacionTexto)+'</span>':'';
     var vdIcon=it.victoriaDerrota==='victoria'?'✅':(it.victoriaDerrota==='derrota'?'❌':'');
     var marcTxt=it.marcador||'';
     var matchInfo=(marcTxt||vdIcon)?'<span style="font-size:10px;font-weight:700;color:var(--text);white-space:nowrap;flex-shrink:0">'+(vdIcon?vdIcon:'')+(marcTxt?' '+marcTxt:'')+'</span>':'';
-    return '<div class="item-card '+cls+'"><div class="item-row"><span class="st-badge '+((it.estado||'provisional'))+'">'+(it.estado==='definitivo'?'✅':'⏳')+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+matchInfo+'<span class="item-dt">'+dt+'</span>'+(it.obs?'<span class="obs-dot" data-obs="'+esc(it.obs).replace(/"/g,'&quot;')+'">💬</span>':'')+'<div class="item-acts"><button onclick="openItemModal(\''+cat.id+'\','+ri+')">'+IC.ed+'</button><button onclick="delItem(\''+cat.id+'\','+ri+')">'+IC.dl+'</button></div></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'')+'</div>';
+    return '<div class="item-card '+cls+'"><div class="item-row"><span class="st-badge '+((it.estado||'provisional'))+'">'+(it.estado==='definitivo'?'✅':'⏳')+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+locTxt+matchInfo+'<span class="item-dt">'+dt+'</span>'+(it.obs?'<span class="obs-dot" data-obs="'+esc(it.obs).replace(/"/g,'&quot;')+'">💬</span>':'')+'<div class="item-acts"><button onclick="openItemModal(\''+cat.id+'\','+ri+')">'+IC.ed+'</button><button onclick="delItem(\''+cat.id+'\','+ri+')">'+IC.dl+'</button></div></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'')+'</div>';
   }).join('');
   // Attach obs tooltip listeners
   l.querySelectorAll('.obs-dot').forEach(function(dot){
@@ -778,21 +779,24 @@ function openItemModal(cid,idx){
   // Date
   var hasEnd=it&&it.fechaFin&&it.fechaFin!==it.fechaInicio;
   var dH='<label>Fecha</label><div style="display:flex;align-items:center;gap:6px"><input id="mFI" type="date" value="'+(it?it.fechaInicio||'':'')+'" onchange="syncDateMin()" style="flex:1"><span id="mFFToggle" style="font-size:10px;color:var(--rm-blue);cursor:pointer;white-space:nowrap;'+(hasEnd?'display:none':'')+'" onclick="showEndDate()">+ fecha fin</span></div><div id="mFFRow" style="display:'+(hasEnd?'flex':'none')+';align-items:center;gap:6px;margin-top:4px"><span style="font-size:10px;color:var(--text-mut)">hasta</span><input id="mFF" type="date" value="'+(it&&hasEnd?it.fechaFin:'')+'" min="'+(it&&it.fechaInicio?it.fechaInicio:'')+'" style="flex:1"><span style="font-size:10px;color:var(--red);cursor:pointer" onclick="hideEndDate()">✕</span></div>';
-  // Location — always available
+  // Location — compact chips + free text on same row
   var curLoc=it?it.ubicacion||'':'';
-  var locH='<label>Ubicación</label><div class="loc-row"><label class="loc-chip"><input type="radio" name="mLoc" value="" '+(curLoc===''?'checked':'')+'> —</label><label class="loc-chip"><input type="radio" name="mLoc" value="casa" '+(curLoc==='casa'?'checked':'')+'> 🏠</label><label class="loc-chip"><input type="radio" name="mLoc" value="fuera" '+(curLoc==='fuera'?'checked':'')+'> ✈️</label></div>';
-  // Result — always dropdown + Otro + score
+  var curLocTxt=it?it.ubicacionTexto||'':'';
+  var locH='<label>Ubicación</label><div style="display:flex;align-items:center;gap:4px"><label class="loc-chip" style="font-size:9px;padding:2px 6px"><input type="radio" name="mLoc" value="" '+(curLoc===''?'checked':'')+'>—</label><label class="loc-chip" style="font-size:9px;padding:2px 6px"><input type="radio" name="mLoc" value="casa" '+(curLoc==='casa'?'checked':'')+'>Casa</label><label class="loc-chip" style="font-size:9px;padding:2px 6px"><input type="radio" name="mLoc" value="fuera" '+(curLoc==='fuera'?'checked':'')+'>Fuera</label><input id="mLocTxt" value="'+esc(curLocTxt)+'" placeholder="Lugar / Ciudad" style="flex:1;margin-left:6px;font-size:10px;padding:4px 6px"></div>';
+  // Result dropdown
   var curRes=it?it.resultado||'':'';
   var isOtro=curRes&&!RESULT_OPTIONS.find(function(o){return o.v===curRes;})&&curRes!=='';
   var opts=RESULT_OPTIONS.map(function(o){return '<option value="'+o.v+'" '+(curRes===o.v?'selected':'')+'>'+(o.i?o.i+' ':'')+o.v+'</option>';}).join('');
   var rH='<label>Resultado</label><select id="mR" onchange="toggleOtroRes()"><option value="">Pendiente</option>'+opts+'<option value="__otro" '+(isOtro?'selected':'')+'>Otro...</option></select><div id="mROtroRow" style="display:'+(isOtro?'flex':'none')+';margin-top:4px"><input id="mROtro" value="'+(isOtro?esc(curRes):'')+'" placeholder="Escribe el resultado"></div>';
-  // Marcador + Victoria/Derrota — compact single row
+  // Marcador + Victoria/Derrota — compact
   var curVD=it?it.victoriaDerrota||'':'';
   var curMarcador=it?it.marcador||'':'';
   var mParts=curMarcador?curMarcador.split('-'):['',''];
-  var vdH='<label>Marcador</label><div style="display:flex;align-items:center;gap:6px;flex-wrap:nowrap"><input id="mScF" type="number" min="0" style="width:40px;text-align:center;padding:4px 2px" value="'+esc(mParts[0])+'"><span style="font-weight:700;color:var(--text-mut)">-</span><input id="mScC" type="number" min="0" style="width:40px;text-align:center;padding:4px 2px" value="'+esc(mParts[1])+'"><span style="width:12px"></span><label class="loc-chip" style="margin:0"><input type="radio" name="mVD" value="victoria" '+(curVD==='victoria'?'checked':'')+'> ✅</label><label class="loc-chip" style="margin:0"><input type="radio" name="mVD" value="derrota" '+(curVD==='derrota'?'checked':'')+'> ❌</label><label class="loc-chip" style="margin:0"><input type="radio" name="mVD" value="" '+(curVD===''?'checked':'')+'> —</label></div>';
+  var vdH='<label>Marcador</label><div style="display:flex;align-items:center;gap:5px"><input id="mScF" type="number" min="0" style="width:36px;text-align:center;padding:3px 1px;font-size:12px" value="'+esc(mParts[0])+'"><span style="font-weight:700;color:var(--text-mut)">-</span><input id="mScC" type="number" min="0" style="width:36px;text-align:center;padding:3px 1px;font-size:12px" value="'+esc(mParts[1])+'"><span style="width:6px"></span><label class="loc-chip" style="margin:0;font-size:9px;padding:2px 5px"><input type="radio" name="mVD" value="victoria" '+(curVD==='victoria'?'checked':'')+'> ✅</label><label class="loc-chip" style="margin:0;font-size:9px;padding:2px 5px"><input type="radio" name="mVD" value="derrota" '+(curVD==='derrota'?'checked':'')+'> ❌</label><label class="loc-chip" style="margin:0;font-size:9px;padding:2px 5px"><input type="radio" name="mVD" value="" '+(curVD===''?'checked':'')+'> —</label></div>';
+  // Estado — last
+  var estH='<label>Estado</label><select id="mE"><option value="provisional" '+(!it||it.estado==='provisional'?'selected':'')+'>⏳ Provisional</option><option value="definitivo" '+(it&&it.estado==='definitivo'?'selected':'')+'>✅ Definitivo</option></select>';
 
-  document.getElementById('mbd').innerHTML='<label>Nombre</label><input id="mN" value="'+(it?esc(it.nombre):'')+'" placeholder="Nombre o rival">'+dH+locH+'<label>Sede</label><input id="mS" value="'+(it&&it.sede?esc(it.sede):'')+'" placeholder="Opcional"><label>Estado</label><select id="mE"><option value="provisional" '+(!it||it.estado==='provisional'?'selected':'')+'>⏳ Provisional</option><option value="definitivo" '+(it&&it.estado==='definitivo'?'selected':'')+'>✅ Definitivo</option></select>'+rH+vdH+'<label>Observaciones</label><textarea id="mO" placeholder="Notas...">'+(it?esc(it.obs):'')+'</textarea>';
+  document.getElementById('mbd').innerHTML='<label>Nombre</label><input id="mN" value="'+(it?esc(it.nombre):'')+'" placeholder="Nombre o rival">'+dH+locH+rH+vdH+'<label>Observaciones</label><textarea id="mO" placeholder="Notas...">'+(it?esc(it.obs):'')+'</textarea>'+estH;
   document.getElementById('mft').innerHTML=(it!=null?'<button class="btn-d" onclick="delItemModal()">Borrar</button>':'')+'<button class="btn-s" onclick="closeModal()">Cancelar</button><button class="btn-p" onclick="saveItem()">Guardar</button>';
   document.getElementById('mo').classList.add('active');
 }
@@ -842,7 +846,8 @@ function saveItem(){
     var d={
       nombre:((document.getElementById('mN')||{}).value||'').trim()||'Sin nombre',
       fechaInicio:fi,fechaFin:ff||fi,
-      sede:((document.getElementById('mS')||{}).value||'').trim(),
+      ubicacion:locEl?locEl.value:'',
+      ubicacionTexto:((document.getElementById('mLocTxt')||{}).value||'').trim(),
       estado:(document.getElementById('mE')||{}).value||'provisional',
       resultado:resultado,
       victoriaDerrota:victoriaDerrota,
