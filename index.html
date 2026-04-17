@@ -472,8 +472,8 @@ function renderItems(cat){
     var cls=rc==='green'?'res-green':rc==='orange'?'res-orange':rc==='red'?'res-red':'';
     var dt=(it.fechaFin&&it.fechaFin!==it.fechaInicio)?dtR(it.fechaInicio,it.fechaFin):dtD(it.fechaInicio);
     var loc=it.ubicacion?LOC_EMOJI[it.ubicacion]||'':'';
-    var score=it.marcador?'<span style="font-size:10px;font-weight:700;color:var(--text);margin-left:4px">'+esc(it.marcador)+'</span>':'';
-    return '<div class="item-card '+cls+'"><div class="item-row"><span class="st-badge '+((it.estado||'provisional'))+'">'+(it.estado==='definitivo'?'✅':'⏳')+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span><span class="item-dt">'+dt+'</span>'+(it.obs?'<span class="obs-dot" data-obs="'+esc(it.obs).replace(/"/g,'&quot;')+'">💬</span>':'')+'<div class="item-acts"><button onclick="openItemModal(\''+cat.id+'\','+ri+')">'+IC.ed+'</button><button onclick="delItem(\''+cat.id+'\','+ri+')">'+IC.dl+'</button></div></div>'+(it.resultado||it.marcador?'<div class="item-sub">'+(it.resultado?'<span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span>':'')+score+'</div>':'')+'</div>';
+    var vdIcon=it.victoriaDerrota==='victoria'?'<span style="font-size:12px;margin-left:4px" title="Victoria">✅</span>':(it.victoriaDerrota==='derrota'?'<span style="font-size:12px;margin-left:4px" title="Derrota">❌</span>':'');
+    return '<div class="item-card '+cls+'"><div class="item-row"><span class="st-badge '+((it.estado||'provisional'))+'">'+(it.estado==='definitivo'?'✅':'⏳')+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+vdIcon+'<span class="item-dt">'+dt+'</span>'+(it.obs?'<span class="obs-dot" data-obs="'+esc(it.obs).replace(/"/g,'&quot;')+'">💬</span>':'')+'<div class="item-acts"><button onclick="openItemModal(\''+cat.id+'\','+ri+')">'+IC.ed+'</button><button onclick="delItem(\''+cat.id+'\','+ri+')">'+IC.dl+'</button></div></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'')+'</div>';
   }).join('');
   // Attach obs tooltip listeners
   l.querySelectorAll('.obs-dot').forEach(function(dot){
@@ -531,11 +531,11 @@ function openItemModal(cid,idx){
   var isOtro=curRes&&!RESULT_OPTIONS.find(function(o){return o.v===curRes;})&&curRes!=='';
   var opts=RESULT_OPTIONS.map(function(o){return '<option value="'+o.v+'" '+(curRes===o.v?'selected':'')+'>'+(o.i?o.i+' ':'')+o.v+'</option>';}).join('');
   var rH='<label>Resultado</label><select id="mR" onchange="toggleOtroRes()"><option value="">Pendiente</option>'+opts+'<option value="__otro" '+(isOtro?'selected':'')+'>Otro...</option></select><div id="mROtroRow" style="display:'+(isOtro?'flex':'none')+';margin-top:4px"><input id="mROtro" value="'+(isOtro?esc(curRes):'')+'" placeholder="Escribe el resultado"></div>';
-  // Score
-  var curScore=it?it.marcador||'':'';
-  var scoreH='<label>Marcador</label><div style="display:flex;gap:6px;align-items:center"><input id="mScoreF" type="number" min="0" style="width:50px;text-align:center" placeholder="F" value="'+(curScore?curScore.split('-')[0]||'':'')+'"><span style="font-weight:700;color:var(--text-mut)">-</span><input id="mScoreC" type="number" min="0" style="width:50px;text-align:center" placeholder="C" value="'+(curScore?curScore.split('-')[1]||'':'')+'"><span style="font-size:9px;color:var(--text-mut);margin-left:4px">favor - contra</span></div>';
+  // Victoria/Derrota
+  var curVD=it?it.victoriaDerrota||'':'';
+  var vdH='<label>Resultado del partido</label><div class="loc-row"><label class="loc-chip"><input type="radio" name="mVD" value="" '+(curVD===''?'checked':'')+'> —</label><label class="loc-chip"><input type="radio" name="mVD" value="victoria" '+(curVD==='victoria'?'checked':'')+'> ✅ Victoria</label><label class="loc-chip"><input type="radio" name="mVD" value="derrota" '+(curVD==='derrota'?'checked':'')+'> ❌ Derrota</label></div>';
 
-  document.getElementById('mbd').innerHTML='<label>Nombre</label><input id="mN" value="'+(it?esc(it.nombre):'')+'" placeholder="Nombre o rival">'+dH+locH+'<label>Sede</label><input id="mS" value="'+(it&&it.sede?esc(it.sede):'')+'" placeholder="Opcional"><label>Estado</label><select id="mE"><option value="provisional" '+(!it||it.estado==='provisional'?'selected':'')+'>⏳ Provisional</option><option value="definitivo" '+(it&&it.estado==='definitivo'?'selected':'')+'>✅ Definitivo</option></select>'+rH+scoreH+'<label>Observaciones</label><textarea id="mO" placeholder="Notas...">'+(it?esc(it.obs):'')+'</textarea>';
+  document.getElementById('mbd').innerHTML='<label>Nombre</label><input id="mN" value="'+(it?esc(it.nombre):'')+'" placeholder="Nombre o rival">'+dH+locH+'<label>Sede</label><input id="mS" value="'+(it&&it.sede?esc(it.sede):'')+'" placeholder="Opcional"><label>Estado</label><select id="mE"><option value="provisional" '+(!it||it.estado==='provisional'?'selected':'')+'>⏳ Provisional</option><option value="definitivo" '+(it&&it.estado==='definitivo'?'selected':'')+'>✅ Definitivo</option></select>'+rH+vdH+'<label>Observaciones</label><textarea id="mO" placeholder="Notas...">'+(it?esc(it.obs):'')+'</textarea>';
   document.getElementById('mft').innerHTML=(it!=null?'<button class="btn-d" onclick="delItemModal()">Borrar</button>':'')+'<button class="btn-s" onclick="closeModal()">Cancelar</button><button class="btn-p" onclick="saveItem()">Guardar</button>';
   document.getElementById('mo').classList.add('active');
 }
@@ -575,10 +575,9 @@ function saveItem(){
         resultado=rSel.value;
       }
     }
-    // Score
-    var sf=(document.getElementById('mScoreF')||{}).value||'';
-    var sc=(document.getElementById('mScoreC')||{}).value||'';
-    var marcador=(sf!==''&&sc!=='')?sf+'-'+sc:'';
+    // Victoria/Derrota
+    var vdEl=document.querySelector('input[name="mVD"]:checked');
+    var victoriaDerrota=vdEl?vdEl.value:'';
 
     var d={
       nombre:((document.getElementById('mN')||{}).value||'').trim()||'Sin nombre',
@@ -586,7 +585,7 @@ function saveItem(){
       sede:((document.getElementById('mS')||{}).value||'').trim(),
       estado:(document.getElementById('mE')||{}).value||'provisional',
       resultado:resultado,
-      marcador:marcador,
+      victoriaDerrota:victoriaDerrota,
       ubicacion:locEl?locEl.value:'',
       obs:((document.getElementById('mO')||{}).value||'').trim()
     };
