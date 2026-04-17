@@ -47,7 +47,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .panel-header{padding:10px 14px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;gap:6px;cursor:pointer;user-select:none;transition:background var(--tr)}
 .panel-header:hover{background:var(--surface-alt)}
 .panel-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-sec);display:flex;align-items:center;gap:5px}
-.panel-color-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;border:1px solid rgba(0,0,0,.08)}
+.panel-color-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;border:1.5px solid rgba(0,0,0,.12)}
 .chevron{transition:transform .25s ease;font-size:10px;color:var(--text-mut);flex-shrink:0}
 .chevron.collapsed{transform:rotate(-90deg)}
 .panel-body{padding:10px 12px;overflow:hidden}
@@ -289,13 +289,19 @@ function loadCategories(){
       // Remove any categories that are NOT in BASE_IDS and not user-created (cat_ prefix)
       // Keep base + user-created
       categories=[];
-      // First add base categories in correct order
+      // First add base categories in correct order, force correct colors
       DEFAULTS.forEach(function(def){
         var existing=loaded.find(function(c){return c.id===def.id;});
         if(existing){
           if(!existing.scopeMode)existing.scopeMode=def.scopeMode;
           if(!Array.isArray(existing.teams))existing.teams=[];
           existing.order=def.order;
+          // Force color update if it doesn't match default
+          if(existing.color!==def.color){
+            existing.color=def.color;
+            batch.set(catsRef().doc(def.id),Object.assign({},existing));
+            changed=true;
+          }
           categories.push(existing);
         } else {
           categories.push(Object.assign({},def));
