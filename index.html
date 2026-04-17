@@ -29,9 +29,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .sync-dot.ok{background:#4ade80}.sync-dot.saving{background:#fbbf24;animation:pulse .6s infinite alternate}.sync-dot.error{background:#f87171}
 @keyframes pulse{from{opacity:1}to{opacity:.3}}
 
-.banner{position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:200;background:#1e293b;color:#fff;padding:8px 20px;border-radius:8px;font-size:12px;box-shadow:var(--sh-lg);display:none;align-items:center;gap:10px;max-width:500px;text-align:center}
+.banner{position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:200;background:#1e293b;color:#fff;padding:10px 20px;border-radius:8px;font-size:12px;box-shadow:var(--sh-lg);display:none;align-items:center;gap:10px;max-width:600px;text-align:left;line-height:1.4}
 .banner.show{display:flex}
-.banner.error{background:#991b1b}
+.banner.error{background:#991b1b;font-weight:500}
+.banner .bx{margin-left:auto;cursor:pointer;background:none;border:none;color:#fff;font-size:18px;font-weight:700;flex-shrink:0;padding:0 4px;opacity:.7}
+.banner .bx:hover{opacity:1}
 
 /* TEAM BAR */
 .team-bar{background:var(--surface);padding:10px 24px;display:flex;align-items:center;gap:5px;overflow-x:auto;position:sticky;top:62px;z-index:99;border-bottom:1px solid var(--border)}
@@ -180,7 +182,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
     <button class="btn-season danger" onclick="delSeason()" title="Eliminar temporada">×</button>
   </div>
 </div>
-<div class="banner" id="banner"><span id="bannerMsg"></span></div>
+<div class="banner" id="banner"><span id="bannerMsg"></span><button class="bx" onclick="document.getElementById('banner').className='banner'">×</button></div>
 <div class="team-bar" id="teamBar"></div>
 <div class="main">
   <div class="panel">
@@ -194,7 +196,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 </div>
 
 <script>
-firebase.initializeApp({apiKey:"AIzaSyAdG-vHgm8jBzJBAgNVybYaqWdhF6GF53k",authDomain:"amistosos-y-torneos-c5270.firebaseapp.com",projectId:"amistosos-y-torneos-c5270",storageBucket:"amistosos-y-torneos-c5270.firebasestorage.app",messagingSenderId:"103829351335",appId:"1:103829351335:web:fd88a9704bb21931d7e482"});
+firebase.initializeApp({apiKey:"AIzaSyAyPmMciYVe1RHaRYMww4kEg2nSAEc_dfw",authDomain:"amistosos-y-torneos.firebaseapp.com",projectId:"amistosos-y-torneos",storageBucket:"amistosos-y-torneos.firebasestorage.app",messagingSenderId:"7038951639",appId:"1:7038951639:web:8daf47f203ca91f00a5092"});
 var db=firebase.firestore();
 
 function showSync(s){var d=document.getElementById('syncDot');if(d)d.className='sync-dot '+s;}
@@ -243,10 +245,20 @@ function loadSeasons(){
   }).catch(function(e){console.error(e);showBanner('Firebase: '+e.message,true);});
 }
 
+var DEFAULTS=[
+  {id:'torneos',title:'Torneos',color:'#2563eb',hasRange:true,hasResultSelect:true,isMatch:false,scopeMode:'each',teams:[],order:0},
+  {id:'amistosos',title:'Amistosos',color:'#d97706',hasRange:false,hasResultSelect:false,isMatch:true,scopeMode:'each',teams:[],order:1},
+  {id:'primer',title:'1er Equipo',color:'#92400e',hasRange:false,hasResultSelect:false,isMatch:true,scopeMode:'all',teams:[],order:2},
+];
+
 function loadCategories(){
   return catsRef().orderBy('order').get().then(function(snap){
     if(snap.empty){
-      var batch=db.batch();categories.forEach(function(c){batch.set(catsRef().doc(c.id),c);});return batch.commit();
+      // First time: write defaults
+      categories=DEFAULTS.slice();
+      var batch=db.batch();
+      categories.forEach(function(c){batch.set(catsRef().doc(c.id),c);});
+      return batch.commit();
     } else {
       categories=snap.docs.map(function(d){
         var data=Object.assign({id:d.id},d.data());
@@ -257,6 +269,21 @@ function loadCategories(){
         if(!Array.isArray(data.teams))data.teams=[];
         return data;
       });
+      // Ensure the 3 base categories exist with correct settings
+      var batch=db.batch(),changed=false;
+      DEFAULTS.forEach(function(def){
+        var existing=categories.find(function(c){return c.id===def.id;});
+        if(!existing){
+          categories.push(def);
+          batch.set(catsRef().doc(def.id),def);
+          changed=true;
+        } else {
+          // Fix scopeMode if wrong
+          if(def.id==='primer'&&existing.scopeMode!=='all'){existing.scopeMode='all';existing.teams=[];batch.set(catsRef().doc(def.id),Object.assign({},existing));changed=true;}
+          if((def.id==='torneos'||def.id==='amistosos')&&existing.scopeMode==='all'&&!existing._userSet){existing.scopeMode='each';batch.set(catsRef().doc(def.id),Object.assign({},existing));changed=true;}
+        }
+      });
+      if(changed)return batch.commit();
     }
   }).catch(function(e){console.error(e);showBanner('Firebase: '+e.message,true);});
 }
@@ -595,9 +622,42 @@ function saveNewCat(){
 function closeModal(){document.getElementById('mo').classList.remove('active');eT=null;eI=null;}
 function renderAll(){try{renderCalendar();renderRight();}catch(e){console.error('renderAll',e);}}
 
+// TEST Firebase write permission
+function testFirebaseWrite(){
+  var testRef=db.collection('_connection_test').doc('test');
+  return testRef.set({ts:Date.now(),ok:true}).then(function(){
+    testRef.delete();
+    return true;
+  }).catch(function(e){
+    console.error('Firebase write test FAILED:',e);
+    return false;
+  });
+}
+
 // INIT
 renderSeasons();renderTeamBar();renderAll();
-loadSeasons().then(function(){renderSeasons();return loadCategories();}).then(function(){return loadItemsForSeason(activeSeason);}).then(function(){renderAll();showSync('ok');}).catch(function(e){console.error(e);showBanner('Error Firebase: '+e.message,true);showSync('error');});
+loadSeasons().then(function(){
+  renderSeasons();
+  return loadCategories();
+}).then(function(){
+  return loadItemsForSeason(activeSeason);
+}).then(function(){
+  renderAll();
+  // Test write permission
+  return testFirebaseWrite();
+}).then(function(canWrite){
+  if(canWrite){
+    showSync('ok');
+    showBanner('Conectado a Firebase ✓');
+  } else {
+    showSync('error');
+    showBanner('⚠️ Firebase BLOQUEA escritura. Ve a Firebase Console → Firestore → Rules y cambia a: allow read, write: if true;',true);
+  }
+}).catch(function(e){
+  console.error(e);
+  showBanner('Error Firebase: '+(e.message||e),true);
+  showSync('error');
+});
 </script>
 </body>
 </html>
