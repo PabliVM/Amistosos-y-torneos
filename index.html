@@ -237,7 +237,7 @@ var TEAMS=[{key:'CAS',name:'Castilla'},{key:'RMC',name:'Real Madrid C'},{key:'JA
 var activeTeam='JA',activeSeason='2026/2027';
 var seasons=['2026/2027'];
 var categories=[
-  {id:'torneos',title:'Torneos',color:'#eab308',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:0},
+  {id:'torneos',title:'Torneos',color:'#facc15',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:0},
   {id:'amistosos',title:'Amistosos',color:'#3b82f6',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:1},
   {id:'aplazados',title:'Aplazados',color:'#16a34a',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:2},
   {id:'primer',title:'1er Equipo',color:'#9333ea',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'all',teams:[],order:3},
@@ -268,7 +268,7 @@ function loadSeasons(){
 }
 
 var DEFAULTS=[
-  {id:'torneos',title:'Torneos',color:'#eab308',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:0},
+  {id:'torneos',title:'Torneos',color:'#facc15',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:0},
   {id:'amistosos',title:'Amistosos',color:'#3b82f6',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:1},
   {id:'aplazados',title:'Aplazados',color:'#16a34a',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:2},
   {id:'primer',title:'1er Equipo',color:'#9333ea',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'all',teams:[],order:3},
@@ -633,7 +633,13 @@ function getFechasClave(){
 function loadFechasClave(){
   var k=fcKey();
   return db.collection('planificacion_fechas_clave').doc(k).get().then(function(doc){
-    if(doc.exists)fechasClaveCache[k]=doc.data();
+    if(doc.exists){
+      fechasClaveCache[k]=doc.data();
+      // Migrate old default colors to black
+      var fc=fechasClaveCache[k];
+      if(fc.pretemporadaColor==='#16a34a')fc.pretemporadaColor='#1a1a1a';
+      if(fc.competicionColor==='#dc2626')fc.competicionColor='#1a1a1a';
+    }
   }).catch(function(e){console.error('loadFC',e);});
 }
 function saveFechasClave(){
@@ -670,9 +676,9 @@ function pickFC(el,fieldId,hex){
 function saveFCModal(){
   var fc=getFechasClave();
   fc.pretemporada=(document.getElementById('fcPre')||{}).value||'';
-  fc.pretemporadaColor=(document.getElementById('fcPreColor')||{}).value||'#16a34a';
+  fc.pretemporadaColor=(document.getElementById('fcPreColor')||{}).value||'#1a1a1a';
   fc.competicion=(document.getElementById('fcComp')||{}).value||'';
-  fc.competicionColor=(document.getElementById('fcCompColor')||{}).value||'#dc2626';
+  fc.competicionColor=(document.getElementById('fcCompColor')||{}).value||'#1a1a1a';
   closeModal();renderAll();
   saveFechasClave();
 }
