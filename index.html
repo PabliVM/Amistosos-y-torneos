@@ -471,7 +471,7 @@ function renderItems(cat){
   l.innerHTML=sorted.map(function(it){
     var ri=all.indexOf(it),rc=resColor(it.resultado);
     var cls=rc==='green'?'res-green':rc==='orange'?'res-orange':rc==='red'?'res-red':'';
-    var dt=cat.hasRange?dtR(it.fechaInicio,it.fechaFin):dtD(it.fechaInicio);
+    var dt=(it.fechaFin&&it.fechaFin!==it.fechaInicio)?dtR(it.fechaInicio,it.fechaFin):dtD(it.fechaInicio);
     var loc=cat.isMatch&&it.ubicacion?LOC_EMOJI[it.ubicacion]||'':'';
     return '<div class="item-card '+cls+'"><div class="item-row"><span class="st-badge '+((it.estado||'provisional'))+'">'+(it.estado==='definitivo'?'✅':'⏳')+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span><span class="item-dt">'+dt+'</span>'+(it.obs?'<span class="obs-dot">💬<span class="obs-tip">'+esc(it.obs)+'</span></span>':'')+'<div class="item-acts"><button onclick="openItemModal(\''+cat.id+'\','+ri+')">'+IC.ed+'</button><button onclick="delItem(\''+cat.id+'\','+ri+')">'+IC.dl+'</button></div></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'')+'</div>';
   }).join('');
@@ -505,7 +505,9 @@ function openItemModal(cid,idx){
   var cat=categories.find(function(c){return c.id===cid;});if(!cat)return;
   var items=getAllItems(cid),it=eI!=null?items[eI]:null;
   document.getElementById('mt').textContent=(it?'Editar':'Añadir')+' — '+cat.title;
-  var dH=cat.hasRange?'<label>Fechas</label><div class="dr"><input id="mFI" type="date" value="'+(it?it.fechaInicio||'':'')+'" onchange="syncDateMin()"><span>a</span><input id="mFF" type="date" value="'+(it?it.fechaFin||'':'')+'" min="'+(it&&it.fechaInicio?it.fechaInicio:'')+'"></div>':'<label>Fecha</label><input id="mFI" type="date" value="'+(it?it.fechaInicio||'':'')+'">';
+  // Date: always single date, with expandable end date
+  var hasEnd=it&&it.fechaFin&&it.fechaFin!==it.fechaInicio;
+  var dH='<label>Fecha</label><div style="display:flex;align-items:center;gap:6px"><input id="mFI" type="date" value="'+(it?it.fechaInicio||'':'')+'" onchange="syncDateMin()" style="flex:1"><span id="mFFToggle" style="font-size:10px;color:var(--rm-blue);cursor:pointer;white-space:nowrap;'+(hasEnd?'display:none':'')+'" onclick="showEndDate()">+ fecha fin</span></div><div id="mFFRow" style="display:'+(hasEnd?'flex':'none')+';align-items:center;gap:6px;margin-top:4px"><span style="font-size:10px;color:var(--text-mut)">hasta</span><input id="mFF" type="date" value="'+(it&&hasEnd?it.fechaFin:'')+ '" min="'+(it&&it.fechaInicio?it.fechaInicio:'')+'" style="flex:1"><span style="font-size:10px;color:var(--red);cursor:pointer" onclick="hideEndDate()">✕</span></div>';
   var rH;
   if(cat.hasResultSelect){
     var opts=RESULT_OPTIONS.map(function(o){return '<option value="'+o.v+'" '+(it&&it.resultado===o.v?'selected':'')+'>'+(o.i?o.i+' ':'')+o.v+'</option>';}).join('');
@@ -520,12 +522,24 @@ function openItemModal(cid,idx){
   document.getElementById('mo').classList.add('active');
 }
 
+function showEndDate(){
+  document.getElementById('mFFRow').style.display='flex';
+  document.getElementById('mFFToggle').style.display='none';
+  syncDateMin();
+}
+function hideEndDate(){
+  document.getElementById('mFFRow').style.display='none';
+  document.getElementById('mFFToggle').style.display='inline';
+  var ff=document.getElementById('mFF');if(ff)ff.value='';
+}
+
 function saveItem(){
   try{
     var cat=categories.find(function(c){return c.id===eT;});if(!cat)return;
     var fi=(document.getElementById('mFI')||{}).value||'';
     var ffEl=document.getElementById('mFF');
-    var ff=cat.hasRange&&ffEl?ffEl.value||fi:fi;
+    var ff=ffEl&&ffEl.value?ffEl.value:'';
+    if(ff&&ff<fi)ff=fi;
     var rEl=document.getElementById('mR');
     var locEl=cat.isMatch?document.querySelector('input[name="mLoc"]:checked'):null;
     var d={
@@ -566,7 +580,6 @@ function openCatCfg(cid){
   document.getElementById('mt').textContent='Configurar — '+cat.title;
   document.getElementById('mbd').innerHTML='<label>Título</label><input id="mCT" value="'+esc(cat.title)+'">'+
     scopeUI(cat.scopeMode,cat.teams)+
-    '<label>Tipo de fecha</label><select id="mCR"><option value="0" '+(!cat.hasRange?'selected':'')+'>Fecha única</option><option value="1" '+(cat.hasRange?'selected':'')+'>Período</option></select>'+
     '<label>Tipo de resultado</label><select id="mCRT"><option value="0" '+(!cat.hasResultSelect?'selected':'')+'>Texto libre</option><option value="1" '+(cat.hasResultSelect?'selected':'')+'>Selector</option></select>'+
     '<label>¿Es un partido? (Casa/Fuera)</label><select id="mCM"><option value="0" '+(!cat.isMatch?'selected':'')+'>No</option><option value="1" '+(cat.isMatch?'selected':'')+'>Sí</option></select>'+
     '<label>Color</label><input type="hidden" id="mColor" value="'+cat.color+'">'+cpHTML(cat.color);
@@ -578,7 +591,6 @@ function saveCatCfg(){
   try{
     var cat=categories.find(function(c){return c.id===eI;});if(!cat)return;
     cat.title=((document.getElementById('mCT')||{}).value||'').trim()||cat.title;
-    cat.hasRange=(document.getElementById('mCR')||{}).value==='1';
     cat.hasResultSelect=(document.getElementById('mCRT')||{}).value==='1';
     cat.isMatch=(document.getElementById('mCM')||{}).value==='1';
     cat.color=(document.getElementById('mColor')||{}).value||cat.color;
@@ -602,7 +614,6 @@ function openNewCat(){
   document.getElementById('mt').textContent='Nueva categoría';
   document.getElementById('mbd').innerHTML='<label>Título</label><input id="mCT" value="" placeholder="Ej: Selecciones, Porteros...">'+
     scopeUI('each',[activeTeam])+
-    '<label>Tipo de fecha</label><select id="mCR"><option value="0">Fecha única</option><option value="1">Período</option></select>'+
     '<label>Tipo de resultado</label><select id="mCRT"><option value="0">Texto libre</option><option value="1">Selector</option></select>'+
     '<label>¿Es un partido?</label><select id="mCM"><option value="0">No</option><option value="1">Sí</option></select>'+
     '<label>Color</label><input type="hidden" id="mColor" value="#2563eb">'+cpHTML('#2563eb');
@@ -615,7 +626,7 @@ function saveNewCat(){
     var t=((document.getElementById('mCT')||{}).value||'').trim();
     if(!t){showBanner('Escribe un título',true);return;}
     var id='cat_'+Date.now(),sc=getScope();
-    var cat={id:id,title:t,color:(document.getElementById('mColor')||{}).value||'#2563eb',hasRange:(document.getElementById('mCR')||{}).value==='1',hasResultSelect:(document.getElementById('mCRT')||{}).value==='1',isMatch:(document.getElementById('mCM')||{}).value==='1',scopeMode:sc.scopeMode,teams:sc.teams,order:categories.length};
+    var cat={id:id,title:t,color:(document.getElementById('mColor')||{}).value||'#2563eb',hasRange:true,hasResultSelect:(document.getElementById('mCRT')||{}).value==='1',isMatch:(document.getElementById('mCM')||{}).value==='1',scopeMode:sc.scopeMode,teams:sc.teams,order:categories.length};
     categories.push(cat);
     closeModal();renderAll();
     showSync('saving');
