@@ -8,6 +8,26 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <style>
 :root{--bg:#f0f2f5;--surface:#fff;--surface-alt:#fafbfc;--border:#dfe1e6;--border-light:#eaecf0;--text:#1a1d23;--text-sec:#5a6170;--text-mut:#8b919e;--text-faint:#b4b9c4;--rm-blue:#2563eb;--rm-blue-lt:#3b7cf5;--rm-blue-bg:#edf1fc;--green:#16a34a;--green-bg:#e6f7ee;--green-bdr:#b4e4cc;--orange:#ea580c;--orange-bg:#fff0e6;--orange-bdr:#fbcfa8;--red:#dc2626;--red-bg:#fce8e8;--red-bdr:#f0c8c8;--sh-sm:0 1px 3px rgba(0,0,0,.06);--sh-md:0 2px 8px rgba(0,0,0,.08);--sh-lg:0 4px 16px rgba(0,0,0,.12);--r:8px;--rs:5px;--rl:12px;--font:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;--tr:.2s ease}
+body.dark{--bg:#1a1d23;--surface:#23272f;--surface-alt:#2a2e36;--border:#3a3f4a;--border-light:#32363e;--text:#e4e6ea;--text-sec:#a0a5b0;--text-mut:#707580;--text-faint:#505560;--rm-blue-bg:#1e2a4a;--green-bg:#1a2e22;--green-bdr:#2a4a35;--orange-bg:#2e2518;--orange-bdr:#4a3a20;--red-bg:#2e1a1a;--red-bdr:#4a2a2a;--sh-sm:0 1px 3px rgba(0,0,0,.2);--sh-md:0 2px 8px rgba(0,0,0,.3);--sh-lg:0 4px 16px rgba(0,0,0,.4)}
+body.dark .header{box-shadow:0 2px 8px rgba(0,0,0,.4)}
+body.dark .cal-month-head{background:var(--rm-blue)}
+body.dark .team-btn{background:var(--surface);color:var(--text-sec);border-color:var(--border)}
+body.dark .team-btn.active{background:var(--rm-blue);color:#fff}
+body.dark .modal{background:var(--surface);color:var(--text)}
+body.dark .mb input,body.dark .mb select,body.dark .mb textarea{background:var(--surface-alt);color:var(--text);border-color:var(--border)}
+body.dark .btn-s{background:var(--surface-alt);color:var(--text-sec);border-color:var(--border)}
+body.dark .item-card{background:var(--surface);border-color:var(--border-light)}
+body.dark .plan-table th{background:var(--rm-blue)}
+body.dark .plan-table td{border-color:var(--border-light)}
+body.dark .plan-table tr.weekend{background:var(--surface-alt)}
+body.dark .loc-chip{border-color:var(--border);color:var(--text-sec)}
+body.dark .scope-opt{border-color:var(--border);color:var(--text-sec)}
+body.dark .btn-new-cat{background:var(--surface);color:var(--text-sec);border-color:var(--border)}
+body.dark #obsTip{background:#0f1318}
+body.dark .day-tip{background:#0f1318}
+body.dark .day-tip::after{border-top-color:#0f1318}
+.btn-dark{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:14px;width:28px;height:28px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--tr);flex-shrink:0}
+.btn-dark:hover{background:rgba(255,255,255,.25)}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.45;-webkit-font-smoothing:antialiased;font-size:13px;padding-bottom:40px}
 
@@ -192,6 +212,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
   </div>
   <h1>Planificación de Temporada <span id="headerSeason">2026/2027</span></h1>
   <span class="sync-dot ok" id="syncDot" style="margin-left:6px"></span>
+  <button class="btn-dark" onclick="toggleDark()" id="darkBtn" title="Modo oscuro/claro">🌙</button>
   <div class="season-area">
     <label>Temporada</label>
     <select id="seasonSel" onchange="changeSeason()"></select>
@@ -220,6 +241,14 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 <script>
 firebase.initializeApp({apiKey:"AIzaSyAyPmMciYVe1RHaRYMww4kEg2nSAEc_dfw",authDomain:"amistosos-y-torneos.firebaseapp.com",projectId:"amistosos-y-torneos",storageBucket:"amistosos-y-torneos.firebasestorage.app",messagingSenderId:"7038951639",appId:"1:7038951639:web:8daf47f203ca91f00a5092"});
 var db=firebase.firestore();
+
+// Dark mode
+function toggleDark(){
+  var isDark=document.body.classList.toggle('dark');
+  document.getElementById('darkBtn').textContent=isDark?'☀️':'🌙';
+  try{localStorage.setItem('planif_dark',isDark?'1':'0');}catch(e){}
+}
+(function(){try{if(localStorage.getItem('planif_dark')==='1'){document.body.classList.add('dark');document.getElementById('darkBtn').textContent='☀️';}}catch(e){}})();
 
 function showSync(s){var d=document.getElementById('syncDot');if(d)d.className='sync-dot '+s;}
 var _bannerTimer=0;
