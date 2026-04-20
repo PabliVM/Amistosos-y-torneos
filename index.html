@@ -212,7 +212,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
   </div>
   <h1>Planificación de Temporada <span id="headerSeason">2026/2027</span></h1>
   <span class="sync-dot ok" id="syncDot" style="margin-left:6px"></span>
-  <button class="btn-dark" onclick="toggleDark()" id="darkBtn" title="Modo oscuro/claro">🌙</button>
+  <button class="btn-dark" onclick="toggleDark()" id="darkBtn" title="Modo oscuro/claro"><svg id="darkIcon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
   <div class="season-area">
     <label>Temporada</label>
     <select id="seasonSel" onchange="changeSeason()"></select>
@@ -243,12 +243,14 @@ firebase.initializeApp({apiKey:"AIzaSyAyPmMciYVe1RHaRYMww4kEg2nSAEc_dfw",authDom
 var db=firebase.firestore();
 
 // Dark mode
+var _moonSVG='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+var _sunSVG='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
 function toggleDark(){
   var isDark=document.body.classList.toggle('dark');
-  document.getElementById('darkBtn').textContent=isDark?'☀️':'🌙';
+  document.getElementById('darkBtn').innerHTML=isDark?_sunSVG:_moonSVG;
   try{localStorage.setItem('planif_dark',isDark?'1':'0');}catch(e){}
 }
-(function(){try{if(localStorage.getItem('planif_dark')==='1'){document.body.classList.add('dark');document.getElementById('darkBtn').textContent='☀️';}}catch(e){}})();
+(function(){try{if(localStorage.getItem('planif_dark')==='1'){document.body.classList.add('dark');document.getElementById('darkBtn').innerHTML=_sunSVG;}}catch(e){}})();
 
 function showSync(s){var d=document.getElementById('syncDot');if(d)d.className='sync-dot '+s;}
 var _bannerTimer=0;
