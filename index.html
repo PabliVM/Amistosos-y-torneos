@@ -137,6 +137,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .cat-acts .btn-cfg{background:none;border:none;cursor:pointer;color:var(--text-mut);display:flex;align-items:center;padding:3px;border-radius:3px}
 .cat-acts .btn-cfg:hover{background:var(--bg);color:var(--text)}
 .cat-acts .btn-cfg svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8}
+.btn-mv{background:none;border:none;cursor:pointer;color:var(--text-faint);font-size:9px;padding:2px 3px;border-radius:3px;transition:all var(--tr);line-height:1}
+.btn-mv:hover:not(:disabled){background:var(--bg);color:var(--text)}
+.btn-mv:disabled{opacity:.2;cursor:default}
 .btn-new-cat{display:inline-flex;align-items:center;gap:4px;padding:6px 14px;font-size:10px;font-weight:600;background:var(--surface);color:var(--text-sec);border:1px dashed var(--border);border-radius:var(--r);cursor:pointer;font-family:var(--font);transition:all var(--tr)}
 .btn-new-cat:hover{border-color:var(--rm-blue);color:var(--rm-blue)}
 .color-palette{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
@@ -340,7 +343,8 @@ function loadCategories(){
         var existing=loaded.find(function(c){return c.id===def.id;});
         if(existing){
           if(!Array.isArray(existing.teams))existing.teams=[];
-          existing.order=def.order;
+          // Only set order from default if category is new (order undefined)
+          if(existing.order===undefined)existing.order=def.order;
           // Force scopeMode, teams, and color to match defaults
           var needsUpdate=false;
           if(existing.color!==def.color){existing.color=def.color;needsUpdate=true;}
@@ -681,6 +685,28 @@ function scopeBadge(cat){
   return '';
 }
 
+function moveCat(catId,dir){
+  // Sort all categories by order
+  categories.sort(function(a,b){return(a.order||0)-(b.order||0);});
+  var idx=categories.findIndex(function(c){return c.id===catId;});
+  if(idx<0)return;
+  var newIdx=idx+dir;
+  if(newIdx<0||newIdx>=categories.length)return;
+  // Swap
+  var tmp=categories[idx];
+  categories[idx]=categories[newIdx];
+  categories[newIdx]=tmp;
+  // Reassign order values
+  var batch=db.batch();
+  categories.forEach(function(c,i){
+    c.order=i;
+    batch.set(catsRef().doc(c.id),Object.assign({},c));
+  });
+  renderAll();
+  showSync('saving');
+  batch.commit().then(function(){showSync('ok');}).catch(function(e){showSync('error');showBanner('Firebase: '+e.message,true);});
+}
+
 // ── FECHAS DE INICIOS (per team+season) ──
 var fechasClaveCache={};
 function fcKey(){return activeSeason.replace('/','-')+'_'+activeTeam;}
@@ -763,11 +789,12 @@ function renderRight(){
 
   // Categories
   var sorted=categories.slice().sort(function(a,b){return(a.order||0)-(b.order||0);});
-  sorted.forEach(function(cat){
-    if(!catVisible(cat,activeTeam))return;
+  var visible=sorted.filter(function(cat){return catVisible(cat,activeTeam);});
+  visible.forEach(function(cat,vi){
     var items=getAllItems(cat.id),bid='cb_'+cat.id,ic=collapsed[bid];
     var p=document.createElement('div');p.className='panel';
-    p.innerHTML='<div class="panel-header" onclick="togglePanel(\''+bid+'\')"><div class="panel-title"><span class="chevron '+(ic?'collapsed':'')+'" id="chev_'+bid+'">▼</span><span class="panel-color-dot" style="background:'+cat.color+'"></span>'+esc(cat.title)+' '+scopeBadge(cat)+' <span style="font-size:9px;color:var(--text-mut);font-weight:400;margin-left:2px">('+items.length+')</span></div><div class="cat-acts" onclick="event.stopPropagation()"><button class="btn-cfg" onclick="openCatCfg(\''+cat.id+'\')">'+IC.cfg+'</button><button class="btn-add" onclick="openItemModal(\''+cat.id+'\')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Añadir</button></div></div><div class="panel-body '+(ic?'collapsed':'')+'" id="'+bid+'"><div class="card-list" id="list_'+cat.id+'"></div></div>';
+    var moveBtns='<button class="btn-mv" onclick="event.stopPropagation();moveCat(\''+cat.id+'\',-1)" title="Subir" '+(vi===0?'disabled':'')+'>▲</button><button class="btn-mv" onclick="event.stopPropagation();moveCat(\''+cat.id+'\',1)" title="Bajar" '+(vi===visible.length-1?'disabled':'')+'>▼</button>';
+    p.innerHTML='<div class="panel-header" onclick="togglePanel(\''+bid+'\')"><div class="panel-title"><span class="chevron '+(ic?'collapsed':'')+'" id="chev_'+bid+'">▼</span><span class="panel-color-dot" style="background:'+cat.color+'"></span>'+esc(cat.title)+' '+scopeBadge(cat)+' <span style="font-size:9px;color:var(--text-mut);font-weight:400;margin-left:2px">('+items.length+')</span></div><div class="cat-acts" onclick="event.stopPropagation()">'+moveBtns+'<button class="btn-cfg" onclick="openCatCfg(\''+cat.id+'\')">'+IC.cfg+'</button><button class="btn-add" onclick="openItemModal(\''+cat.id+'\')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Añadir</button></div></div><div class="panel-body '+(ic?'collapsed':'')+'" id="'+bid+'"><div class="card-list" id="list_'+cat.id+'"></div></div>';
     col.appendChild(p);renderItems(cat);
   });
   var ad=document.createElement('div');ad.style.padding='2px 0';
