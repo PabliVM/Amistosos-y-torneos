@@ -610,7 +610,7 @@ function renderCalendar(){
         var tt=h[d].map(function(ev){return '<div class="day-tip-row"><span class="day-tip-dot" style="background:'+ev.color+'"></span>'+(ev.loc?'<span>'+LOC_EMOJI[ev.loc]+'</span>':'')+'<span class="day-tip-name">'+esc(ev.name)+'</span><span class="day-tip-cat">'+esc(ev.cat)+'</span></div>';}).join('');
         if(h[d].length>=2){
           // CONFLICT: 2+ events — red border, white bg, red number
-          ds+='<span class="cal-d has-event" style="background:#fff;color:#dc2626;border:2px solid #dc2626;font-weight:900">'+d+'<div class="day-tip">'+tt+'</div></span>';
+          ds+='<span class="cal-d has-event" style="background:#fff;color:#dc2626;outline:2.5px solid #dc2626;outline-offset:-1px;box-shadow:0 0 0 1px #dc2626;font-weight:900;z-index:2;position:relative">'+d+'<div class="day-tip">'+tt+'</div></span>';
         } else {
           ds+='<span class="cal-d has-event" style="background:'+first.color+';color:'+fg+'">'+d+'<div class="day-tip">'+tt+'</div></span>';
         }
