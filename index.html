@@ -291,16 +291,19 @@ function loadCategories(){
       // Remove any categories that are NOT in BASE_IDS and not user-created (cat_ prefix)
       // Keep base + user-created
       categories=[];
-      // First add base categories in correct order, force correct colors
+      // First add base categories in correct order, force correct settings
       DEFAULTS.forEach(function(def){
         var existing=loaded.find(function(c){return c.id===def.id;});
         if(existing){
-          if(!existing.scopeMode)existing.scopeMode=def.scopeMode;
           if(!Array.isArray(existing.teams))existing.teams=[];
           existing.order=def.order;
-          // Force color update if it doesn't match default
-          if(existing.color!==def.color){
-            existing.color=def.color;
+          // Force scopeMode, teams, and color to match defaults
+          var needsUpdate=false;
+          if(existing.color!==def.color){existing.color=def.color;needsUpdate=true;}
+          if(existing.scopeMode!==def.scopeMode){existing.scopeMode=def.scopeMode;needsUpdate=true;}
+          if(def.scopeMode==='each'&&existing.teams.length>0){existing.teams=[];needsUpdate=true;}
+          if(def.scopeMode==='all'&&existing.scopeMode!=='all'){existing.scopeMode='all';existing.teams=[];needsUpdate=true;}
+          if(needsUpdate){
             batch.set(catsRef().doc(def.id),Object.assign({},existing));
             changed=true;
           }
@@ -604,7 +607,12 @@ function renderCalendar(){
       if(h[d]&&h[d].length){
         var first=h[d][0],fg=contrast(first.color);
         var tt=h[d].map(function(ev){return '<div class="day-tip-row"><span class="day-tip-dot" style="background:'+ev.color+'"></span>'+(ev.loc?'<span>'+LOC_EMOJI[ev.loc]+'</span>':'')+'<span class="day-tip-name">'+esc(ev.name)+'</span><span class="day-tip-cat">'+esc(ev.cat)+'</span></div>';}).join('');
-        ds+='<span class="cal-d has-event" style="background:'+first.color+';color:'+fg+'">'+d+'<div class="day-tip">'+tt+'</div></span>';
+        if(h[d].length>=2){
+          // CONFLICT: 2+ events — red border, white bg, red number
+          ds+='<span class="cal-d has-event" style="background:#fff;color:#dc2626;border:2px solid #dc2626;font-weight:900">'+d+'<div class="day-tip">'+tt+'</div></span>';
+        } else {
+          ds+='<span class="cal-d has-event" style="background:'+first.color+';color:'+fg+'">'+d+'<div class="day-tip">'+tt+'</div></span>';
+        }
       } else {
         ds+='<span class="cal-d'+(we?' w':'')+'">'+d+'</span>';
       }
