@@ -267,7 +267,7 @@ var RESULT_OPTIONS=[{v:'Campeones',c:'green',i:'🏆'},{v:'2º',c:'orange',i:''}
 function resColor(r){if(!r)return '';var o=RESULT_OPTIONS.find(function(x){return x.v===r;});if(o)return o.c;var l=r.toLowerCase();if(l.indexOf('ganad')===0||l.indexOf('victor')===0)return 'green';if(l.indexOf('empat')===0)return 'orange';if(l.indexOf('perdid')===0||l.indexOf('derrot')===0)return 'red';return 'neutral';}
 function resIcon(r){var o=RESULT_OPTIONS.find(function(x){return x.v===r;});return o?o.i:'';}
 
-var TEAMS=[{key:'CAS',name:'Castilla'},{key:'RMC',name:'Real Madrid C'},{key:'JA',name:'Juvenil A'},{key:'JB',name:'Juvenil B'},{key:'JC',name:'Juvenil C'},{key:'CA',name:'Cadete A'},{key:'CB',name:'Cadete B'},{key:'IA',name:'Infantil A'},{key:'IB',name:'Infantil B'},{key:'AA',name:'Alevín A'},{key:'AB',name:'Alevín B'},{key:'BA',name:'Benjamín A'},{key:'BB',name:'Benjamín B'},{key:'PA',name:'Prebenjamín A'},{key:'PB',name:'Prebenjamín B'},{key:'DB',name:'Debutante'}];
+var TEAMS=[{key:'CAS',name:'Castilla'},{key:'RMC',name:'Real Madrid C'},{key:'JA',name:'Juvenil A'},{key:'JB',name:'Juvenil B'},{key:'JC',name:'Juvenil C'},{key:'CA',name:'Cadete A'},{key:'CB',name:'Cadete B'},{key:'IA',name:'Infantil A'},{key:'IB',name:'Infantil B'},{key:'AA',name:'Alevín A'},{key:'AB',name:'Alevín B'},{key:'AC',name:'Alevín C'},{key:'BA',name:'Benjamín A'},{key:'BB',name:'Benjamín B'},{key:'PA',name:'Prebenjamín A'},{key:'PB',name:'Prebenjamín B'},{key:'DB',name:'Debutante'}];
 
 var activeTeam='CAS',activeSeason='2026/2027';
 var seasons=['2026/2027'];
@@ -1061,3 +1061,4 @@ loadSeasons().then(function(){
 </script>
 </body>
 </html>
+
