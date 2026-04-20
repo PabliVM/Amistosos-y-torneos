@@ -9,7 +9,7 @@
 <style>
 :root{--bg:#f0f2f5;--surface:#fff;--surface-alt:#fafbfc;--border:#dfe1e6;--border-light:#eaecf0;--text:#1a1d23;--text-sec:#5a6170;--text-mut:#8b919e;--text-faint:#b4b9c4;--rm-blue:#2563eb;--rm-blue-lt:#3b7cf5;--rm-blue-bg:#edf1fc;--green:#16a34a;--green-bg:#e6f7ee;--green-bdr:#b4e4cc;--orange:#ea580c;--orange-bg:#fff0e6;--orange-bdr:#fbcfa8;--red:#dc2626;--red-bg:#fce8e8;--red-bdr:#f0c8c8;--sh-sm:0 1px 3px rgba(0,0,0,.06);--sh-md:0 2px 8px rgba(0,0,0,.08);--sh-lg:0 4px 16px rgba(0,0,0,.12);--r:8px;--rs:5px;--rl:12px;--font:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;--tr:.2s ease}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.45;-webkit-font-smoothing:antialiased;font-size:13px}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.45;-webkit-font-smoothing:antialiased;font-size:13px;padding-bottom:40px}
 
 /* HEADER — RM BLUE */
 .header{background:var(--rm-blue);padding:12px 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.15)}
@@ -215,7 +215,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 <div class="modal-overlay" id="mo" onclick="if(event.target===this)closeModal()">
   <div class="modal"><div class="mh"><h3 id="mt"></h3><button class="mx" onclick="closeModal()">&times;</button></div><div class="mb" id="mbd"></div><div class="mf" id="mft"></div></div>
 </div>
-<footer style="background:var(--rm-blue);padding:12px 24px;text-align:center;color:rgba(255,255,255,.5);font-size:10px;letter-spacing:.3px;margin-top:20px">Real Madrid CF — Planificación de Temporada</footer>
+<footer style="background:var(--rm-blue);padding:12px 24px;text-align:center;color:rgba(255,255,255,.5);font-size:10px;letter-spacing:.3px;position:fixed;bottom:0;left:0;right:0;z-index:50">Real Madrid CF — Planificación de Temporada</footer>
 
 <script>
 firebase.initializeApp({apiKey:"AIzaSyAyPmMciYVe1RHaRYMww4kEg2nSAEc_dfw",authDomain:"amistosos-y-torneos.firebaseapp.com",projectId:"amistosos-y-torneos",storageBucket:"amistosos-y-torneos.firebasestorage.app",messagingSenderId:"7038951639",appId:"1:7038951639:web:8daf47f203ca91f00a5092"});
