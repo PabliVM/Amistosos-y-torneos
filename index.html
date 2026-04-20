@@ -240,7 +240,8 @@ var categories=[
   {id:'torneos',title:'Torneos',color:'#facc15',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:0},
   {id:'amistosos',title:'Amistosos',color:'#3b82f6',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:1},
   {id:'aplazados',title:'Aplazados',color:'#16a34a',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:2},
-  {id:'primer',title:'1er Equipo',color:'#9333ea',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'all',teams:[],order:3},
+  {id:'otros',title:'Otros',color:'#f97316',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:3},
+  {id:'primer',title:'1er Equipo',color:'#9333ea',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'all',teams:[],order:4},
 ];
 var itemsCache={};
 var collapsed={};
@@ -271,9 +272,10 @@ var DEFAULTS=[
   {id:'torneos',title:'Torneos',color:'#facc15',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:0},
   {id:'amistosos',title:'Amistosos',color:'#3b82f6',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:1},
   {id:'aplazados',title:'Aplazados',color:'#16a34a',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:2},
-  {id:'primer',title:'1er Equipo',color:'#9333ea',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'all',teams:[],order:3},
+  {id:'otros',title:'Otros',color:'#f97316',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:3},
+  {id:'primer',title:'1er Equipo',color:'#9333ea',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'all',teams:[],order:4},
 ];
-var BASE_IDS=['torneos','amistosos','aplazados','primer'];
+var BASE_IDS=['torneos','amistosos','aplazados','otros','primer'];
 
 function loadCategories(){
   return catsRef().orderBy('order').get().then(function(snap){
