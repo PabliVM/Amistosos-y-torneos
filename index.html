@@ -240,7 +240,7 @@ var categories=[
   {id:'torneos',title:'Torneos',color:'#facc15',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:0},
   {id:'amistosos',title:'Amistosos',color:'#3b82f6',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:1},
   {id:'aplazados',title:'Aplazados',color:'#16a34a',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:2},
-  {id:'otros',title:'Otros',color:'#f97316',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:3},
+  {id:'otros',title:'Otros',color:'#fb923c',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:3},
   {id:'primer',title:'1er Equipo',color:'#9333ea',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'all',teams:[],order:4},
 ];
 var itemsCache={};
@@ -272,7 +272,7 @@ var DEFAULTS=[
   {id:'torneos',title:'Torneos',color:'#facc15',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:0},
   {id:'amistosos',title:'Amistosos',color:'#3b82f6',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:1},
   {id:'aplazados',title:'Aplazados',color:'#16a34a',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:2},
-  {id:'otros',title:'Otros',color:'#f97316',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:3},
+  {id:'otros',title:'Otros',color:'#fb923c',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:3},
   {id:'primer',title:'1er Equipo',color:'#9333ea',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'all',teams:[],order:4},
 ];
 var BASE_IDS=['torneos','amistosos','aplazados','otros','primer'];
@@ -560,7 +560,7 @@ function getMY(m){var sy=getSY();return['julio','agosto','septiembre','octubre',
 function gMI(m){return{enero:0,febrero:1,marzo:2,abril:3,mayo:4,junio:5,julio:6,agosto:7,septiembre:8,octubre:9,noviembre:10,diciembre:11}[m];}
 function gDIM(m){return new Date(getMY(m),gMI(m)+1,0).getDate();}
 function gFD(m){var d=new Date(getMY(m),gMI(m),1).getDay();return d===0?6:d-1;}
-function contrast(h){if(!h||h.length<7)return'#fff';var r=parseInt(h.substr(1,2),16),g=parseInt(h.substr(3,2),16),b=parseInt(h.substr(5,2),16);return(r*299+g*587+b*114)/1000>140?'#1a1d23':'#fff';}
+function contrast(h){if(!h||h.length<7)return'#fff';var r=parseInt(h.substr(1,2),16),g=parseInt(h.substr(3,2),16),b=parseInt(h.substr(5,2),16);return(r*299+g*587+b*114)/1000>200?'#1a1d23':'#fff';}
 
 function buildHL(){
   var h={};MESES.forEach(function(m){h[m]={};});
