@@ -273,7 +273,13 @@ var categories=[
   {id:'amistosos',title:'Amistosos',color:'#3b82f6',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:1},
   {id:'aplazados',title:'Aplazados',color:'#16a34a',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:2},
   {id:'otros',title:'Otros',color:'#fb923c',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:3},
-  {id:'primer',title:'1er Equipo',color:'#9333ea',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'all',teams:[],order:4},
+  {id:'rfef_sub16',title:'RFEF SUB-16',color:'#dc2626',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'multi',teams:['CA','CB'],order:4},
+  {id:'rfef_sub171819',title:'RFEF SUB-17-18-19',color:'#dc2626',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'multi',teams:['JC','JB','JA'],order:5},
+  {id:'rfef_sub21',title:'RFEF SUB-21',color:'#dc2626',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'multi',teams:['CAS','RMC'],order:6},
+  {id:'rffm_12',title:'RFFM-12',color:'#db2777',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'multi',teams:['AA','AB'],order:7},
+  {id:'rffm_14',title:'RFFM-14',color:'#db2777',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'multi',teams:['IA','IB'],order:8},
+  {id:'rffm_16',title:'RFFM-16',color:'#db2777',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'multi',teams:['CA','CB'],order:9},
+  {id:'primer',title:'1er Equipo',color:'#9333ea',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'all',teams:[],order:10},
 ];
 var itemsCache={};
 var collapsed={};
@@ -305,9 +311,15 @@ var DEFAULTS=[
   {id:'amistosos',title:'Amistosos',color:'#3b82f6',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:1},
   {id:'aplazados',title:'Aplazados',color:'#16a34a',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:2},
   {id:'otros',title:'Otros',color:'#fb923c',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:3},
-  {id:'primer',title:'1er Equipo',color:'#9333ea',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'all',teams:[],order:4},
+  {id:'rfef_sub16',title:'RFEF SUB-16',color:'#dc2626',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'multi',teams:['CA','CB'],order:4},
+  {id:'rfef_sub171819',title:'RFEF SUB-17-18-19',color:'#dc2626',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'multi',teams:['JC','JB','JA'],order:5},
+  {id:'rfef_sub21',title:'RFEF SUB-21',color:'#dc2626',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'multi',teams:['CAS','RMC'],order:6},
+  {id:'rffm_12',title:'RFFM-12',color:'#db2777',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'multi',teams:['AA','AB'],order:7},
+  {id:'rffm_14',title:'RFFM-14',color:'#db2777',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'multi',teams:['IA','IB'],order:8},
+  {id:'rffm_16',title:'RFFM-16',color:'#db2777',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'multi',teams:['CA','CB'],order:9},
+  {id:'primer',title:'1er Equipo',color:'#9333ea',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'all',teams:[],order:10},
 ];
-var BASE_IDS=['torneos','amistosos','aplazados','otros','primer'];
+var BASE_IDS=['torneos','amistosos','aplazados','otros','rfef_sub16','rfef_sub171819','rfef_sub21','rffm_12','rffm_14','rffm_16','primer'];
 
 function loadCategories(){
   return catsRef().orderBy('order').get().then(function(snap){
@@ -334,7 +346,12 @@ function loadCategories(){
           if(existing.color!==def.color){existing.color=def.color;needsUpdate=true;}
           if(existing.scopeMode!==def.scopeMode){existing.scopeMode=def.scopeMode;needsUpdate=true;}
           if(def.scopeMode==='each'&&existing.teams.length>0){existing.teams=[];needsUpdate=true;}
-          if(def.scopeMode==='all'&&existing.scopeMode!=='all'){existing.scopeMode='all';existing.teams=[];needsUpdate=true;}
+          if(def.scopeMode==='all'){existing.teams=[];needsUpdate=true;}
+          if(def.scopeMode==='multi'){
+            var defTeams=def.teams.slice().sort().join(',');
+            var exTeams=existing.teams.slice().sort().join(',');
+            if(defTeams!==exTeams){existing.teams=def.teams.slice();needsUpdate=true;}
+          }
           if(needsUpdate){
             batch.set(catsRef().doc(def.id),Object.assign({},existing));
             changed=true;
@@ -413,7 +430,7 @@ function changeSeason(){
   activeSeason=document.getElementById('seasonSel').value;
   document.getElementById('headerSeason').textContent=activeSeason;
   renderAll();
-  loadItemsForSeason(activeSeason,true).then(function(){renderAll();});
+  loadItemsForSeason(activeSeason,true).then(function(){return loadFechasClave();}).then(function(){renderAll();});
 }
 
 function addSeason(){
