@@ -203,7 +203,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .plan-table tr.weekend{background:#f8f9fb}
 .plan-date{font-weight:600;font-size:9px;white-space:nowrap;color:var(--text-sec);padding:1px 0}
 .plan-date.weekend{color:var(--text-faint)}
-.plan-evt{font-size:8px;padding:2px 4px;border-radius:3px;margin:1px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:85px;line-height:1.4;cursor:default;display:block}
+.plan-evt{font-size:10px;padding:2px 4px;border-radius:3px;margin:1px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.5;cursor:default;display:block}
 .plan-evt:hover{opacity:.85}
 .plan-fc{font-size:7px;font-weight:700;padding:1px 3px;border-radius:2px;text-transform:uppercase;letter-spacing:.3px;display:block;margin:1px 0}
 .btn-plan{padding:5px 14px;font-size:11px;font-weight:700;font-family:var(--font);border:1.5px solid #9333ea;border-radius:20px;background:#f3e8ff;color:#7c3aed;cursor:pointer;white-space:nowrap;transition:all var(--tr);margin-left:6px}
@@ -586,10 +586,12 @@ function renderPlanTable(){
               var vd=it.victoriaDerrota==='victoria'?'✅':(it.victoriaDerrota==='derrota'?'❌':'');
               var sc=it.marcador||'';
               var extra=(vd||sc)?' '+(vd+(sc?' '+sc:'')).trim():'';
-              var prov=(it.estado||'propuesta')!=='definitivo';
-              var provStyle=prov?'border:1px dashed rgba(0,0,0,.3);opacity:.75':'';
-              var provIcon=prov?'⏳ ':'';
-              cell+='<span class="plan-evt" style="background:'+cat.color+';color:'+contrast(cat.color)+';'+provStyle+'" title="'+esc(it.nombre)+(prov?' (provisional)':'')+( it.sede?' — '+esc(it.sede):'')+extra+'">'+provIcon+esc(it.nombre)+extra+'</span>';
+              var est=it.estado||'propuesta';
+              var estColors={propuesta:'#f87171',provisional:'#f87171',ok_equipo:'#fb923c',enviado_mail:'#facc15',definitivo:cat.color};
+              var bgColor=estColors[est]||cat.color;
+              var fgColor=contrast(bgColor);
+              var estIcon=estadoIcon(est);
+              cell+='<span class="plan-evt" style="background:'+bgColor+';color:'+fgColor+'" title="'+estIcon+' '+esc(it.nombre)+' ('+est.replace('_',' ')+')'+( it.ubicacionTexto?' — '+esc(it.ubicacionTexto):'')+extra+'">'+estIcon+' '+esc(it.nombre)+extra+'</span>';
             }
           });
         });
@@ -1072,4 +1074,3 @@ loadSeasons().then(function(){
 </script>
 </body>
 </html>
-
