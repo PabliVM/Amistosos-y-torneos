@@ -111,7 +111,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .item-card.res-red{border-left:3px solid var(--red)}
 .item-row{display:flex;align-items:center;gap:5px}
 .st-badge{font-size:8px;padding:1px 6px;border-radius:12px;font-weight:600;flex-shrink:0;line-height:1.6}
-.st-badge.provisional{background:#fff8e6;color:#a07d1e;border:1px solid #f0d96b}
+.st-badge.propuesta{background:#fce8e8;color:#dc2626;border:1px solid var(--red-bdr)}
+.st-badge.provisional{background:#fce8e8;color:#dc2626;border:1px solid var(--red-bdr)}
+.st-badge.ok_equipo{background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-bdr)}
+.st-badge.enviado_mail{background:#fef9e7;color:#a07d1e;border:1px solid #f0d96b}
 .st-badge.definitivo{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bdr)}
 .item-nm{font-size:11px;font-weight:600;color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .item-loc{font-size:10px;flex-shrink:0}
@@ -267,7 +270,7 @@ var RESULT_OPTIONS=[{v:'Campeones',c:'green',i:'🏆'},{v:'2º',c:'orange',i:''}
 function resColor(r){if(!r)return '';var o=RESULT_OPTIONS.find(function(x){return x.v===r;});if(o)return o.c;var l=r.toLowerCase();if(l.indexOf('ganad')===0||l.indexOf('victor')===0)return 'green';if(l.indexOf('empat')===0)return 'orange';if(l.indexOf('perdid')===0||l.indexOf('derrot')===0)return 'red';return 'neutral';}
 function resIcon(r){var o=RESULT_OPTIONS.find(function(x){return x.v===r;});return o?o.i:'';}
 
-var TEAMS=[{key:'CAS',name:'Castilla'},{key:'RMC',name:'Real Madrid C'},{key:'JA',name:'Juvenil A'},{key:'JB',name:'Juvenil B'},{key:'JC',name:'Juvenil C'},{key:'CA',name:'Cadete A'},{key:'CB',name:'Cadete B'},{key:'IA',name:'Infantil A'},{key:'IB',name:'Infantil B'},{key:'AA',name:'Alevín A'},{key:'AB',name:'Alevín B'},{key:'AC',name:'Alevín C'},{key:'BA',name:'Benjamín A'},{key:'BB',name:'Benjamín B'},{key:'PA',name:'Prebenjamín A'},{key:'PB',name:'Prebenjamín B'},{key:'DB',name:'Debutante'}];
+var TEAMS=[{key:'CAS',name:'Castilla'},{key:'RMC',name:'Real Madrid C'},{key:'JA',name:'Juvenil A'},{key:'JB',name:'Juvenil B'},{key:'JC',name:'Juvenil C'},{key:'CA',name:'Cadete A'},{key:'CB',name:'Cadete B'},{key:'IA',name:'Infantil A'},{key:'IB',name:'Infantil B'},{key:'AA',name:'Alevín A'},{key:'AB',name:'Alevín B'},{key:'BA',name:'Benjamín A'},{key:'BB',name:'Benjamín B'},{key:'PA',name:'Prebenjamín A'},{key:'PB',name:'Prebenjamín B'},{key:'DB',name:'Debutante'}];
 
 var activeTeam='CAS',activeSeason='2026/2027';
 var seasons=['2026/2027'];
@@ -583,7 +586,7 @@ function renderPlanTable(){
               var vd=it.victoriaDerrota==='victoria'?'✅':(it.victoriaDerrota==='derrota'?'❌':'');
               var sc=it.marcador||'';
               var extra=(vd||sc)?' '+(vd+(sc?' '+sc:'')).trim():'';
-              var prov=(it.estado||'provisional')!=='definitivo';
+              var prov=(it.estado||'propuesta')!=='definitivo';
               var provStyle=prov?'border:1px dashed rgba(0,0,0,.3);opacity:.75':'';
               var provIcon=prov?'⏳ ':'';
               cell+='<span class="plan-evt" style="background:'+cat.color+';color:'+contrast(cat.color)+';'+provStyle+'" title="'+esc(it.nombre)+(prov?' (provisional)':'')+( it.sede?' — '+esc(it.sede):'')+extra+'">'+provIcon+esc(it.nombre)+extra+'</span>';
@@ -768,6 +771,13 @@ function saveFCModal(){
   saveFechasClave();
 }
 
+function estadoIcon(est){
+  if(est==='ok_equipo')return '🤝';
+  if(est==='enviado_mail')return '📧';
+  if(est==='definitivo')return '✅';
+  return '⏳'; // propuesta or provisional
+}
+
 function renderRight(){
   var col=document.getElementById('rightCol');if(!col)return;col.innerHTML='';
 
@@ -815,7 +825,7 @@ function renderItems(cat){
     var vdIcon=it.victoriaDerrota==='victoria'?'✅':(it.victoriaDerrota==='derrota'?'❌':'');
     var marcTxt=it.marcador||'';
     var matchInfo=(marcTxt||vdIcon)?'<span style="font-size:10px;font-weight:700;color:var(--text);white-space:nowrap;flex-shrink:0">'+(vdIcon?vdIcon:'')+(marcTxt?' '+marcTxt:'')+'</span>':'';
-    return '<div class="item-card '+cls+'"><div class="item-row"><span class="st-badge '+((it.estado||'provisional'))+'">'+(it.estado==='definitivo'?'✅':'⏳')+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+locTxt+matchInfo+'<span class="item-dt">'+dt+'</span>'+(it.obs?'<span class="obs-dot" data-obs="'+esc(it.obs).replace(/"/g,'&quot;')+'">💬</span>':'')+'<div class="item-acts"><button onclick="openItemModal(\''+cat.id+'\','+ri+')">'+IC.ed+'</button><button onclick="delItem(\''+cat.id+'\','+ri+')">'+IC.dl+'</button></div></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'')+'</div>';
+    return '<div class="item-card '+cls+'"><div class="item-row"><span class="st-badge '+((it.estado||'propuesta'))+'">'+estadoIcon(it.estado)+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+locTxt+matchInfo+'<span class="item-dt">'+dt+'</span>'+(it.obs?'<span class="obs-dot" data-obs="'+esc(it.obs).replace(/"/g,'&quot;')+'">💬</span>':'')+'<div class="item-acts"><button onclick="openItemModal(\''+cat.id+'\','+ri+')">'+IC.ed+'</button><button onclick="delItem(\''+cat.id+'\','+ri+')">'+IC.dl+'</button></div></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'')+'</div>';
   }).join('');
   // Attach obs tooltip listeners
   l.querySelectorAll('.obs-dot').forEach(function(dot){
@@ -880,7 +890,8 @@ function openItemModal(cid,idx){
   var mParts=curMarcador?curMarcador.split('-'):['',''];
   var vdH='<label>Marcador</label><div style="display:flex;align-items:center;gap:5px"><input id="mScF" type="number" min="0" style="width:36px;text-align:center;padding:3px 1px;font-size:12px" value="'+esc(mParts[0])+'"><span style="font-weight:700;color:var(--text-mut)">-</span><input id="mScC" type="number" min="0" style="width:36px;text-align:center;padding:3px 1px;font-size:12px" value="'+esc(mParts[1])+'"><span style="width:6px"></span><label class="loc-chip" style="margin:0;font-size:9px;padding:2px 5px"><input type="radio" name="mVD" value="victoria" '+(curVD==='victoria'?'checked':'')+'> ✅</label><label class="loc-chip" style="margin:0;font-size:9px;padding:2px 5px"><input type="radio" name="mVD" value="derrota" '+(curVD==='derrota'?'checked':'')+'> ❌</label><label class="loc-chip" style="margin:0;font-size:9px;padding:2px 5px"><input type="radio" name="mVD" value="" '+(curVD===''?'checked':'')+'> —</label></div>';
   // Estado — last
-  var estH='<label>Estado</label><select id="mE"><option value="provisional" '+(!it||it.estado==='provisional'?'selected':'')+'>⏳ Provisional</option><option value="definitivo" '+(it&&it.estado==='definitivo'?'selected':'')+'>✅ Definitivo</option></select>';
+  var curEst=it?it.estado||'propuesta':'propuesta';
+  var estH='<label>Estado</label><select id="mE"><option value="propuesta" '+(curEst==='propuesta'?'selected':'')+'>⏳ Propuesta</option><option value="ok_equipo" '+(curEst==='ok_equipo'?'selected':'')+'>🤝 OK equipo/Club</option><option value="enviado_mail" '+(curEst==='enviado_mail'?'selected':'')+'>📧 Enviado mail</option><option value="definitivo" '+(curEst==='definitivo'?'selected':'')+'>✅ Definitivo</option></select>';
 
   document.getElementById('mbd').innerHTML='<label>Nombre</label><input id="mN" value="'+(it?esc(it.nombre):'')+'" placeholder="Nombre o rival">'+dH+locH+rH+vdH+'<label>Observaciones</label><textarea id="mO" placeholder="Notas...">'+(it?esc(it.obs):'')+'</textarea>'+estH;
   document.getElementById('mft').innerHTML=(it!=null?'<button class="btn-d" onclick="delItemModal()">Borrar</button>':'')+'<button class="btn-s" onclick="closeModal()">Cancelar</button><button class="btn-p" onclick="saveItem()">Guardar</button>';
@@ -934,7 +945,7 @@ function saveItem(){
       fechaInicio:fi,fechaFin:ff||fi,
       ubicacion:locEl?locEl.value:'',
       ubicacionTexto:((document.getElementById('mLocTxt')||{}).value||'').trim(),
-      estado:(document.getElementById('mE')||{}).value||'provisional',
+      estado:(document.getElementById('mE')||{}).value||'propuesta',
       resultado:resultado,
       victoriaDerrota:victoriaDerrota,
       marcador:marcador,
