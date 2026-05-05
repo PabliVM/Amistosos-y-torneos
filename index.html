@@ -204,6 +204,28 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .btn-multi:hover{background:#0891b2;color:#fff}
 .btn-multi.active{background:#0891b2;color:#fff;border-color:#0891b2}
 
+/* MULTI DAY DETAIL POPUP */
+.mdd-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:250;justify-content:center;align-items:center;padding:16px}
+.mdd-overlay.active{display:flex}
+.mdd-box{background:var(--surface);border-radius:var(--rl);box-shadow:var(--sh-lg);width:100%;max-width:520px;max-height:85vh;overflow-y:auto}
+.mdd-header{padding:14px 18px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;background:var(--rm-blue);color:#fff;border-radius:var(--rl) var(--rl) 0 0}
+.mdd-header h3{font-size:14px;font-weight:700;margin:0}
+.mdd-close{background:none;border:none;color:rgba(255,255,255,.7);font-size:20px;cursor:pointer;padding:0 4px}
+.mdd-close:hover{color:#fff}
+.mdd-body{padding:12px 18px}
+.mdd-team{font-size:12px;font-weight:700;color:var(--rm-blue);padding:10px 0 4px;border-bottom:1px solid var(--border-light);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.mdd-team:first-child{padding-top:0}
+.mdd-evt{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-light)}
+.mdd-evt:last-child{border-bottom:none}
+.mdd-evt-icon{flex-shrink:0;margin-top:1px}
+.mdd-evt-icon svg{width:22px;height:22px}
+.mdd-evt-body{flex:1;min-width:0}
+.mdd-evt-top{display:flex;align-items:center;gap:6px}
+.mdd-evt-name{font-size:13px;font-weight:600;color:var(--text)}
+.mdd-evt-cat{font-size:9px;font-weight:600;padding:2px 6px;border-radius:3px;color:#fff;text-transform:uppercase;letter-spacing:.3px}
+.mdd-evt-details{font-size:11px;color:var(--text-mut);margin-top:3px;display:flex;flex-wrap:wrap;gap:6px}
+.mdd-evt-detail{display:flex;align-items:center;gap:3px}
+
 /* CUSTOM ESTADO DROPDOWN */
 .est-dropdown{position:relative;width:100%}
 .est-selected{display:flex;align-items:center;gap:8px;padding:6px 9px;border:1px solid var(--border);border-radius:var(--rs);background:var(--surface);cursor:pointer;font-size:11px;font-family:var(--font);color:var(--text)}
@@ -313,6 +335,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 </div>
 <div class="banner" id="banner"><span id="bannerMsg"></span><button class="bx" onclick="document.getElementById('banner').className='banner'">×</button></div>
 <div id="obsTip"></div>
+<div class="mdd-overlay" id="mddOverlay" onclick="if(event.target===this)closeMDD()">
+  <div class="mdd-box"><div class="mdd-header"><h3 id="mddTitle"></h3><button class="mdd-close" onclick="closeMDD()">&times;</button></div><div class="mdd-body" id="mddBody"></div></div>
+</div>
 <div class="team-bar" id="teamBar"></div>
 <div class="main" id="mainView">
   <div class="panel">
@@ -684,6 +709,39 @@ function printMultiView(){
   window.print();
 }
 
+function showMultiDayDetail(dayKey){
+  var data=multiDayData[dayKey];
+  if(!data||!data.length)return;
+  // Format date
+  var parts=dayKey.split('-');
+  var dn=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  var dt=new Date(parseInt(parts[0]),parseInt(parts[1])-1,parseInt(parts[2]));
+  var dayName=dn[dt.getDay()];
+  document.getElementById('mddTitle').textContent=dayName+' '+parseInt(parts[2])+'/'+parseInt(parts[1])+'/'+parts[0];
+
+  var html='';
+  data.forEach(function(tr){
+    html+='<div class="mdd-team">'+tr.team+' — '+(TEAMS.find(function(t){return t.key===tr.team;})||{}).name+'</div>';
+    tr.evts.forEach(function(ev){
+      var iconHtml=ev.icon?ev.icon:'<span style="width:22px;height:22px;border-radius:4px;background:'+ev.bg+';display:inline-block"></span>';
+      html+='<div class="mdd-evt"><span class="mdd-evt-icon">'+iconHtml+'</span><div class="mdd-evt-body"><div class="mdd-evt-top"><span class="mdd-evt-name">'+esc(ev.name)+'</span><span class="mdd-evt-cat" style="background:'+ev.bg+'">'+esc(ev.catTitle)+'</span></div><div class="mdd-evt-details">';
+      if(ev.locIcon||ev.locTxt)html+='<span class="mdd-evt-detail">'+(ev.locIcon||'')+' '+(ev.locTxt||'')+'</span>';
+      if(ev.fechaInicio){
+        var fechaStr=dtD(ev.fechaInicio);
+        if(ev.fechaFin&&ev.fechaFin!==ev.fechaInicio)fechaStr+=' — '+dtD(ev.fechaFin);
+        html+='<span class="mdd-evt-detail">📅 '+fechaStr+'</span>';
+      }
+      if(ev.marcador)html+='<span class="mdd-evt-detail">⚽ '+ev.marcador+'</span>';
+      if(ev.vdIcon)html+='<span class="mdd-evt-detail">'+ev.vdIcon+'</span>';
+      if(ev.estLabel)html+='<span class="mdd-evt-detail" style="opacity:.6">'+ev.estLabel+'</span>';
+      html+='</div></div></div>';
+    });
+  });
+  document.getElementById('mddBody').innerHTML=html;
+  document.getElementById('mddOverlay').classList.add('active');
+}
+function closeMDD(){document.getElementById('mddOverlay').classList.remove('active');}
+
 function toggleMultiTeam(cb){
   var key=cb.value;var lbl=cb.closest('.multi-team-cb');
   if(cb.checked){if(multiSelectedTeams.indexOf(key)===-1)multiSelectedTeams.push(key);lbl.classList.add('sel');}
@@ -691,7 +749,10 @@ function toggleMultiTeam(cb){
   renderMultiView();
 }
 
+var multiDayData={};
+
 function renderMultiView(){
+  multiDayData={};
   var sy=getSY();
   var monthOrder=[6,7,8,9,10,11,0,1,2,3,4,5];
   var monthNames=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -730,8 +791,8 @@ function renderMultiView(){
         activeTeam=tkey;
         var evts=[];
         var fk=activeSeason.replace('/','-')+'_'+tkey;var fc=fechasClaveCache[fk]||{};
-        if(fc.pretemporada===iso)evts.push({icon:null,name:'Inicio Pretemporada',bg:fc.pretemporadaColor||'#1a1a1a',fg:contrast(fc.pretemporadaColor||'#1a1a1a'),shortName:'PRE',info:'Inicio Pretemporada'});
-        if(fc.competicion===iso)evts.push({icon:null,name:'Inicio Competición',bg:fc.competicionColor||'#1a1a1a',fg:contrast(fc.competicionColor||'#1a1a1a'),shortName:'COMP',info:'Inicio Competición'});
+        if(fc.pretemporada===iso)evts.push({icon:null,name:'Inicio Pretemporada',bg:fc.pretemporadaColor||'#1a1a1a',fg:contrast(fc.pretemporadaColor||'#1a1a1a'),shortName:'PRE',info:'Inicio Pretemporada',catTitle:'Fechas de Inicios',locIcon:'',locTxt:'',marcador:'',vdIcon:'',estado:'',estLabel:'',fechaInicio:iso,fechaFin:''});
+        if(fc.competicion===iso)evts.push({icon:null,name:'Inicio Competición',bg:fc.competicionColor||'#1a1a1a',fg:contrast(fc.competicionColor||'#1a1a1a'),shortName:'COMP',info:'Inicio Competición',catTitle:'Fechas de Inicios',locIcon:'',locTxt:'',marcador:'',vdIcon:'',estado:'',estLabel:'',fechaInicio:iso,fechaFin:''});
         categories.forEach(function(cat){
           if(!catVisible(cat,tkey))return;
           var k=itemsKey(cat.id,activeSeason);var items=itemsCache[k]||[];
@@ -751,7 +812,9 @@ function renderMultiView(){
                 if(vd)detail.push(vd);
                 detail.push(estLabel[it.estado||'propuesta']||'Propuesta');
                 var info=it.nombre+'\n'+detail.join(' · ');
-                evts.push({icon:estadoIcon(it.estado||'propuesta',false,true),name:it.nombre,bg:cat.color,fg:contrast(cat.color),info:info});
+                evts.push({icon:estadoIcon(it.estado||'propuesta',false,true),name:it.nombre,bg:cat.color,fg:contrast(cat.color),info:info,
+                  catTitle:cat.title,locIcon:loc,locTxt:locTxt,marcador:sc,vdIcon:vd,estado:it.estado||'propuesta',estLabel:estLabel[it.estado||'propuesta']||'Propuesta',
+                  fechaInicio:it.fechaInicio||'',fechaFin:it.fechaFin||''});
               }
             });
           });
@@ -760,7 +823,9 @@ function renderMultiView(){
       });
 
       var hasEvts=teamRows.length>0;
-      html+='<div class="multi-cell'+(isWe?' weekend':'')+'">';
+      var dayKey=iso;
+      if(hasEvts)multiDayData[dayKey]=teamRows;
+      html+='<div class="multi-cell'+(isWe?' weekend':'')+'"'+(hasEvts?' onclick="showMultiDayDetail(\''+dayKey+'\')" style="cursor:pointer"':'')+'>';
       html+='<div class="multi-cell-num'+(hasEvts?' has-events':'')+'">'+d+'</div>';
       teamRows.forEach(function(tr){
         tr.evts.forEach(function(ev){
