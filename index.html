@@ -168,6 +168,42 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .loc-chip:hover{border-color:var(--rm-blue)}
 .loc-chip input{margin:0;width:auto}
 
+/* MULTI-TEAM VIEW */
+.multi-view{display:none;padding:0 12px 20px}
+.multi-view.active{display:block}
+.multi-controls{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:12px 16px;margin-bottom:12px}
+.multi-ctrl-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.multi-ctrl-row:last-child{margin-bottom:0}
+.multi-ctrl-row label{font-size:11px;font-weight:600;color:var(--text-sec);min-width:55px}
+.multi-ctrl-row select{padding:4px 8px;border:1px solid var(--border);border-radius:var(--rs);font-size:11px;font-family:var(--font);color:var(--text);background:var(--surface)}
+.multi-teams{display:flex;gap:4px;flex-wrap:wrap}
+.multi-team-cb{display:flex;align-items:center;gap:3px;font-size:10px;padding:3px 8px;border:1.5px solid var(--border);border-radius:14px;cursor:pointer;color:var(--text-sec);transition:all var(--tr);user-select:none}
+.multi-team-cb:hover{border-color:var(--rm-blue)}
+.multi-team-cb.sel{background:var(--rm-blue);color:#fff;border-color:var(--rm-blue)}
+.multi-team-cb input{display:none}
+.multi-cal{overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 240px)}
+.multi-day{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:6px;overflow:hidden}
+.multi-day.weekend{background:var(--surface-alt)}
+.multi-day-header{display:flex;align-items:center;padding:8px 14px;font-size:13px;font-weight:700;color:var(--text);border-bottom:1px solid var(--border-light);gap:8px}
+.multi-day-header.month-start{background:var(--rm-blue);color:#fff;font-size:14px;border-radius:var(--r) var(--r) 0 0}
+.multi-day-dow{font-size:11px;font-weight:500;color:var(--text-mut);min-width:22px}
+.multi-day-header.month-start .multi-day-dow{color:rgba(255,255,255,.6)}
+.multi-day-date{font-size:13px}
+.multi-day-month{font-size:10px;opacity:.6;margin-left:4px;text-transform:uppercase;letter-spacing:.5px}
+.multi-day-body{padding:4px 8px}
+.multi-day-empty{padding:6px 14px;font-size:10px;color:var(--text-faint)}
+.multi-team-row{display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid var(--border-light)}
+.multi-team-row:last-child{border-bottom:none}
+.multi-team-label{font-size:10px;font-weight:700;color:var(--rm-blue);min-width:32px;flex-shrink:0}
+.multi-team-events{display:flex;gap:4px;flex-wrap:wrap;flex:1}
+.multi-evt{display:flex;align-items:center;gap:2px;border-radius:4px;overflow:hidden;font-size:11px;line-height:1.4}
+.multi-evt-icon{padding:2px 3px;display:flex;align-items:center;justify-content:center;background:#fff;flex-shrink:0}
+.multi-evt-icon svg{width:16px;height:16px}
+.multi-evt-name{padding:3px 6px;white-space:nowrap}
+.btn-multi{padding:5px 14px;font-size:11px;font-weight:700;font-family:var(--font);border:1.5px solid #0891b2;border-radius:20px;background:#e0f7fa;color:#0891b2;cursor:pointer;white-space:nowrap;transition:all var(--tr);margin-left:4px}
+.btn-multi:hover{background:#0891b2;color:#fff}
+.btn-multi.active{background:#0891b2;color:#fff;border-color:#0891b2}
+
 /* CUSTOM ESTADO DROPDOWN */
 .est-dropdown{position:relative;width:100%}
 .est-selected{display:flex;align-items:center;gap:8px;padding:6px 9px;border:1px solid var(--border);border-radius:var(--rs);background:var(--surface);cursor:pointer;font-size:11px;font-family:var(--font);color:var(--text)}
@@ -261,6 +297,21 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 </div>
 <div class="plan-view" id="planView">
   <div class="plan-wrap"><table class="plan-table" id="planTable"></table></div>
+</div>
+<div class="multi-view" id="multiView">
+  <div class="multi-controls">
+    <div class="multi-ctrl-row">
+      <label>Meses:</label>
+      <select id="multiMonth1" onchange="renderMultiView()"></select>
+      <select id="multiMonth2" onchange="renderMultiView()"></select>
+      <select id="multiMonth3" onchange="renderMultiView()"></select>
+    </div>
+    <div class="multi-ctrl-row">
+      <label>Equipos:</label>
+      <div class="multi-teams" id="multiTeamsBar"></div>
+    </div>
+  </div>
+  <div class="multi-cal" id="multiCal"></div>
 </div>
 <div class="modal-overlay" id="mo" onclick="if(event.target===this)closeModal()">
   <div class="modal"><div class="mh"><h3 id="mt"></h3><button class="mx" onclick="closeModal()">&times;</button></div><div class="mb" id="mbd"></div><div class="mf" id="mft"></div></div>
@@ -490,20 +541,24 @@ function delSeason(){
 }
 
 var showingPlan=false;
+var showingMulti=false;
+var multiSelectedTeams=['CAS','RMC','JA'];
 
 function renderTeamBar(){
   var html='';
   for(var i=0;i<TEAMS.length;i++){
     var t=TEAMS[i];
-    html+='<button class="team-btn '+(!showingPlan&&t.key===activeTeam?'active':'')+'" data-team="'+t.key+'">'+t.key+'</button>';
+    html+='<button class="team-btn '+(!showingPlan&&!showingMulti&&t.key===activeTeam?'active':'')+'" data-team="'+t.key+'">'+t.key+'</button>';
   }
   html+='<button class="btn-plan '+(showingPlan?'active':'')+'" onclick="togglePlanView()">Planificación</button>';
+  html+='<button class="btn-multi '+(showingMulti?'active':'')+'" onclick="toggleMultiView()">Varios equipos</button>';
   document.getElementById('teamBar').innerHTML=html;
   document.getElementById('teamBar').querySelectorAll('.team-btn').forEach(function(btn){
     btn.addEventListener('click',function(){
       var k=this.getAttribute('data-team');
       activeTeam=k;
       if(showingPlan){showingPlan=false;document.getElementById('mainView').classList.remove('hidden');document.getElementById('planView').classList.remove('active');}
+      if(showingMulti){showingMulti=false;document.getElementById('mainView').classList.remove('hidden');document.getElementById('multiView').classList.remove('active');}
       renderTeamBar();
       renderAll();
       loadItemsForSeason(activeSeason,true).then(function(){return loadFechasClave();}).then(function(){renderAll();});
@@ -512,6 +567,7 @@ function renderTeamBar(){
 }
 
 function togglePlanView(){
+  showingMulti=false;document.getElementById('multiView').classList.remove('active');
   showingPlan=!showingPlan;
   if(showingPlan){
     document.getElementById('mainView').classList.add('hidden');
@@ -524,6 +580,114 @@ function togglePlanView(){
     renderTeamBar();
     renderAll();
   }
+}
+
+function toggleMultiView(){
+  showingPlan=false;document.getElementById('planView').classList.remove('active');
+  showingMulti=!showingMulti;
+  if(showingMulti){
+    document.getElementById('mainView').classList.add('hidden');
+    document.getElementById('multiView').classList.add('active');
+    renderTeamBar();
+    initMultiControls();
+    loadAllTeamsData().then(function(){renderMultiView();});
+  } else {
+    document.getElementById('mainView').classList.remove('hidden');
+    document.getElementById('multiView').classList.remove('active');
+    renderTeamBar();
+    renderAll();
+  }
+}
+
+function initMultiControls(){
+  var sy=getSY();
+  var monthLabels=['Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre','Enero','Febrero','Marzo','Abril','Mayo','Junio'];
+  var monthOrder=[6,7,8,9,10,11,0,1,2,3,4,5];
+  var monthVals=[];
+  monthOrder.forEach(function(mi,idx){
+    var yr=mi>=6?sy.f:sy.s;
+    monthVals.push({mi:mi,yr:yr,label:monthLabels[idx]+' '+yr});
+  });
+  var now=new Date();var startIdx=0;
+  for(var i=0;i<monthVals.length;i++){if(monthVals[i].mi===now.getMonth()&&monthVals[i].yr===now.getFullYear()){startIdx=i;break;}}
+  for(var s=1;s<=3;s++){
+    var sel=document.getElementById('multiMonth'+s);
+    sel.innerHTML=monthVals.map(function(mv,idx){return '<option value="'+idx+'" '+(idx===Math.min(startIdx+s-1,monthVals.length-1)?'selected':'')+'>'+mv.label+'</option>';}).join('');
+  }
+  var bar=document.getElementById('multiTeamsBar');
+  bar.innerHTML=TEAMS.map(function(t){
+    var sel=multiSelectedTeams.indexOf(t.key)!==-1;
+    return '<label class="multi-team-cb'+(sel?' sel':'')+'"><input type="checkbox" value="'+t.key+'" '+(sel?'checked':'')+' onchange="toggleMultiTeam(this)">'+t.key+'</label>';
+  }).join('');
+}
+
+function toggleMultiTeam(cb){
+  var key=cb.value;var lbl=cb.closest('.multi-team-cb');
+  if(cb.checked){if(multiSelectedTeams.indexOf(key)===-1)multiSelectedTeams.push(key);lbl.classList.add('sel');}
+  else{multiSelectedTeams=multiSelectedTeams.filter(function(k){return k!==key;});lbl.classList.remove('sel');}
+  renderMultiView();
+}
+
+function renderMultiView(){
+  var sy=getSY();
+  var monthOrder=[6,7,8,9,10,11,0,1,2,3,4,5];
+  var monthNames=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var dn=['D','L','M','X','J','V','S'];
+  var selMonths=[];
+  for(var s=1;s<=3;s++){var idx=parseInt(document.getElementById('multiMonth'+s).value);if(selMonths.indexOf(idx)===-1)selMonths.push(idx);}
+  selMonths.sort(function(a,b){return a-b;});
+  var days=[];
+  selMonths.forEach(function(midx){
+    var mi=monthOrder[midx];var yr=mi>=6?sy.f:sy.s;var dim=new Date(yr,mi+1,0).getDate();
+    for(var d=1;d<=dim;d++){var dt=new Date(yr,mi,d);var dow=dt.getDay();days.push({y:yr,m:mi+1,d:d,dow:dow,iso:yr+'-'+String(mi+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'),monthName:monthNames[mi],isWeekend:dow===0||dow===6,isFirst:d===1});}
+  });
+  var cal=document.getElementById('multiCal');var html='';var savedTeam=activeTeam;
+  days.forEach(function(day){
+    var teamRows=[];
+    multiSelectedTeams.forEach(function(tkey){
+      activeTeam=tkey;var evts=[];
+      var fk=activeSeason.replace('/','-')+'_'+tkey;var fc=fechasClaveCache[fk]||{};
+      if(fc.pretemporada===day.iso)evts.push({icon:null,name:'PRETEM',bg:fc.pretemporadaColor||'#1a1a1a',fg:contrast(fc.pretemporadaColor||'#1a1a1a')});
+      if(fc.competicion===day.iso)evts.push({icon:null,name:'COMPET',bg:fc.competicionColor||'#1a1a1a',fg:contrast(fc.competicionColor||'#1a1a1a')});
+      categories.forEach(function(cat){
+        if(!catVisible(cat,tkey))return;
+        var k=itemsKey(cat.id,activeSeason);var items=itemsCache[k]||[];
+        items.forEach(function(it){
+          if(!it||!it.fechaInicio)return;
+          dtDays(it.fechaInicio,it.fechaFin||it.fechaInicio).forEach(function(dd){
+            if(dd.y===day.y&&dd.m===day.m&&dd.d===day.d){
+              var vd=it.victoriaDerrota==='victoria'?'✅':(it.victoriaDerrota==='derrota'?'❌':'');
+              var sc=it.marcador||'';var extra=(vd||sc)?' '+(vd+(sc?' '+sc:'')).trim():'';
+              evts.push({icon:estadoIcon(it.estado||'propuesta',false,true),name:it.nombre+extra,bg:cat.color,fg:contrast(cat.color)});
+            }
+          });
+        });
+      });
+      if(evts.length>0)teamRows.push({team:tkey,evts:evts});
+    });
+    if(teamRows.length>0||day.isFirst){
+      html+='<div class="multi-day'+(day.isWeekend?' weekend':'')+'">';
+      html+='<div class="multi-day-header'+(day.isFirst?' month-start':'')+'"><span class="multi-day-dow">'+dn[day.dow]+'</span><span class="multi-day-date">'+day.d+'</span>'+(day.isFirst?'<span class="multi-day-month">'+day.monthName+'</span>':'')+'</div>';
+      if(teamRows.length>0){
+        html+='<div class="multi-day-body">';
+        teamRows.forEach(function(tr){
+          html+='<div class="multi-team-row"><span class="multi-team-label">'+tr.team+'</span><div class="multi-team-events">';
+          tr.evts.forEach(function(ev){
+            if(ev.icon){
+              html+='<span class="multi-evt"><span class="multi-evt-icon">'+ev.icon+'</span><span class="multi-evt-name" style="background:'+ev.bg+';color:'+ev.fg+'">'+esc(ev.name)+'</span></span>';
+            } else {
+              html+='<span class="plan-fc" style="background:'+ev.bg+';color:'+ev.fg+'">'+esc(ev.name)+'</span>';
+            }
+          });
+          html+='</div></div>';
+        });
+        html+='</div>';
+      }
+      html+='</div>';
+    }
+  });
+  activeTeam=savedTeam;
+  cal.innerHTML=html||'<div class="empty-st">Selecciona equipos y meses.</div>';
 }
 
 function loadAllTeamsData(){
