@@ -182,24 +182,24 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .multi-team-cb.sel{background:var(--rm-blue);color:#fff;border-color:var(--rm-blue)}
 .multi-team-cb input{display:none}
 .multi-cal{overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 240px)}
-.multi-day{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:6px;overflow:hidden}
-.multi-day.weekend{background:var(--surface-alt)}
-.multi-day-header{display:flex;align-items:center;padding:8px 14px;font-size:13px;font-weight:700;color:var(--text);border-bottom:1px solid var(--border-light);gap:8px}
-.multi-day-header.month-start{background:var(--rm-blue);color:#fff;font-size:14px;border-radius:var(--r) var(--r) 0 0}
-.multi-day-dow{font-size:11px;font-weight:500;color:var(--text-mut);min-width:22px}
-.multi-day-header.month-start .multi-day-dow{color:rgba(255,255,255,.6)}
-.multi-day-date{font-size:13px}
-.multi-day-month{font-size:10px;opacity:.6;margin-left:4px;text-transform:uppercase;letter-spacing:.5px}
-.multi-day-body{padding:4px 8px}
-.multi-day-empty{padding:6px 14px;font-size:10px;color:var(--text-faint)}
-.multi-team-row{display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid var(--border-light)}
-.multi-team-row:last-child{border-bottom:none}
-.multi-team-label{font-size:10px;font-weight:700;color:var(--rm-blue);min-width:32px;flex-shrink:0}
-.multi-team-events{display:flex;gap:4px;flex-wrap:wrap;flex:1}
-.multi-evt{display:flex;align-items:center;gap:2px;border-radius:4px;overflow:hidden;font-size:11px;line-height:1.4}
-.multi-evt-icon{padding:2px 3px;display:flex;align-items:center;justify-content:center;background:#fff;flex-shrink:0}
-.multi-evt-icon svg{width:16px;height:16px}
-.multi-evt-name{padding:3px 6px;white-space:nowrap}
+.multi-months{display:flex;gap:14px;flex-wrap:wrap}
+.multi-month{flex:1;min-width:320px;border:1px solid var(--border);border-radius:var(--rl);background:var(--surface);overflow:hidden}
+.multi-month-head{padding:8px 14px;background:var(--rm-blue);color:#fff;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;text-align:center}
+.multi-dh{display:grid;grid-template-columns:repeat(7,1fr);padding:6px 8px 2px}
+.multi-dh span{text-align:center;font-size:10px;font-weight:700;color:var(--text-mut);text-transform:uppercase}
+.multi-ds{display:grid;grid-template-columns:repeat(7,1fr);padding:2px 8px 8px;gap:2px}
+.multi-cell{min-height:70px;border:1px solid var(--border-light);border-radius:4px;padding:2px;font-size:9px;overflow:hidden;vertical-align:top;position:relative;background:var(--surface)}
+.multi-cell.empty{border-color:transparent;min-height:0}
+.multi-cell.weekend{background:var(--surface-alt)}
+.multi-cell-num{font-size:11px;font-weight:700;color:var(--text-sec);padding:1px 3px;line-height:1.3}
+.multi-cell-num.has-events{color:var(--rm-blue)}
+.multi-cell-row{display:flex;align-items:center;gap:1px;margin:1px 0;overflow:hidden}
+.multi-cell-team{font-size:7px;font-weight:800;color:var(--rm-blue);min-width:18px;flex-shrink:0}
+.multi-cell-evt{display:flex;align-items:center;gap:1px;border-radius:2px;overflow:hidden;flex:1;min-width:0}
+.multi-cell-evt-icon{padding:0 1px;display:flex;align-items:center;background:#fff;flex-shrink:0}
+.multi-cell-evt-icon svg{width:10px;height:10px}
+.multi-cell-evt-name{font-size:7px;padding:1px 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.multi-cell-fc{font-size:6px;font-weight:800;padding:1px 2px;border-radius:2px;text-transform:uppercase;display:inline-block;margin:1px 0}
 .btn-multi{padding:5px 14px;font-size:11px;font-weight:700;font-family:var(--font);border:1.5px solid #0891b2;border-radius:20px;background:#e0f7fa;color:#0891b2;cursor:pointer;white-space:nowrap;transition:all var(--tr);margin-left:4px}
 .btn-multi:hover{background:#0891b2;color:#fff}
 .btn-multi.active{background:#0891b2;color:#fff;border-color:#0891b2}
@@ -632,62 +632,78 @@ function renderMultiView(){
   var sy=getSY();
   var monthOrder=[6,7,8,9,10,11,0,1,2,3,4,5];
   var monthNames=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  var dn=['D','L','M','X','J','V','S'];
+  var dn=['L','M','X','J','V','S','D'];
   var selMonths=[];
   for(var s=1;s<=3;s++){var idx=parseInt(document.getElementById('multiMonth'+s).value);if(selMonths.indexOf(idx)===-1)selMonths.push(idx);}
   selMonths.sort(function(a,b){return a-b;});
-  var days=[];
+
+  var cal=document.getElementById('multiCal');
+  var html='<div class="multi-months">';
+  var savedTeam=activeTeam;
+
   selMonths.forEach(function(midx){
-    var mi=monthOrder[midx];var yr=mi>=6?sy.f:sy.s;var dim=new Date(yr,mi+1,0).getDate();
-    for(var d=1;d<=dim;d++){var dt=new Date(yr,mi,d);var dow=dt.getDay();days.push({y:yr,m:mi+1,d:d,dow:dow,iso:yr+'-'+String(mi+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'),monthName:monthNames[mi],isWeekend:dow===0||dow===6,isFirst:d===1});}
-  });
-  var cal=document.getElementById('multiCal');var html='';var savedTeam=activeTeam;
-  days.forEach(function(day){
-    var teamRows=[];
-    multiSelectedTeams.forEach(function(tkey){
-      activeTeam=tkey;var evts=[];
-      var fk=activeSeason.replace('/','-')+'_'+tkey;var fc=fechasClaveCache[fk]||{};
-      if(fc.pretemporada===day.iso)evts.push({icon:null,name:'PRETEM',bg:fc.pretemporadaColor||'#1a1a1a',fg:contrast(fc.pretemporadaColor||'#1a1a1a')});
-      if(fc.competicion===day.iso)evts.push({icon:null,name:'COMPET',bg:fc.competicionColor||'#1a1a1a',fg:contrast(fc.competicionColor||'#1a1a1a')});
-      categories.forEach(function(cat){
-        if(!catVisible(cat,tkey))return;
-        var k=itemsKey(cat.id,activeSeason);var items=itemsCache[k]||[];
-        items.forEach(function(it){
-          if(!it||!it.fechaInicio)return;
-          dtDays(it.fechaInicio,it.fechaFin||it.fechaInicio).forEach(function(dd){
-            if(dd.y===day.y&&dd.m===day.m&&dd.d===day.d){
-              var vd=it.victoriaDerrota==='victoria'?'✅':(it.victoriaDerrota==='derrota'?'❌':'');
-              var sc=it.marcador||'';var extra=(vd||sc)?' '+(vd+(sc?' '+sc:'')).trim():'';
-              evts.push({icon:estadoIcon(it.estado||'propuesta',false,true),name:it.nombre+extra,bg:cat.color,fg:contrast(cat.color)});
-            }
+    var mi=monthOrder[midx];
+    var yr=mi>=6?sy.f:sy.s;
+    var dim=new Date(yr,mi+1,0).getDate();
+    var fd=new Date(yr,mi,1).getDay();fd=fd===0?6:fd-1;
+
+    html+='<div class="multi-month"><div class="multi-month-head">'+monthNames[mi]+' '+yr+'</div>';
+    html+='<div class="multi-dh">'+dn.map(function(n){return '<span>'+n+'</span>';}).join('')+'</div>';
+    html+='<div class="multi-ds">';
+
+    for(var e=0;e<fd;e++)html+='<div class="multi-cell empty"></div>';
+
+    for(var d=1;d<=dim;d++){
+      var dow=(fd+d-1)%7;
+      var isWe=dow>=5;
+      var iso=yr+'-'+String(mi+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+
+      // Collect events per selected team
+      var teamRows=[];
+      multiSelectedTeams.forEach(function(tkey){
+        activeTeam=tkey;
+        var evts=[];
+        var fk=activeSeason.replace('/','-')+'_'+tkey;var fc=fechasClaveCache[fk]||{};
+        if(fc.pretemporada===iso)evts.push({icon:null,name:'PRE',bg:fc.pretemporadaColor||'#1a1a1a',fg:contrast(fc.pretemporadaColor||'#1a1a1a')});
+        if(fc.competicion===iso)evts.push({icon:null,name:'COMP',bg:fc.competicionColor||'#1a1a1a',fg:contrast(fc.competicionColor||'#1a1a1a')});
+        categories.forEach(function(cat){
+          if(!catVisible(cat,tkey))return;
+          var k=itemsKey(cat.id,activeSeason);var items=itemsCache[k]||[];
+          items.forEach(function(it){
+            if(!it||!it.fechaInicio)return;
+            var ds=dtDays(it.fechaInicio,it.fechaFin||it.fechaInicio);
+            ds.forEach(function(dd){
+              if(dd.y===yr&&dd.m===mi+1&&dd.d===d){
+                evts.push({icon:estadoIcon(it.estado||'propuesta',false,true),name:it.nombre,bg:cat.color,fg:contrast(cat.color)});
+              }
+            });
           });
+        });
+        if(evts.length>0)teamRows.push({team:tkey,evts:evts});
+      });
+
+      var hasEvts=teamRows.length>0;
+      html+='<div class="multi-cell'+(isWe?' weekend':'')+'">';
+      html+='<div class="multi-cell-num'+(hasEvts?' has-events':'')+'">'+d+'</div>';
+      teamRows.forEach(function(tr){
+        tr.evts.forEach(function(ev){
+          html+='<div class="multi-cell-row"><span class="multi-cell-team">'+tr.team+'</span>';
+          if(ev.icon){
+            html+='<span class="multi-cell-evt"><span class="multi-cell-evt-icon">'+ev.icon+'</span><span class="multi-cell-evt-name" style="background:'+ev.bg+';color:'+ev.fg+'">'+esc(ev.name)+'</span></span>';
+          } else {
+            html+='<span class="multi-cell-fc" style="background:'+ev.bg+';color:'+ev.fg+'">'+esc(ev.name)+'</span>';
+          }
+          html+='</div>';
         });
       });
-      if(evts.length>0)teamRows.push({team:tkey,evts:evts});
-    });
-    if(teamRows.length>0||day.isFirst){
-      html+='<div class="multi-day'+(day.isWeekend?' weekend':'')+'">';
-      html+='<div class="multi-day-header'+(day.isFirst?' month-start':'')+'"><span class="multi-day-dow">'+dn[day.dow]+'</span><span class="multi-day-date">'+day.d+'</span>'+(day.isFirst?'<span class="multi-day-month">'+day.monthName+'</span>':'')+'</div>';
-      if(teamRows.length>0){
-        html+='<div class="multi-day-body">';
-        teamRows.forEach(function(tr){
-          html+='<div class="multi-team-row"><span class="multi-team-label">'+tr.team+'</span><div class="multi-team-events">';
-          tr.evts.forEach(function(ev){
-            if(ev.icon){
-              html+='<span class="multi-evt"><span class="multi-evt-icon">'+ev.icon+'</span><span class="multi-evt-name" style="background:'+ev.bg+';color:'+ev.fg+'">'+esc(ev.name)+'</span></span>';
-            } else {
-              html+='<span class="plan-fc" style="background:'+ev.bg+';color:'+ev.fg+'">'+esc(ev.name)+'</span>';
-            }
-          });
-          html+='</div></div>';
-        });
-        html+='</div>';
-      }
       html+='</div>';
     }
+    html+='</div></div>';
   });
+
   activeTeam=savedTeam;
-  cal.innerHTML=html||'<div class="empty-st">Selecciona equipos y meses.</div>';
+  html+='</div>';
+  cal.innerHTML=html;
 }
 
 function loadAllTeamsData(){
