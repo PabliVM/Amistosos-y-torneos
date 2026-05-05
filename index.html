@@ -736,7 +736,12 @@ function renderMultiView(){
                 var vd=it.victoriaDerrota==='victoria'?'✅':(it.victoriaDerrota==='derrota'?'❌':'');
                 var sc=it.marcador||'';
                 var estLabel={propuesta:'Propuesta',provisional:'Propuesta',ok_equipo:'OK equipo',enviado_mail:'Enviado mail',definitivo:'Definitivo'};
-                var info=it.nombre+(loc?' '+loc:'')+(locTxt?' — '+locTxt:'')+(sc?' ('+sc+')':'')+(vd?' '+vd:'');
+                var detail=[];
+                if(loc||locTxt)detail.push((loc?loc+' ':'')+locTxt);
+                if(sc)detail.push(sc);
+                if(vd)detail.push(vd);
+                detail.push(estLabel[it.estado||'propuesta']||'Propuesta');
+                var info=it.nombre+'\n'+detail.join(' · ');
                 evts.push({icon:estadoIcon(it.estado||'propuesta',false,true),name:it.nombre,bg:cat.color,fg:contrast(cat.color),info:info});
               }
             });
@@ -771,7 +776,9 @@ function renderMultiView(){
   cal.querySelectorAll('[data-tip]').forEach(function(el){
     el.addEventListener('mouseenter',function(e){
       var tip=document.getElementById('obsTip');
-      tip.textContent=this.getAttribute('data-tip');
+      var text=this.getAttribute('data-tip');
+      var parts=text.split('\n');
+      tip.innerHTML=parts.length>1?'<div style="font-weight:600;font-size:12px">'+esc(parts[0])+'</div><div style="font-size:10px;opacity:.6;margin-top:2px">'+esc(parts[1])+'</div>':'<div style="font-weight:600">'+esc(text)+'</div>';
       tip.style.display='block';
       var r=this.getBoundingClientRect();
       var left=Math.max(8,Math.min(r.left,window.innerWidth-tip.offsetWidth-8));
@@ -952,8 +959,9 @@ function renderCalendar(){
           if(ev.marcador)detail.push(ev.marcador);
           if(vdIcon)detail.push(vdIcon);
           if(estTxt)detail.push(estTxt);
-          var detailStr=detail.length?'<div style="font-size:9px;opacity:.7;margin-top:1px">'+detail.join(' · ')+'</div>':'';
-          return '<div class="day-tip-row"><span class="day-tip-dot" style="background:'+ev.color+'"></span><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:4px"><span class="day-tip-name">'+esc(ev.name)+'</span><span class="day-tip-cat">'+esc(ev.cat)+'</span></div>'+detailStr+'</div></div>';
+          var detailStr=detail.length?'<div style="font-size:9px;opacity:.6;margin-top:2px">'+detail.join(' · ')+'</div>':'';
+          var iconSvg=ev.estado?estadoIcon(ev.estado,false,false):'<span class="day-tip-dot" style="background:'+ev.color+'"></span>';
+          return '<div class="day-tip-row">'+iconSvg+'<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><span class="day-tip-name">'+esc(ev.name)+'</span><span class="day-tip-cat">'+esc(ev.cat)+'</span></div>'+detailStr+'</div></div>';
         }).join('');
         if(h[d].length>=2){
           // CONFLICT: 2+ events — red border, white bg, red number
