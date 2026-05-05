@@ -503,8 +503,17 @@ function loadItemsForSeason(season,forceReload){
     var k=itemsKey(cat.id,season);
     if(itemsCache[k]!=null&&!forceReload)return;
     var p=itemsRef().doc(k).get().then(function(doc){
-      itemsCache[k]=doc.exists?(doc.data().items||[]):[];
-      console.log('LOADED:', k, 'items:', itemsCache[k].length);
+      var items=doc.exists?(doc.data().items||[]):[];
+      // Migrate: assign _id to items that don't have one
+      var needsSave=false;
+      items.forEach(function(it,i){
+        if(!it._id){it._id='it_'+Date.now()+'_'+i;needsSave=true;}
+      });
+      itemsCache[k]=items;
+      // Save back if we added _ids
+      if(needsSave&&items.length>0){
+        itemsRef().doc(k).set({items:items,season:season,catId:cat.id}).catch(function(){});
+      }
     }).catch(function(e){console.error('LOAD FAILED:',k,e);itemsCache[k]=[];});
     promises.push(p);
   });
@@ -1299,28 +1308,31 @@ function delItemModal(){
   saveItemsFB(catId);
 }
 
-function openItemById(cid,itemId){
+function findItemIdx(cid,itemId){
   var items=getAllItems(cid);
-  var idx=-1;
+  // Try by _id first
   for(var i=0;i<items.length;i++){
-    if(items[i]._id===itemId||(itemId.indexOf('idx_')===0&&i===parseInt(itemId.replace('idx_','')))){
-      idx=i;break;
-    }
+    if(items[i]._id===itemId)return i;
   }
-  if(idx===-1){showBanner('Evento no encontrado',true);return;}
+  // Fallback: try by idx_ prefix
+  if(itemId.indexOf('idx_')===0){
+    var idx=parseInt(itemId.replace('idx_',''));
+    if(idx>=0&&idx<items.length)return idx;
+  }
+  return -1;
+}
+
+function openItemById(cid,itemId){
+  var idx=findItemIdx(cid,itemId);
+  if(idx===-1){showBanner('Evento no encontrado. Recarga la página.',true);return;}
   openItemModal(cid,idx);
 }
 
 function delItemById(cid,itemId){
   if(!confirm('¿Eliminar?'))return;
-  var items=getAllItems(cid);
-  var idx=-1;
-  for(var i=0;i<items.length;i++){
-    if(items[i]._id===itemId||(itemId.indexOf('idx_')===0&&i===parseInt(itemId.replace('idx_','')))){
-      idx=i;break;
-    }
-  }
+  var idx=findItemIdx(cid,itemId);
   if(idx===-1){showBanner('Evento no encontrado',true);return;}
+  var items=getAllItems(cid);
   items.splice(idx,1);
   renderAll();
   saveItemsFB(cid);
