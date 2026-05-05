@@ -110,7 +110,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .item-card.res-orange{border-left:3px solid var(--orange)}
 .item-card.res-red{border-left:3px solid var(--red)}
 .item-row{display:flex;align-items:center;gap:5px}
-.st-badge{font-size:14px;padding:3px 8px;border-radius:6px;font-weight:600;flex-shrink:0;line-height:1.2;display:inline-flex;align-items:center;justify-content:center}
+.st-badge{font-size:14px;padding:2px;border-radius:4px;font-weight:600;flex-shrink:0;line-height:1;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:none}
+.st-badge svg{display:block}
 .st-badge.propuesta{background:#ef4444;color:#fff;border:none}
 .st-badge.provisional{background:#ef4444;color:#fff;border:none}
 .st-badge.ok_equipo{background:#f97316;color:#fff;border:none}
@@ -594,9 +595,10 @@ function renderPlanTable(){
               var sc=it.marcador||'';
               var extra=(vd||sc)?' '+(vd+(sc?' '+sc:'')).trim():'';
               var est=it.estado||'propuesta';
-              var estIcon=estadoIcon(est);
+              var estSvg=estadoIcon(est);
+              var estEmoji=estadoIcon(est,true);
               var fgColor=contrast(cat.color);
-              cell+='<span class="plan-evt-wrap" title="'+estIcon+' '+esc(it.nombre)+' ('+est.replace('_',' ')+')'+( it.ubicacionTexto?' — '+esc(it.ubicacionTexto):'')+extra+'"><span class="plan-evt-icon" data-est="'+est+'">'+estIcon+'</span><span class="plan-evt-name" style="background:'+cat.color+';color:'+fgColor+'">'+esc(it.nombre)+extra+'</span></span>';
+              cell+='<span class="plan-evt-wrap" title="'+estEmoji+' '+esc(it.nombre)+' ('+est.replace('_',' ')+')'+( it.ubicacionTexto?' — '+esc(it.ubicacionTexto):'')+extra+'"><span class="plan-evt-icon" data-est="'+est+'">'+estSvg+'</span><span class="plan-evt-name" style="background:'+cat.color+';color:'+fgColor+'">'+esc(it.nombre)+extra+'</span></span>';
             }
           });
         });
@@ -778,11 +780,22 @@ function saveFCModal(){
   saveFechasClave();
 }
 
-function estadoIcon(est){
-  if(est==='ok_equipo')return '🤝';
-  if(est==='enviado_mail')return '✉️';
-  if(est==='definitivo')return '✅';
-  return '⏳'; // propuesta or provisional
+var _svgPropuesta='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#dc2626" stroke-width="3" stroke-linecap="round"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="9"/></svg>';
+var _svgOkEquipo='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ea580c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M17 11h-2a2 2 0 0 0-2 2v0a2 2 0 0 1-2 2H9"/><path d="M7 11V7a2 2 0 0 1 2-2h0a2 2 0 0 0 2-2"/><path d="M17 11v4a2 2 0 0 1-2 2h0a2 2 0 0 0-2 2"/><rect x="2" y="9" width="6" height="8" rx="1"/><rect x="16" y="7" width="6" height="8" rx="1"/></svg>';
+var _svgMail='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ca8a04" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4L12 13 2 4"/></svg>';
+var _svgCheck='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#16a34a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>';
+
+function estadoIcon(est,asEmoji){
+  if(asEmoji){
+    if(est==='ok_equipo')return '🤝';
+    if(est==='enviado_mail')return '✉️';
+    if(est==='definitivo')return '✅';
+    return '⏳';
+  }
+  if(est==='ok_equipo')return _svgOkEquipo;
+  if(est==='enviado_mail')return _svgMail;
+  if(est==='definitivo')return _svgCheck;
+  return _svgPropuesta;
 }
 
 function renderRight(){
