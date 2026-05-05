@@ -111,11 +111,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .item-card.res-red{border-left:3px solid var(--red)}
 .item-row{display:flex;align-items:center;gap:5px}
 .st-badge{font-size:14px;padding:3px 8px;border-radius:6px;font-weight:600;flex-shrink:0;line-height:1.2;display:inline-flex;align-items:center;justify-content:center}
-.st-badge.propuesta{background:#f87171;color:#fff;border:none}
-.st-badge.provisional{background:#f87171;color:#fff;border:none}
-.st-badge.ok_equipo{background:#fb923c;color:#fff;border:none}
-.st-badge.enviado_mail{background:#facc15;color:#1a1d23;border:none}
-.st-badge.definitivo{background:#22c55e;color:#fff;border:none}
+.st-badge.propuesta{background:#ef4444;color:#fff;border:none}
+.st-badge.provisional{background:#ef4444;color:#fff;border:none}
+.st-badge.ok_equipo{background:#f97316;color:#fff;border:none}
+.st-badge.enviado_mail{background:#eab308;color:#fff;border:none}
+.st-badge.definitivo{background:#16a34a;color:#fff;border:none}
 .item-nm{font-size:11px;font-weight:600;color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .item-loc{font-size:10px;flex-shrink:0}
 .item-team-tag{font-size:7px;font-weight:700;padding:1px 4px;border-radius:3px;background:var(--rm-blue-bg);color:var(--rm-blue);flex-shrink:0}
@@ -204,7 +204,12 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .plan-date{font-weight:600;font-size:9px;white-space:nowrap;color:var(--text-sec);padding:1px 0}
 .plan-date.weekend{color:var(--text-faint)}
 .plan-evt-wrap{display:flex;align-items:stretch;border-radius:3px;margin:1px 0;overflow:hidden;cursor:default;line-height:1.4}
-.plan-evt-icon{font-size:9px;padding:1px 2px;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.plan-evt-icon{font-size:12px;padding:1px 3px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.plan-evt-icon[data-est="propuesta"]{background:#fecaca}
+.plan-evt-icon[data-est="provisional"]{background:#fecaca}
+.plan-evt-icon[data-est="ok_equipo"]{background:#fed7aa}
+.plan-evt-icon[data-est="enviado_mail"]{background:#fef08a}
+.plan-evt-icon[data-est="definitivo"]{background:#bbf7d0}
 .plan-evt-name{font-size:10px;padding:2px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
 .plan-evt-wrap:hover{opacity:.85}
 .plan-fc{font-size:10px;font-weight:700;padding:2px 4px;border-radius:3px;text-transform:uppercase;letter-spacing:.3px;display:block;margin:1px 0;line-height:1.5}
@@ -591,7 +596,7 @@ function renderPlanTable(){
               var est=it.estado||'propuesta';
               var estIcon=estadoIcon(est);
               var fgColor=contrast(cat.color);
-              cell+='<span class="plan-evt-wrap" title="'+estIcon+' '+esc(it.nombre)+' ('+est.replace('_',' ')+')'+( it.ubicacionTexto?' — '+esc(it.ubicacionTexto):'')+extra+'"><span class="plan-evt-icon">'+estIcon+'</span><span class="plan-evt-name" style="background:'+cat.color+';color:'+fgColor+'">'+esc(it.nombre)+extra+'</span></span>';
+              cell+='<span class="plan-evt-wrap" title="'+estIcon+' '+esc(it.nombre)+' ('+est.replace('_',' ')+')'+( it.ubicacionTexto?' — '+esc(it.ubicacionTexto):'')+extra+'"><span class="plan-evt-icon" data-est="'+est+'">'+estIcon+'</span><span class="plan-evt-name" style="background:'+cat.color+';color:'+fgColor+'">'+esc(it.nombre)+extra+'</span></span>';
             }
           });
         });
@@ -774,8 +779,8 @@ function saveFCModal(){
 }
 
 function estadoIcon(est){
-  if(est==='ok_equipo')return '🤝';
-  if(est==='enviado_mail')return '📧';
+  if(est==='ok_equipo')return '🙌';
+  if(est==='enviado_mail')return '✉️';
   if(est==='definitivo')return '✅';
   return '⏳'; // propuesta or provisional
 }
@@ -893,7 +898,7 @@ function openItemModal(cid,idx){
   var vdH='<label>Marcador</label><div style="display:flex;align-items:center;gap:5px"><input id="mScF" type="number" min="0" style="width:36px;text-align:center;padding:3px 1px;font-size:12px" value="'+esc(mParts[0])+'"><span style="font-weight:700;color:var(--text-mut)">-</span><input id="mScC" type="number" min="0" style="width:36px;text-align:center;padding:3px 1px;font-size:12px" value="'+esc(mParts[1])+'"><span style="width:6px"></span><label class="loc-chip" style="margin:0;font-size:9px;padding:2px 5px"><input type="radio" name="mVD" value="victoria" '+(curVD==='victoria'?'checked':'')+'> ✅</label><label class="loc-chip" style="margin:0;font-size:9px;padding:2px 5px"><input type="radio" name="mVD" value="derrota" '+(curVD==='derrota'?'checked':'')+'> ❌</label><label class="loc-chip" style="margin:0;font-size:9px;padding:2px 5px"><input type="radio" name="mVD" value="" '+(curVD===''?'checked':'')+'> —</label></div>';
   // Estado — last
   var curEst=it?it.estado||'propuesta':'propuesta';
-  var estH='<label>Estado</label><select id="mE"><option value="propuesta" '+(curEst==='propuesta'?'selected':'')+'>⏳ Propuesta</option><option value="ok_equipo" '+(curEst==='ok_equipo'?'selected':'')+'>🤝 OK equipo/Club</option><option value="enviado_mail" '+(curEst==='enviado_mail'?'selected':'')+'>📧 Enviado mail</option><option value="definitivo" '+(curEst==='definitivo'?'selected':'')+'>✅ Definitivo</option></select>';
+  var estH='<label>Estado</label><select id="mE"><option value="propuesta" '+(curEst==='propuesta'?'selected':'')+'>⏳ Propuesta</option><option value="ok_equipo" '+(curEst==='ok_equipo'?'selected':'')+'>🙌 OK equipo/Club</option><option value="enviado_mail" '+(curEst==='enviado_mail'?'selected':'')+'>✉️ Enviado mail</option><option value="definitivo" '+(curEst==='definitivo'?'selected':'')+'>✅ Definitivo</option></select>';
 
   document.getElementById('mbd').innerHTML='<label>Nombre</label><input id="mN" value="'+(it?esc(it.nombre):'')+'" placeholder="Nombre o rival">'+dH+locH+rH+vdH+'<label>Observaciones</label><textarea id="mO" placeholder="Notas...">'+(it?esc(it.obs):'')+'</textarea>'+estH;
   document.getElementById('mft').innerHTML=(it!=null?'<button class="btn-d" onclick="delItemModal()">Borrar</button>':'')+'<button class="btn-s" onclick="closeModal()">Cancelar</button><button class="btn-p" onclick="saveItem()">Guardar</button>';
