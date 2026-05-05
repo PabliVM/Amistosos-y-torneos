@@ -736,7 +736,7 @@ function renderMultiView(){
                 var vd=it.victoriaDerrota==='victoria'?'✅':(it.victoriaDerrota==='derrota'?'❌':'');
                 var sc=it.marcador||'';
                 var estLabel={propuesta:'Propuesta',provisional:'Propuesta',ok_equipo:'OK equipo',enviado_mail:'Enviado mail',definitivo:'Definitivo'};
-                var info=it.nombre+(loc?' '+loc:'')+(locTxt?' — '+locTxt:'')+(sc?' ('+sc+')':'')+(vd?' '+vd:'')+' · '+cat.title+' · '+(estLabel[it.estado||'propuesta']||'Propuesta');
+                var info=it.nombre+(loc?' '+loc:'')+(locTxt?' — '+locTxt:'')+(sc?' ('+sc+')':'')+(vd?' '+vd:'');
                 evts.push({icon:estadoIcon(it.estado||'propuesta',false,true),name:it.nombre,bg:cat.color,fg:contrast(cat.color),info:info});
               }
             });
