@@ -779,7 +779,7 @@ function saveFCModal(){
 }
 
 function estadoIcon(est){
-  if(est==='ok_equipo')return '🙌';
+  if(est==='ok_equipo')return '🤝';
   if(est==='enviado_mail')return '✉️';
   if(est==='definitivo')return '✅';
   return '⏳'; // propuesta or provisional
@@ -898,7 +898,7 @@ function openItemModal(cid,idx){
   var vdH='<label>Marcador</label><div style="display:flex;align-items:center;gap:5px"><input id="mScF" type="number" min="0" style="width:36px;text-align:center;padding:3px 1px;font-size:12px" value="'+esc(mParts[0])+'"><span style="font-weight:700;color:var(--text-mut)">-</span><input id="mScC" type="number" min="0" style="width:36px;text-align:center;padding:3px 1px;font-size:12px" value="'+esc(mParts[1])+'"><span style="width:6px"></span><label class="loc-chip" style="margin:0;font-size:9px;padding:2px 5px"><input type="radio" name="mVD" value="victoria" '+(curVD==='victoria'?'checked':'')+'> ✅</label><label class="loc-chip" style="margin:0;font-size:9px;padding:2px 5px"><input type="radio" name="mVD" value="derrota" '+(curVD==='derrota'?'checked':'')+'> ❌</label><label class="loc-chip" style="margin:0;font-size:9px;padding:2px 5px"><input type="radio" name="mVD" value="" '+(curVD===''?'checked':'')+'> —</label></div>';
   // Estado — last
   var curEst=it?it.estado||'propuesta':'propuesta';
-  var estH='<label>Estado</label><select id="mE"><option value="propuesta" '+(curEst==='propuesta'?'selected':'')+'>⏳ Propuesta</option><option value="ok_equipo" '+(curEst==='ok_equipo'?'selected':'')+'>🙌 OK equipo/Club</option><option value="enviado_mail" '+(curEst==='enviado_mail'?'selected':'')+'>✉️ Enviado mail</option><option value="definitivo" '+(curEst==='definitivo'?'selected':'')+'>✅ Definitivo</option></select>';
+  var estH='<label>Estado</label><select id="mE"><option value="propuesta" '+(curEst==='propuesta'?'selected':'')+'>⏳ Propuesta</option><option value="ok_equipo" '+(curEst==='ok_equipo'?'selected':'')+'>🤝 OK equipo/Club</option><option value="enviado_mail" '+(curEst==='enviado_mail'?'selected':'')+'>✉️ Enviado mail</option><option value="definitivo" '+(curEst==='definitivo'?'selected':'')+'>✅ Definitivo</option></select>';
 
   document.getElementById('mbd').innerHTML='<label>Nombre</label><input id="mN" value="'+(it?esc(it.nombre):'')+'" placeholder="Nombre o rival">'+dH+locH+rH+vdH+'<label>Observaciones</label><textarea id="mO" placeholder="Notas...">'+(it?esc(it.obs):'')+'</textarea>'+estH;
   document.getElementById('mft').innerHTML=(it!=null?'<button class="btn-d" onclick="delItemModal()">Borrar</button>':'')+'<button class="btn-s" onclick="closeModal()">Cancelar</button><button class="btn-p" onclick="saveItem()">Guardar</button>';
