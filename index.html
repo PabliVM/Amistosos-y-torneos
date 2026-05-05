@@ -168,6 +168,20 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .loc-chip:hover{border-color:var(--rm-blue)}
 .loc-chip input{margin:0;width:auto}
 
+/* CUSTOM ESTADO DROPDOWN */
+.est-dropdown{position:relative;width:100%}
+.est-selected{display:flex;align-items:center;gap:8px;padding:6px 9px;border:1px solid var(--border);border-radius:var(--rs);background:var(--surface);cursor:pointer;font-size:11px;font-family:var(--font);color:var(--text)}
+.est-selected:hover{border-color:var(--rm-blue)}
+.est-selected svg{flex-shrink:0}
+.est-selected span{flex:1}
+.est-arrow{flex:0!important;color:var(--text-mut);font-size:10px}
+.est-options{display:none;position:absolute;bottom:100%;left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);box-shadow:var(--sh-lg);z-index:10;margin-bottom:4px;overflow:hidden}
+.est-options.open{display:block}
+.est-opt{display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer;font-size:11px;color:var(--text);transition:background .15s}
+.est-opt:hover{background:var(--bg)}
+.est-opt.active{background:var(--rm-blue-bg)}
+.est-opt svg{flex-shrink:0}
+
 /* MODAL */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;justify-content:center;align-items:center;padding:16px}
 .modal-overlay.active{display:flex}
@@ -884,6 +898,15 @@ function getScope(){var el=document.querySelector('input[name="mScope"]:checked'
 // ── ITEM MODAL ──
 var eT=null,eI=null;
 function syncDateMin(){var fi=document.getElementById('mFI'),ff=document.getElementById('mFF');if(fi&&ff){ff.min=fi.value||'';if(ff.value&&fi.value&&ff.value<fi.value)ff.value=fi.value;}}
+function toggleEstDD(){var el=document.getElementById('estOptions');el.classList.toggle('open');}
+function selectEst(val,label){
+  document.getElementById('mE').value=val;
+  var sel=document.querySelector('.est-selected');
+  sel.innerHTML=estadoIcon(val)+'<span>'+label+'</span><span class="est-arrow">▾</span>';
+  document.querySelectorAll('.est-opt').forEach(function(o){o.classList.remove('active');});
+  event.currentTarget.classList.add('active');
+  document.getElementById('estOptions').classList.remove('open');
+}
 
 function openItemModal(cid,idx){
   eT=cid;eI=idx!=null?idx:null;
@@ -907,9 +930,14 @@ function openItemModal(cid,idx){
   var curMarcador=it?it.marcador||'':'';
   var mParts=curMarcador?curMarcador.split('-'):['',''];
   var vdH='<label>Marcador</label><div style="display:flex;align-items:center;gap:5px"><input id="mScF" type="number" min="0" style="width:36px;text-align:center;padding:3px 1px;font-size:12px" value="'+esc(mParts[0])+'"><span style="font-weight:700;color:var(--text-mut)">-</span><input id="mScC" type="number" min="0" style="width:36px;text-align:center;padding:3px 1px;font-size:12px" value="'+esc(mParts[1])+'"><span style="width:6px"></span><label class="loc-chip" style="margin:0;font-size:9px;padding:2px 5px"><input type="radio" name="mVD" value="victoria" '+(curVD==='victoria'?'checked':'')+'> ✅</label><label class="loc-chip" style="margin:0;font-size:9px;padding:2px 5px"><input type="radio" name="mVD" value="derrota" '+(curVD==='derrota'?'checked':'')+'> ❌</label><label class="loc-chip" style="margin:0;font-size:9px;padding:2px 5px"><input type="radio" name="mVD" value="" '+(curVD===''?'checked':'')+'> —</label></div>';
-  // Estado — last
+  // Estado — custom dropdown with SVG icons
   var curEst=it?it.estado||'propuesta':'propuesta';
-  var estH='<label>Estado</label><select id="mE"><option value="propuesta" '+(curEst==='propuesta'?'selected':'')+'>'+estadoIcon('propuesta',true)+' Propuesta</option><option value="ok_equipo" '+(curEst==='ok_equipo'?'selected':'')+'>'+estadoIcon('ok_equipo',true)+' OK equipo/Club</option><option value="enviado_mail" '+(curEst==='enviado_mail'?'selected':'')+'>'+estadoIcon('enviado_mail',true)+' Enviado mail</option><option value="definitivo" '+(curEst==='definitivo'?'selected':'')+'>'+estadoIcon('definitivo',true)+' Definitivo</option></select>';
+  var estOpts=[{v:'propuesta',l:'Propuesta'},{v:'ok_equipo',l:'OK equipo/Club'},{v:'enviado_mail',l:'Enviado mail'},{v:'definitivo',l:'Definitivo'}];
+  var estH='<label>Estado</label><input type="hidden" id="mE" value="'+curEst+'"><div class="est-dropdown" id="estDropdown"><div class="est-selected" onclick="toggleEstDD()">'+estadoIcon(curEst)+'<span>'+estOpts.find(function(o){return o.v===curEst;}).l+'</span><span class="est-arrow">▾</span></div><div class="est-options" id="estOptions">';
+  estOpts.forEach(function(o){
+    estH+='<div class="est-opt'+(o.v===curEst?' active':'')+'" onclick="selectEst(\''+o.v+'\',\''+o.l+'\')">'+estadoIcon(o.v)+'<span>'+o.l+'</span></div>';
+  });
+  estH+='</div></div>';
 
   document.getElementById('mbd').innerHTML='<label>Nombre</label><input id="mN" value="'+(it?esc(it.nombre):'')+'" placeholder="Nombre o rival">'+dH+locH+rH+vdH+'<label>Observaciones</label><textarea id="mO" placeholder="Notas...">'+(it?esc(it.obs):'')+'</textarea>'+estH;
   document.getElementById('mft').innerHTML=(it!=null?'<button class="btn-d" onclick="delItemModal()">Borrar</button>':'')+'<button class="btn-s" onclick="closeModal()">Cancelar</button><button class="btn-p" onclick="saveItem()">Guardar</button>';
