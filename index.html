@@ -63,14 +63,14 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .team-btn.active{background:var(--rm-blue);color:#fff;border-color:var(--rm-blue)}
 
 .main{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:16px 24px;max-width:1600px;margin:0 auto;align-items:start}
-.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);box-shadow:var(--sh-sm);overflow:hidden}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);box-shadow:var(--sh-sm);overflow:visible}
 .panel-header{padding:10px 14px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;gap:6px;cursor:pointer;user-select:none;transition:background var(--tr)}
 .panel-header:hover{background:var(--surface-alt)}
 .panel-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-sec);display:flex;align-items:center;gap:5px}
 .panel-color-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;border:1.5px solid rgba(0,0,0,.12)}
 .chevron{transition:transform .25s ease;font-size:10px;color:var(--text-mut);flex-shrink:0}
 .chevron.collapsed{transform:rotate(-90deg)}
-.panel-body{padding:10px 12px;overflow:hidden}
+.panel-body{padding:10px 12px;overflow:visible}
 .panel-body.collapsed{max-height:0!important;padding:0 12px;overflow:hidden}
 
 /* CALENDAR */
