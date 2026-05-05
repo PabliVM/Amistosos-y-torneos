@@ -203,8 +203,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .plan-table tr.weekend{background:#f8f9fb}
 .plan-date{font-weight:600;font-size:9px;white-space:nowrap;color:var(--text-sec);padding:1px 0}
 .plan-date.weekend{color:var(--text-faint)}
-.plan-evt{font-size:10px;padding:2px 4px;border-radius:3px;margin:1px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.5;cursor:default;display:block}
-.plan-evt:hover{opacity:.85}
+.plan-evt-wrap{display:flex;align-items:stretch;border-radius:3px;margin:1px 0;overflow:hidden;cursor:default;line-height:1.4}
+.plan-evt-icon{font-size:9px;padding:1px 2px;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.plan-evt-name{font-size:10px;padding:2px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.plan-evt-wrap:hover{opacity:.85}
 .plan-fc{font-size:10px;font-weight:700;padding:2px 4px;border-radius:3px;text-transform:uppercase;letter-spacing:.3px;display:block;margin:1px 0;line-height:1.5}
 .btn-plan{padding:5px 14px;font-size:11px;font-weight:700;font-family:var(--font);border:1.5px solid #9333ea;border-radius:20px;background:#f3e8ff;color:#7c3aed;cursor:pointer;white-space:nowrap;transition:all var(--tr);margin-left:6px}
 .btn-plan:hover{background:#7c3aed;color:#fff}
@@ -587,11 +589,9 @@ function renderPlanTable(){
               var sc=it.marcador||'';
               var extra=(vd||sc)?' '+(vd+(sc?' '+sc:'')).trim():'';
               var est=it.estado||'propuesta';
-              var estColors={propuesta:'#f87171',provisional:'#f87171',ok_equipo:'#fb923c',enviado_mail:'#facc15',definitivo:cat.color};
-              var bgColor=estColors[est]||cat.color;
-              var fgColor=contrast(bgColor);
               var estIcon=estadoIcon(est);
-              cell+='<span class="plan-evt" style="background:'+bgColor+';color:'+fgColor+'" title="'+estIcon+' '+esc(it.nombre)+' ('+est.replace('_',' ')+')'+( it.ubicacionTexto?' — '+esc(it.ubicacionTexto):'')+extra+'">'+estIcon+' '+esc(it.nombre)+extra+'</span>';
+              var fgColor=contrast(cat.color);
+              cell+='<span class="plan-evt-wrap" title="'+estIcon+' '+esc(it.nombre)+' ('+est.replace('_',' ')+')'+( it.ubicacionTexto?' — '+esc(it.ubicacionTexto):'')+extra+'"><span class="plan-evt-icon">'+estIcon+'</span><span class="plan-evt-name" style="background:'+cat.color+';color:'+fgColor+'">'+esc(it.nombre)+extra+'</span></span>';
             }
           });
         });
