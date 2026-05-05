@@ -271,6 +271,22 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .btn-plan{padding:5px 14px;font-size:11px;font-weight:700;font-family:var(--font);border:1.5px solid #9333ea;border-radius:20px;background:#f3e8ff;color:#7c3aed;cursor:pointer;white-space:nowrap;transition:all var(--tr);margin-left:6px}
 .btn-plan:hover{background:#7c3aed;color:#fff}
 .btn-plan.active{background:#7c3aed;color:#fff;border-color:#7c3aed}
+/* PRINT STYLES */
+@media print{
+  body{background:#fff!important;padding:0!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .header,.team-bar,.banner,#obsTip,.btn-season,.sync-dot,.btn-dark,.season-area,footer,.modal-overlay,.multi-controls,.btn-plan,.btn-multi{display:none!important}
+  .multi-view{display:block!important;padding:0!important}
+  .multi-view .multi-cal{max-height:none!important;overflow:visible!important}
+  .multi-months{gap:8px!important}
+  .multi-month{min-width:0!important;break-inside:avoid}
+  .multi-cell{min-height:50px!important}
+  .multi-cell-tip{display:none!important}
+  .print-header{display:flex!important;align-items:center;gap:12px;padding:12px 20px;background:#2563eb!important;color:#fff!important;margin-bottom:12px;border-radius:8px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .print-header img{width:40px;height:40px}
+  .print-header h2{font-size:16px;font-weight:700;margin:0}
+  .print-header span{font-size:12px;opacity:.7;margin-left:auto}
+}
+.print-header{display:none}
 </style>
 </head>
 <body>
@@ -302,17 +318,24 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
   <div class="plan-wrap"><table class="plan-table" id="planTable"></table></div>
 </div>
 <div class="multi-view" id="multiView">
-  <div class="multi-controls">
+  <div class="multi-controls" id="multiControlsPanel">
     <div class="multi-ctrl-row">
-      <label>Meses:</label>
-      <select id="multiMonth1" onchange="renderMultiView()"></select>
-      <select id="multiMonth2" onchange="renderMultiView()"></select>
-      <select id="multiMonth3" onchange="renderMultiView()"></select>
+      <label>Nº meses:</label>
+      <select id="multiMonthCount" onchange="updateMonthSelectors()">
+        <option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option>
+      </select>
+      <div id="multiMonthSelectors" style="display:flex;gap:4px;flex-wrap:wrap"></div>
+      <button onclick="printMultiView()" style="margin-left:auto;padding:4px 12px;font-size:10px;font-weight:600;background:var(--rm-blue);color:#fff;border:none;border-radius:var(--rs);cursor:pointer;font-family:var(--font)">🖨️ Imprimir</button>
     </div>
     <div class="multi-ctrl-row">
       <label>Equipos:</label>
       <div class="multi-teams" id="multiTeamsBar"></div>
     </div>
+  </div>
+  <div class="print-header" id="printHeader">
+    <img src="https://raw.githubusercontent.com/PabliVM/PLANNING/main/assets/rm.png" alt="RM">
+    <h2>Planificación de Temporada</h2>
+    <span id="printSeasonLabel"></span>
   </div>
   <div class="multi-cal" id="multiCal"></div>
 </div>
@@ -603,25 +626,46 @@ function toggleMultiView(){
 }
 
 function initMultiControls(){
-  var sy=getSY();
-  var monthLabels=['Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre','Enero','Febrero','Marzo','Abril','Mayo','Junio'];
-  var monthOrder=[6,7,8,9,10,11,0,1,2,3,4,5];
-  var monthVals=[];
-  monthOrder.forEach(function(mi,idx){
-    var yr=mi>=6?sy.f:sy.s;
-    monthVals.push({mi:mi,yr:yr,label:monthLabels[idx]+' '+yr});
-  });
-  var now=new Date();var startIdx=0;
-  for(var i=0;i<monthVals.length;i++){if(monthVals[i].mi===now.getMonth()&&monthVals[i].yr===now.getFullYear()){startIdx=i;break;}}
-  for(var s=1;s<=3;s++){
-    var sel=document.getElementById('multiMonth'+s);
-    sel.innerHTML=monthVals.map(function(mv,idx){return '<option value="'+idx+'" '+(idx===Math.min(startIdx+s-1,monthVals.length-1)?'selected':'')+'>'+mv.label+'</option>';}).join('');
-  }
   var bar=document.getElementById('multiTeamsBar');
   bar.innerHTML=TEAMS.map(function(t){
     var sel=multiSelectedTeams.indexOf(t.key)!==-1;
     return '<label class="multi-team-cb'+(sel?' sel':'')+'"><input type="checkbox" value="'+t.key+'" '+(sel?'checked':'')+' onchange="toggleMultiTeam(this)">'+t.key+'</label>';
   }).join('');
+  updateMonthSelectors();
+}
+
+function getMonthVals(){
+  var sy=getSY();
+  var monthLabels=['Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre','Enero','Febrero','Marzo','Abril','Mayo','Junio'];
+  var monthOrder=[6,7,8,9,10,11,0,1,2,3,4,5];
+  var vals=[];
+  monthOrder.forEach(function(mi,idx){
+    var yr=mi>=6?sy.f:sy.s;
+    vals.push({mi:mi,yr:yr,label:monthLabels[idx]+' '+yr});
+  });
+  return vals;
+}
+
+function updateMonthSelectors(){
+  var count=parseInt(document.getElementById('multiMonthCount').value)||3;
+  var monthVals=getMonthVals();
+  var now=new Date();var startIdx=0;
+  for(var i=0;i<monthVals.length;i++){if(monthVals[i].mi===now.getMonth()&&monthVals[i].yr===now.getFullYear()){startIdx=i;break;}}
+  var container=document.getElementById('multiMonthSelectors');
+  var html='';
+  for(var s=0;s<count;s++){
+    var defIdx=Math.min(startIdx+s,monthVals.length-1);
+    html+='<select id="multiMonth'+(s+1)+'" onchange="renderMultiView()">';
+    monthVals.forEach(function(mv,idx){html+='<option value="'+idx+'" '+(idx===defIdx?'selected':'')+'>'+mv.label+'</option>';});
+    html+='</select>';
+  }
+  container.innerHTML=html;
+  renderMultiView();
+}
+
+function printMultiView(){
+  document.getElementById('printSeasonLabel').textContent=activeSeason+' — '+multiSelectedTeams.join(', ');
+  window.print();
 }
 
 function toggleMultiTeam(cb){
@@ -636,8 +680,12 @@ function renderMultiView(){
   var monthOrder=[6,7,8,9,10,11,0,1,2,3,4,5];
   var monthNames=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   var dn=['L','M','X','J','V','S','D'];
+  var count=parseInt(document.getElementById('multiMonthCount').value)||3;
   var selMonths=[];
-  for(var s=1;s<=3;s++){var idx=parseInt(document.getElementById('multiMonth'+s).value);if(selMonths.indexOf(idx)===-1)selMonths.push(idx);}
+  for(var s=1;s<=count;s++){
+    var el=document.getElementById('multiMonth'+s);
+    if(el){var idx=parseInt(el.value);if(selMonths.indexOf(idx)===-1)selMonths.push(idx);}
+  }
   selMonths.sort(function(a,b){return a-b;});
 
   var cal=document.getElementById('multiCal');
@@ -661,14 +709,13 @@ function renderMultiView(){
       var isWe=dow>=5;
       var iso=yr+'-'+String(mi+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
 
-      // Collect events per selected team
       var teamRows=[];
       multiSelectedTeams.forEach(function(tkey){
         activeTeam=tkey;
         var evts=[];
         var fk=activeSeason.replace('/','-')+'_'+tkey;var fc=fechasClaveCache[fk]||{};
-        if(fc.pretemporada===iso)evts.push({icon:null,name:'PRE',bg:fc.pretemporadaColor||'#1a1a1a',fg:contrast(fc.pretemporadaColor||'#1a1a1a')});
-        if(fc.competicion===iso)evts.push({icon:null,name:'COMP',bg:fc.competicionColor||'#1a1a1a',fg:contrast(fc.competicionColor||'#1a1a1a')});
+        if(fc.pretemporada===iso)evts.push({icon:null,name:'Inicio Pretemporada',bg:fc.pretemporadaColor||'#1a1a1a',fg:contrast(fc.pretemporadaColor||'#1a1a1a'),shortName:'PRE',info:'Inicio Pretemporada'});
+        if(fc.competicion===iso)evts.push({icon:null,name:'Inicio Competición',bg:fc.competicionColor||'#1a1a1a',fg:contrast(fc.competicionColor||'#1a1a1a'),shortName:'COMP',info:'Inicio Competición'});
         categories.forEach(function(cat){
           if(!catVisible(cat,tkey))return;
           var k=itemsKey(cat.id,activeSeason);var items=itemsCache[k]||[];
@@ -677,7 +724,13 @@ function renderMultiView(){
             var ds=dtDays(it.fechaInicio,it.fechaFin||it.fechaInicio);
             ds.forEach(function(dd){
               if(dd.y===yr&&dd.m===mi+1&&dd.d===d){
-                evts.push({icon:estadoIcon(it.estado||'propuesta',false,true),name:it.nombre,bg:cat.color,fg:contrast(cat.color)});
+                var loc=it.ubicacion?LOC_EMOJI[it.ubicacion]||'':'';
+                var locTxt=it.ubicacionTexto||'';
+                var vd=it.victoriaDerrota==='victoria'?'✅':(it.victoriaDerrota==='derrota'?'❌':'');
+                var sc=it.marcador||'';
+                var estLabel={propuesta:'Propuesta',provisional:'Propuesta',ok_equipo:'OK equipo',enviado_mail:'Enviado mail',definitivo:'Definitivo'};
+                var info=it.nombre+(loc?' '+loc:'')+(locTxt?' — '+locTxt:'')+(sc?' ('+sc+')':'')+(vd?' '+vd:'')+' · '+cat.title+' · '+(estLabel[it.estado||'propuesta']||'Propuesta');
+                evts.push({icon:estadoIcon(it.estado||'propuesta',false,true),name:it.nombre,bg:cat.color,fg:contrast(cat.color),info:info});
               }
             });
           });
@@ -692,9 +745,9 @@ function renderMultiView(){
         tr.evts.forEach(function(ev){
           html+='<div class="multi-cell-row"><span class="multi-cell-team">'+tr.team+'</span>';
           if(ev.icon){
-            html+='<span class="multi-cell-evt"><span class="multi-cell-evt-icon">'+ev.icon+'</span><span class="multi-cell-evt-bar" style="background:'+ev.bg+'"></span><span class="multi-cell-tip">'+esc(ev.name)+'</span></span>';
+            html+='<span class="multi-cell-evt"><span class="multi-cell-evt-icon">'+ev.icon+'</span><span class="multi-cell-evt-bar" style="background:'+ev.bg+'"></span><span class="multi-cell-tip">'+esc(ev.info)+'</span></span>';
           } else {
-            html+='<span class="multi-cell-fc" style="background:'+ev.bg+';color:'+ev.fg+'">'+esc(ev.name)+'<span class="multi-cell-tip">'+esc(ev.name)+'</span></span>';
+            html+='<span class="multi-cell-fc" style="background:'+ev.bg+';color:'+ev.fg+'">'+esc(ev.shortName)+'<span class="multi-cell-tip">'+esc(ev.info)+'</span></span>';
           }
           html+='</div>';
         });
