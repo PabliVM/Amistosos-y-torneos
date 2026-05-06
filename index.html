@@ -125,6 +125,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .item-card:hover .item-acts{opacity:1}
 .item-acts button{background:none;border:none;cursor:pointer;width:22px;height:22px;border-radius:4px;display:flex;align-items:center;justify-content:center;color:var(--text-mut);transition:background var(--tr),color var(--tr)}
 .item-acts button:hover{background:var(--bg);color:var(--text)}
+.item-acts button svg,.item-acts button *{pointer-events:none}
 .item-sub{display:flex;align-items:center;gap:6px;margin-top:2px}
 .res-tag{font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;line-height:1.5}
 .res-tag.green{background:var(--green-bg);color:var(--green)}.res-tag.orange{background:var(--orange-bg);color:var(--orange)}.res-tag.red{background:var(--red-bg);color:var(--red)}.res-tag.neutral{background:var(--bg);color:var(--text-sec)}
@@ -1203,8 +1204,9 @@ function renderItems(cat){
   var all=getAllItems(cat.id);
   var sorted=all.slice().sort(function(a,b){if(!a.fechaInicio)return 1;if(!b.fechaInicio)return -1;return a.fechaInicio<b.fechaInicio?-1:1;});
   var l=document.getElementById('list_'+cat.id);if(!l)return;
+  l.innerHTML='';
   if(!sorted.length){l.innerHTML='<div class="empty-st">Sin elementos.</div>';return;}
-  l.innerHTML=sorted.map(function(it,sortedIdx){
+  sorted.forEach(function(it){
     var rc=resColor(it.resultado);
     var cls=rc==='green'?'res-green':rc==='orange'?'res-orange':rc==='red'?'res-red':'';
     var dt=(it.fechaFin&&it.fechaFin!==it.fechaInicio)?dtR(it.fechaInicio,it.fechaFin):dtD(it.fechaInicio);
@@ -1213,8 +1215,44 @@ function renderItems(cat){
     var vdIcon=it.victoriaDerrota==='victoria'?'✅':(it.victoriaDerrota==='derrota'?'❌':'');
     var marcTxt=it.marcador||'';
     var matchInfo=(marcTxt||vdIcon)?'<span style="font-size:10px;font-weight:700;color:var(--text);white-space:nowrap;flex-shrink:0">'+(vdIcon?vdIcon:'')+(marcTxt?' '+marcTxt:'')+'</span>':'';
-    return '<div class="item-card '+cls+'"><div class="item-row"><span class="st-badge '+((it.estado||'propuesta'))+'">'+estadoIcon(it.estado)+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+locTxt+matchInfo+'<span class="item-dt">'+dt+'</span>'+(it.obs?'<span class="obs-dot" data-obs="'+esc(it.obs).replace(/"/g,'&quot;')+'">💬</span>':'')+'<div class="item-acts"><button onclick="editItem(\''+cat.id+'\','+sortedIdx+')">'+IC.ed+'</button><button onclick="removeItem(\''+cat.id+'\','+sortedIdx+')">'+IC.dl+'</button></div></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'')+'</div>';
-  }).join('');
+    var div=document.createElement('div');
+    div.className='item-card '+cls;
+    div.innerHTML='<div class="item-row"><span class="st-badge '+((it.estado||'propuesta'))+'">'+estadoIcon(it.estado)+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+locTxt+matchInfo+'<span class="item-dt">'+dt+'</span>'+(it.obs?'<span class="obs-dot" data-obs="'+esc(it.obs).replace(/"/g,'&quot;')+'">💬</span>':'')+'<div class="item-acts"><button class="act-edit">'+IC.ed+'</button><button class="act-del">'+IC.dl+'</button></div></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'');
+    // Store catId and item data directly
+    div._catId=cat.id;
+    div._itemData=it;
+    l.appendChild(div);
+  });
+  // Event delegation on the list container
+  l.onclick=function(e){
+    var editBtn=e.target.closest('.act-edit');
+    var delBtn=e.target.closest('.act-del');
+    if(!editBtn&&!delBtn)return;
+    e.stopPropagation();
+    var card=e.target.closest('.item-card');
+    if(!card||!card._catId||!card._itemData)return;
+    var catId=card._catId;
+    var itemObj=card._itemData;
+    // Find current index of this object in the array
+    var items=getAllItems(catId);
+    var idx=items.indexOf(itemObj);
+    if(idx===-1){
+      // Object reference lost (Firebase reload), find by matching fields
+      for(var i=0;i<items.length;i++){
+        if(items[i].nombre===itemObj.nombre&&items[i].fechaInicio===itemObj.fechaInicio){idx=i;break;}
+      }
+    }
+    if(idx===-1){alert('Evento no encontrado. Recarga la página.');return;}
+    if(editBtn){
+      openItemModal(catId,idx);
+    } else if(delBtn){
+      if(!confirm('¿Eliminar?'))return;
+      items.splice(idx,1);
+      renderAll();
+      saveItemsFB(catId);
+    }
+  };
+  // Obs tooltips
   l.querySelectorAll('.obs-dot').forEach(function(dot){
     dot.addEventListener('mouseenter',function(e){
       var tip=document.getElementById('obsTip');
@@ -1225,33 +1263,8 @@ function renderItems(cat){
       tip.style.top=(r.top-tip.offsetHeight-8)+'px';
       if(parseInt(tip.style.top)<0)tip.style.top=(r.bottom+8)+'px';
     });
-    dot.addEventListener('mouseleave',function(){
-      document.getElementById('obsTip').style.display='none';
-    });
+    dot.addEventListener('mouseleave',function(){document.getElementById('obsTip').style.display='none';});
   });
-}
-
-function getSortedIdx(catId,sortedIdx){
-  var all=getAllItems(catId);
-  var sorted=all.slice().sort(function(a,b){if(!a.fechaInicio)return 1;if(!b.fechaInicio)return -1;return a.fechaInicio<b.fechaInicio?-1:1;});
-  if(sortedIdx<0||sortedIdx>=sorted.length)return -1;
-  var item=sorted[sortedIdx];
-  return all.indexOf(item);
-}
-
-function editItem(catId,sortedIdx){
-  var realIdx=getSortedIdx(catId,sortedIdx);
-  if(realIdx<0){alert('Evento no encontrado');return;}
-  openItemModal(catId,realIdx);
-}
-
-function removeItem(catId,sortedIdx){
-  if(!confirm('¿Eliminar?'))return;
-  var realIdx=getSortedIdx(catId,sortedIdx);
-  if(realIdx<0){alert('Evento no encontrado');return;}
-  getAllItems(catId).splice(realIdx,1);
-  renderAll();
-  saveItemsFB(catId);
 }
 
 
