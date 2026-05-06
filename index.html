@@ -123,9 +123,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .item-dt{font-size:9px;color:var(--text-mut);flex-shrink:0;white-space:nowrap}
 .item-acts{display:flex;gap:1px;flex-shrink:0;opacity:0;transition:opacity var(--tr)}
 .item-card:hover .item-acts{opacity:1}
-.item-acts button{background:none;border:none;cursor:pointer;width:22px;height:22px;border-radius:4px;display:flex;align-items:center;justify-content:center;color:var(--text-mut);transition:background var(--tr),color var(--tr)}
-.item-acts button:hover{background:var(--bg);color:var(--text)}
-.item-acts button svg,.item-acts button *{pointer-events:none}
+.item-acts button,.item-acts .abtn{background:none;border:none;cursor:pointer;width:22px;height:22px;border-radius:4px;display:flex;align-items:center;justify-content:center;color:var(--text-mut);transition:background var(--tr),color var(--tr)}
+.item-acts button:hover,.item-acts .abtn:hover{background:var(--bg);color:var(--text)}
+.item-acts button svg,.item-acts button *,.item-acts .abtn svg,.item-acts .abtn *{pointer-events:none}
 .item-sub{display:flex;align-items:center;gap:6px;margin-top:2px}
 .res-tag{font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;line-height:1.5}
 .res-tag.green{background:var(--green-bg);color:var(--green)}.res-tag.orange{background:var(--orange-bg);color:var(--orange)}.res-tag.red{background:var(--red-bg);color:var(--red)}.res-tag.neutral{background:var(--bg);color:var(--text-sec)}
@@ -1217,42 +1217,13 @@ function renderItems(cat){
     var matchInfo=(marcTxt||vdIcon)?'<span style="font-size:10px;font-weight:700;color:var(--text);white-space:nowrap;flex-shrink:0">'+(vdIcon?vdIcon:'')+(marcTxt?' '+marcTxt:'')+'</span>':'';
     var div=document.createElement('div');
     div.className='item-card '+cls;
-    div.innerHTML='<div class="item-row"><span class="st-badge '+((it.estado||'propuesta'))+'">'+estadoIcon(it.estado)+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+locTxt+matchInfo+'<span class="item-dt">'+dt+'</span>'+(it.obs?'<span class="obs-dot" data-obs="'+esc(it.obs).replace(/"/g,'&quot;')+'">💬</span>':'')+'<div class="item-acts"><button class="act-edit">'+IC.ed+'</button><button class="act-del">'+IC.dl+'</button></div></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'');
-    // Store catId and item data directly
-    div._catId=cat.id;
-    div._itemData=it;
+    div.innerHTML='<div class="item-row"><span class="st-badge '+((it.estado||'propuesta'))+'">'+estadoIcon(it.estado)+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+locTxt+matchInfo+'<span class="item-dt">'+dt+'</span>'+(it.obs?'<span class="obs-dot" data-obs="'+esc(it.obs).replace(/"/g,'&quot;')+'">💬</span>':'')+'<div class="item-acts"><span class="abtn abtn-e">'+IC.ed+'</span><span class="abtn abtn-d">'+IC.dl+'</span></div></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'');
+    var editSpan=div.querySelector('.abtn-e');
+    var delSpan=div.querySelector('.abtn-d');
+    editSpan.addEventListener('click',makeEditHandler(cat.id,it));
+    delSpan.addEventListener('click',makeDelHandler(cat.id,it));
     l.appendChild(div);
   });
-  // Event delegation on the list container
-  l.onclick=function(e){
-    var editBtn=e.target.closest('.act-edit');
-    var delBtn=e.target.closest('.act-del');
-    if(!editBtn&&!delBtn)return;
-    e.stopPropagation();
-    var card=e.target.closest('.item-card');
-    if(!card||!card._catId||!card._itemData)return;
-    var catId=card._catId;
-    var itemObj=card._itemData;
-    // Find current index of this object in the array
-    var items=getAllItems(catId);
-    var idx=items.indexOf(itemObj);
-    if(idx===-1){
-      // Object reference lost (Firebase reload), find by matching fields
-      for(var i=0;i<items.length;i++){
-        if(items[i].nombre===itemObj.nombre&&items[i].fechaInicio===itemObj.fechaInicio){idx=i;break;}
-      }
-    }
-    if(idx===-1){alert('Evento no encontrado. Recarga la página.');return;}
-    if(editBtn){
-      openItemModal(catId,idx);
-    } else if(delBtn){
-      if(!confirm('¿Eliminar?'))return;
-      items.splice(idx,1);
-      renderAll();
-      saveItemsFB(catId);
-    }
-  };
-  // Obs tooltips
   l.querySelectorAll('.obs-dot').forEach(function(dot){
     dot.addEventListener('mouseenter',function(e){
       var tip=document.getElementById('obsTip');
@@ -1265,6 +1236,37 @@ function renderItems(cat){
     });
     dot.addEventListener('mouseleave',function(){document.getElementById('obsTip').style.display='none';});
   });
+}
+
+function findItemInArray(catId,itemRef){
+  var items=getAllItems(catId);
+  var idx=items.indexOf(itemRef);
+  if(idx!==-1)return idx;
+  for(var i=0;i<items.length;i++){
+    if(items[i].nombre===itemRef.nombre&&items[i].fechaInicio===itemRef.fechaInicio)return i;
+  }
+  return -1;
+}
+
+function makeEditHandler(catId,itemRef){
+  return function(e){
+    e.stopPropagation();
+    var idx=findItemInArray(catId,itemRef);
+    if(idx===-1){alert('Evento no encontrado');return;}
+    openItemModal(catId,idx);
+  };
+}
+
+function makeDelHandler(catId,itemRef){
+  return function(e){
+    e.stopPropagation();
+    if(!confirm('¿Eliminar?'))return;
+    var idx=findItemInArray(catId,itemRef);
+    if(idx===-1){alert('Evento no encontrado');return;}
+    getAllItems(catId).splice(idx,1);
+    renderAll();
+    saveItemsFB(catId);
+  };
 }
 
 
