@@ -982,13 +982,19 @@ function renderGestionTorneos(){
     var ai=a.item;
     var bi=b.item;
 
-    if(gestionSort==='equipo'){
+   if(gestionSort==='equipo'){
 
-      if(a.equipo!==b.equipo){
+  var ordenEquipos=TEAMS.map(function(t){
+    return t.key;
+  });
 
-        return a.equipo.localeCompare(b.equipo);
-      }
-    }
+  var posA=ordenEquipos.indexOf(a.equipo);
+  var posB=ordenEquipos.indexOf(b.equipo);
+
+  if(posA!==posB){
+    return posA-posB;
+  }
+}
 
     return (ai.fechaInicio||'').localeCompare(bi.fechaInicio||'');
 
