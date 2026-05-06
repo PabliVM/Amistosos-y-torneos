@@ -1251,37 +1251,6 @@ function removeById(catId,itemId){
 }
 
 
-    if(si>=0&&si<sorted.length){
-      var item=sorted[si];
-      var realIdx=all.indexOf(item);
-      if(realIdx>=0)openItemModal(catId,realIdx);
-      else alert('Item no encontrado en array original');
-    }
-    return;
-  }
-  var delBtn=e.target.closest('.dlt-b');
-  if(delBtn){
-    e.stopPropagation();
-    if(!confirm('¿Eliminar?'))return;
-    var catId=delBtn.getAttribute('data-cat');
-    var si=parseInt(delBtn.getAttribute('data-si'));
-    var all=getAllItems(catId);
-    var sorted=all.slice().sort(function(a,b){if(!a.fechaInicio)return 1;if(!b.fechaInicio)return -1;return a.fechaInicio<b.fechaInicio?-1:1;});
-    if(si>=0&&si<sorted.length){
-      var item=sorted[si];
-      var realIdx=all.indexOf(item);
-      if(realIdx>=0){
-        all.splice(realIdx,1);
-        renderAll();
-        saveItemsFB(catId);
-      }
-    }
-    return;
-  }
-});
-
-
-
 function esc(s){if(s==null)return '';var d=document.createElement('div');d.textContent=String(s);return d.innerHTML;}
 
 // ── COMPACT SCOPE UI ──
