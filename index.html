@@ -433,7 +433,21 @@ background:var(--surface)
 .gestion-table{
 border-collapse:collapse;
 width:100%;
-font-size:11px
+min-width:100%;
+table-layout:fixed;
+font-size:10px;
+}
+
+.gestion-table th,
+.gestion-table td{
+overflow:hidden;
+text-overflow:ellipsis;
+white-space:nowrap;
+}
+
+.gestion-table input,
+.gestion-table select{
+min-width:0;
 }
 
 .gestion-table th{
@@ -1063,6 +1077,21 @@ function renderGestionTorneos(){
   });
 
   var html='';
+
+html+='<colgroup>';
+html+='<col style="width:4%">';
+html+='<col style="width:9%">';
+html+='<col style="width:9%">';
+html+='<col style="width:4%">';
+html+='<col style="width:16%">';
+html+='<col style="width:12%">';
+html+='<col style="width:7%">';
+html+='<col style="width:8%">';
+html+='<col style="width:8%">';
+html+='<col style="width:8%">';
+html+='<col style="width:9%">';
+html+='<col style="width:6%">';
+html+='</colgroup>';
 
   html+='<thead>';
 
