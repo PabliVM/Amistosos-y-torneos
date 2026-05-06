@@ -577,8 +577,10 @@ function renderSeasons(){var sel=document.getElementById('seasonSel');sel.innerH
 function changeSeason(){
   activeSeason=document.getElementById('seasonSel').value;
   document.getElementById('headerSeason').textContent=activeSeason;
-  renderAll();
-  loadItemsForSeason(activeSeason,true).then(function(){return loadFechasClave();}).then(function(){renderAll();});
+  itemsCache={};
+  fechasClaveCache={};
+  showSync('saving');
+  loadItemsForSeason(activeSeason,false).then(function(){return loadFechasClave();}).then(function(){showSync('ok');renderAll();}).catch(function(){showSync('error');renderAll();});
 }
 
 function addSeason(){
@@ -627,8 +629,16 @@ function renderTeamBar(){
       if(showingPlan){showingPlan=false;document.getElementById('mainView').classList.remove('hidden');document.getElementById('planView').classList.remove('active');}
       if(showingMulti){showingMulti=false;document.getElementById('mainView').classList.remove('hidden');document.getElementById('multiView').classList.remove('active');}
       renderTeamBar();
-      renderAll();
-      loadItemsForSeason(activeSeason,true).then(function(){return loadFechasClave();}).then(function(){renderAll();});
+      // Clear per-team cache entries to force fresh load
+      categories.forEach(function(cat){
+        var mode=cat.scopeMode||'each';
+        if(mode==='each'){
+          var key=cat.id+'_'+activeSeason.replace('/','-')+'_'+activeTeam;
+          delete itemsCache[key];
+        }
+      });
+      showSync('saving');
+      loadItemsForSeason(activeSeason,false).then(function(){return loadFechasClave();}).then(function(){showSync('ok');renderAll();}).catch(function(){showSync('error');renderAll();});
     });
   });
 }
@@ -1198,8 +1208,10 @@ function renderItems(cat){
   var sorted=all.slice().sort(function(a,b){if(!a.fechaInicio)return 1;if(!b.fechaInicio)return -1;return a.fechaInicio<b.fechaInicio?-1:1;});
   var l=document.getElementById('list_'+cat.id);if(!l)return;
   if(!sorted.length){l.innerHTML='<div class="empty-st">Sin elementos.</div>';return;}
-  l.innerHTML=sorted.map(function(it){
-    var ri=all.indexOf(it),rc=resColor(it.resultado);
+  l.innerHTML='';
+  sorted.forEach(function(it){
+    var ri=all.indexOf(it);
+    var rc=resColor(it.resultado);
     var cls=rc==='green'?'res-green':rc==='orange'?'res-orange':rc==='red'?'res-red':'';
     var dt=(it.fechaFin&&it.fechaFin!==it.fechaInicio)?dtR(it.fechaInicio,it.fechaFin):dtD(it.fechaInicio);
     var loc=it.ubicacion?LOC_EMOJI[it.ubicacion]||'':'';
@@ -1207,10 +1219,15 @@ function renderItems(cat){
     var vdIcon=it.victoriaDerrota==='victoria'?'✅':(it.victoriaDerrota==='derrota'?'❌':'');
     var marcTxt=it.marcador||'';
     var matchInfo=(marcTxt||vdIcon)?'<span style="font-size:10px;font-weight:700;color:var(--text);white-space:nowrap;flex-shrink:0">'+(vdIcon?vdIcon:'')+(marcTxt?' '+marcTxt:'')+'</span>':'';
-    var itemId=it._id||('idx_'+ri);
-    return '<div class="item-card '+cls+'"><div class="item-row"><span class="st-badge '+((it.estado||'propuesta'))+'">'+estadoIcon(it.estado)+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+locTxt+matchInfo+'<span class="item-dt">'+dt+'</span>'+(it.obs?'<span class="obs-dot" data-obs="'+esc(it.obs).replace(/"/g,'&quot;')+'">💬</span>':'')+'<div class="item-acts"><button onclick="openItemById(\''+cat.id+'\',\''+itemId+'\')">'+IC.ed+'</button><button onclick="delItemById(\''+cat.id+'\',\''+itemId+'\')">'+IC.dl+'</button></div></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'')+'</div>';
-  }).join('');
-  // Attach obs tooltip listeners
+    var card=document.createElement('div');
+    card.className='item-card '+cls;
+    card.innerHTML='<div class="item-row"><span class="st-badge '+((it.estado||'propuesta'))+'">'+estadoIcon(it.estado)+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+locTxt+matchInfo+'<span class="item-dt">'+dt+'</span>'+(it.obs?'<span class="obs-dot" data-obs="'+esc(it.obs).replace(/"/g,'&quot;')+'">💬</span>':'')+'<div class="item-acts"><button class="edt-b">'+IC.ed+'</button><button class="dlt-b">'+IC.dl+'</button></div></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'');
+    (function(cid,idx){
+      card.querySelector('.edt-b').addEventListener('click',function(e){e.stopPropagation();openItemModal(cid,idx);});
+      card.querySelector('.dlt-b').addEventListener('click',function(e){e.stopPropagation();delItem(cid,idx);});
+    })(cat.id,ri);
+    l.appendChild(card);
+  });
   l.querySelectorAll('.obs-dot').forEach(function(dot){
     dot.addEventListener('mouseenter',function(e){
       var tip=document.getElementById('obsTip');
@@ -1226,6 +1243,7 @@ function renderItems(cat){
     });
   });
 }
+
 
 function esc(s){if(s==null)return '';var d=document.createElement('div');d.textContent=String(s);return d.innerHTML;}
 
