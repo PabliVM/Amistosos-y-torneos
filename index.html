@@ -396,6 +396,13 @@ color:#fff
 }
 
 .gestion-controls{
+.gestion-order-row{
+display:flex;
+gap:8px;
+flex-wrap:wrap;
+width:100%;
+margin-top:8px;
+}
 display:flex;
 gap:8px;
 flex-wrap:wrap;
@@ -2223,9 +2230,13 @@ loadSeasons().then(function(){
 
 function seleccionarTodosGestion(){
 
-gestionSelectedTeams=[...TEAMS.map(t=>t.key)];
+document
+.querySelectorAll('#gestionEquipoFilter input')
+.forEach(cb=>cb.checked=true);
 
-renderGestionEquipoFilter();
+document
+.querySelectorAll('#gestionEquipoFilter label')
+.forEach(l=>l.classList.add('sel'));
 
 renderGestionTorneos();
 
@@ -2233,9 +2244,13 @@ renderGestionTorneos();
 
 function deseleccionarTodosGestion(){
 
-gestionSelectedTeams=[];
+document
+.querySelectorAll('#gestionEquipoFilter input')
+.forEach(cb=>cb.checked=false);
 
-renderGestionEquipoFilter();
+document
+.querySelectorAll('#gestionEquipoFilter label')
+.forEach(l=>l.classList.remove('sel'));
 
 renderGestionTorneos();
 
