@@ -1120,12 +1120,16 @@ function renderGestionTorneos(){
 
    html+='<select onchange="updateGestionCell(this,\'estado\')">';
 
-  html+='<option value="propuesta" '+(estActual==='propuesta'?'selected':'')+'>⏳ Propuesta</option>';
-  html+='<option value="ok_equipo" '+(estActual==='ok_equipo'?'selected':'')+'>👍 OK equipo/Club</option>';
-  html+='<option value="enviado_mail" '+(estActual==='enviado_mail'?'selected':'')+'>✉️ Enviado mail</option>';
-  html+='<option value="definitivo" '+(estActual==='definitivo'?'selected':'')+'>✅ Definitivo</option>';
 
-  html+='</select>';
+   html+='<option value="propuesta" '+(estActual==='propuesta'?'selected':'')+'>🔴 Propuesta</option>';
+
+   html+='<option value="ok_equipo" '+(estActual==='ok_equipo'?'selected':'')+'>🟠 OK equipo/Club</option>';
+
+   html+='<option value="enviado_mail" '+(estActual==='enviado_mail'?'selected':'')+'>🟡 Enviado mail</option>';
+
+   html+='<option value="definitivo" '+(estActual==='definitivo'?'selected':'')+'>🟢 Definitivo</option>';
+
+   html+='</select>';
 
   html+='</td>';
 
