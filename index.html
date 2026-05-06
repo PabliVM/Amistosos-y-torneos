@@ -396,21 +396,21 @@ color:#fff
 }
 
 .gestion-controls{
+display:flex;
+flex-direction:column;
+gap:8px;
+background:var(--surface);
+border:1px solid var(--border);
+border-radius:var(--rl);
+padding:12px 16px;
+margin-bottom:12px;
+}
+
 .gestion-order-row{
 display:flex;
 gap:8px;
 flex-wrap:wrap;
 width:100%;
-margin-top:8px;
-}
-display:flex;
-gap:8px;
-flex-wrap:wrap;
-background:var(--surface);
-border:1px solid var(--border);
-border-radius:var(--rl);
-padding:12px 16px;
-margin-bottom:12px
 }
 
 .gestion-controls select,
@@ -603,8 +603,9 @@ display:none;
 </div>
 
 <div class="gestion-view" id="gestionView">
-  <div class="gestion-controls">
-   <div class="gestion-team-filter-wrap">
+<div class="gestion-controls">
+
+<div class="gestion-team-filter-wrap">
 
 <button onclick="seleccionarTodosGestion()">
 Seleccionar todos
@@ -618,17 +619,35 @@ Deseleccionar todos
 
 </div>
 
-    <select id="gestionEstadoFilter" onchange="renderGestionTorneos()">
-      <option value="">Todos los estados</option>
-      <option value="propuesta">Propuesta</option>
-      <option value="ok_equipo">OK equipo/Club</option>
-      <option value="enviado_mail">Enviado mail</option>
-      <option value="definitivo">Definitivo</option>
-    </select>
 
-    <button onclick="gestionSort='fecha';renderGestionTorneos()">Ordenar por fecha</button>
-    <button onclick="gestionSort='equipo';renderGestionTorneos()">Ordenar por equipo</button>
-  </div>
+<div class="gestion-order-row">
+
+<select id="gestionEstadoFilter"
+onchange="renderGestionTorneos()">
+
+<option value="">Todos los estados</option>
+<option value="propuesta">Propuesta</option>
+<option value="ok_equipo">OK equipo/Club</option>
+<option value="enviado_mail">Enviado mail</option>
+<option value="definitivo">Definitivo</option>
+
+</select>
+
+<button onclick="gestionSort='estado';renderGestionTorneos()">
+Ordenar por estado
+</button>
+
+<button onclick="gestionSort='fecha';renderGestionTorneos()">
+Ordenar por fecha
+</button>
+
+<button onclick="gestionSort='equipo';renderGestionTorneos()">
+Ordenar por equipo
+</button>
+
+</div>
+
+</div>
 
   <div class="gestion-wrap">
     <table class="gestion-table" id="gestionTable"></table>
