@@ -445,6 +445,19 @@ text-overflow:ellipsis;
 white-space:nowrap;
 }
 
+
+.gestion-table th:nth-child(1){width:45px}
+.gestion-table th:nth-child(2){width:85px}
+.gestion-table th:nth-child(3){width:85px}
+.gestion-table th:nth-child(4){width:40px}
+.gestion-table th:nth-child(5){width:150px}
+.gestion-table th:nth-child(6){width:120px}
+.gestion-table th:nth-child(7){width:80px}
+.gestion-table th:nth-child(8){width:95px}
+.gestion-table th:nth-child(9){width:95px}
+.gestion-table th:nth-child(10){width:110px}
+.gestion-table th:nth-child(11){width:auto}
+
 .gestion-table input,
 .gestion-table select{
 min-width:0;
@@ -887,6 +900,7 @@ if(showingGestion){
 renderAll();
 
 window.scrollTo(0,scrollYBefore);
+renderGestionTorneos();
 
     });
 
