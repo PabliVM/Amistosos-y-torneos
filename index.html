@@ -320,6 +320,113 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
   .plan-fc,.multi-cell-fc{-webkit-print-color-adjust:exact!important}
 }
 .print-header{display:none}
+
+
+.gestion-view{display:none;padding:0 12px 20px}
+.gestion-view.active{display:block}
+
+.btn-gestion{
+padding:5px 14px;
+font-size:11px;
+font-weight:700;
+font-family:var(--font);
+border:1.5px solid #0f766e;
+border-radius:20px;
+background:#ccfbf1;
+color:#0f766e;
+cursor:pointer;
+white-space:nowrap;
+margin-left:4px
+}
+
+.btn-gestion.active,
+.btn-gestion:hover{
+background:#0f766e;
+color:#fff
+}
+
+.gestion-controls{
+display:flex;
+gap:8px;
+flex-wrap:wrap;
+background:var(--surface);
+border:1px solid var(--border);
+border-radius:var(--rl);
+padding:12px 16px;
+margin-bottom:12px
+}
+
+.gestion-controls select,
+.gestion-controls button{
+padding:5px 10px;
+font-size:11px;
+border:1px solid var(--border);
+border-radius:var(--rs);
+background:var(--surface);
+color:var(--text);
+font-family:var(--font)
+}
+
+.gestion-controls button{
+cursor:pointer;
+font-weight:600
+}
+
+.gestion-wrap{
+overflow:auto;
+max-height:calc(100vh - 150px);
+border:1px solid var(--border);
+border-radius:var(--rl);
+background:var(--surface)
+}
+
+.gestion-table{
+border-collapse:collapse;
+width:100%;
+font-size:11px
+}
+
+.gestion-table th{
+position:sticky;
+top:0;
+background:var(--rm-blue);
+color:#fff;
+padding:8px 6px;
+border:1px solid rgba(255,255,255,.2);
+white-space:nowrap
+}
+
+.gestion-table td{
+border:1px solid var(--border-light);
+padding:3px 4px;
+text-align:center
+}
+
+.gestion-table tr:nth-child(even){
+background:var(--surface-alt)
+}
+
+.gestion-table input,
+.gestion-table select{
+width:100%;
+border:none;
+background:transparent;
+font-size:11px;
+font-family:var(--font);
+text-align:center;
+color:var(--text);
+padding:4px 2px
+}
+
+.gestion-table input:focus,
+.gestion-table select:focus{
+outline:2px solid var(--rm-blue);
+background:#fff;
+border-radius:3px
+}
+
+
+
 </style>
 </head>
 <body>
@@ -353,6 +460,30 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 <div class="plan-view" id="planView">
   <div class="plan-wrap"><table class="plan-table" id="planTable"></table></div>
 </div>
+
+<div class="gestion-view" id="gestionView">
+  <div class="gestion-controls">
+    <select id="gestionEquipoFilter" onchange="renderGestionTorneos()">
+      <option value="">Todos los equipos</option>
+    </select>
+
+    <select id="gestionEstadoFilter" onchange="renderGestionTorneos()">
+      <option value="">Todos los estados</option>
+      <option value="propuesta">Propuesta</option>
+      <option value="ok_equipo">OK equipo/Club</option>
+      <option value="enviado_mail">Enviado mail</option>
+      <option value="definitivo">Definitivo</option>
+    </select>
+
+    <button onclick="gestionSort='fecha';renderGestionTorneos()">Ordenar por fecha</button>
+    <button onclick="gestionSort='equipo';renderGestionTorneos()">Ordenar por equipo</button>
+  </div>
+
+  <div class="gestion-wrap">
+    <table class="gestion-table" id="gestionTable"></table>
+  </div>
+</div>
+
 <div class="multi-view" id="multiView">
   <div class="multi-controls" id="multiControlsPanel">
     <div class="multi-ctrl-row">
@@ -620,6 +751,8 @@ function delSeason(){
 
 var showingPlan=false;
 var showingMulti=false;
+var showingGestion=false;
+var gestionSort='fecha';
 var multiSelectedTeams=['CAS','RMC','JA'];
 
 function renderTeamBar(){
@@ -630,6 +763,7 @@ function renderTeamBar(){
   }
   html+='<button class="btn-plan '+(showingPlan?'active':'')+'" onclick="togglePlanView()">Planificación</button>';
   html+='<button class="btn-multi '+(showingMulti?'active':'')+'" onclick="toggleMultiView()">Varios equipos</button>';
+  html+='<button class="btn-gestion '+(showingGestion?'active':'')+'" onclick="toggleGestionTorneos()">Gestión de torneos</button>';
 
   document.getElementById('teamBar').innerHTML=html;
 
@@ -718,6 +852,211 @@ function toggleMultiView(){
     renderTeamBar();
     renderAll();
   }
+}
+
+function toggleGestionTorneos(){
+
+  showingPlan=false;
+  showingMulti=false;
+  showingGestion=!showingGestion;
+
+  document.getElementById('planView').classList.remove('active');
+  document.getElementById('multiView').classList.remove('active');
+
+  if(showingGestion){
+
+    document.getElementById('mainView').classList.add('hidden');
+    document.getElementById('gestionView').classList.add('active');
+
+    renderTeamBar();
+
+    renderGestionFilters();
+
+    renderGestionTorneos();
+
+  }else{
+
+    document.getElementById('mainView').classList.remove('hidden');
+    document.getElementById('gestionView').classList.remove('active');
+
+    renderTeamBar();
+    renderAll();
+  }
+}
+
+function renderGestionFilters(){
+
+  var sel=document.getElementById('gestionEquipoFilter');
+
+  if(!sel)return;
+
+  sel.innerHTML='<option value="">Todos los equipos</option>';
+
+  TEAMS.forEach(function(t){
+
+    sel.innerHTML+=
+    '<option value="'+t.key+'">'+t.key+'</option>';
+
+  });
+}
+
+function renderGestionTorneos(){
+
+  var table=document.getElementById('gestionTable');
+
+  if(!table)return;
+
+  var equipoFiltro=document.getElementById('gestionEquipoFilter').value||'';
+  var estadoFiltro=document.getElementById('gestionEstadoFilter').value||'';
+
+  var rows=[];
+
+  var savedTeam=activeTeam;
+
+  TEAMS.forEach(function(t){
+
+    activeTeam=t.key;
+
+    var k=itemsKey('torneos',activeSeason);
+
+    var items=itemsCache[k]||[];
+
+    items.forEach(function(it,idx){
+
+      if(equipoFiltro && t.key!==equipoFiltro)return;
+
+      if(estadoFiltro && normalizarEstado(it.estado)!==estadoFiltro)return;
+
+      rows.push({
+        equipo:t.key,
+        key:k,
+        idx:idx,
+        item:it
+      });
+
+    });
+
+  });
+
+  activeTeam=savedTeam;
+
+  rows.sort(function(a,b){
+
+    var ai=a.item;
+    var bi=b.item;
+
+    if(gestionSort==='equipo'){
+
+      if(a.equipo!==b.equipo){
+
+        return a.equipo.localeCompare(b.equipo);
+      }
+    }
+
+    return (ai.fechaInicio||'').localeCompare(bi.fechaInicio||'');
+
+  });
+
+  var html='';
+
+  html+='<thead>';
+
+  html+='<tr>';
+
+  html+='<th>Equipo</th>';
+  html+='<th>Fecha inicio</th>';
+  html+='<th>Fecha final</th>';
+  html+='<th>Días</th>';
+  html+='<th>Nombre torneo</th>';
+  html+='<th>Lugar</th>';
+  html+='<th>Transporte</th>';
+  html+='<th>Nº jugadores</th>';
+  html+='<th>Nº adultos</th>';
+  html+='<th>Formación</th>';
+  html+='<th>Estado</th>';
+  html+='<th>Comentarios</th>';
+  html+='<th>Plaza</th>';
+
+  html+='</tr>';
+
+  html+='</thead>';
+
+  html+='<tbody>';
+
+  rows.forEach(function(r,n){
+
+    var it=r.item;
+
+    html+='<tr data-key="'+r.key+'" data-idx="'+r.idx+'">';
+
+    html+='<td>'+r.equipo+'</td>';
+
+    html+='<td><input type="date" value="'+(it.fechaInicio||'')+'" onchange="updateGestionCell(this,\'fechaInicio\')"></td>';
+
+    html+='<td><input type="date" value="'+(it.fechaFin||'')+'" onchange="updateGestionCell(this,\'fechaFin\')"></td>';
+
+    html+='<td>'+(it.fechaInicio?dtDays(it.fechaInicio,it.fechaFin||it.fechaInicio).length:'')+'</td>';
+
+    html+='<td><input value="'+(it.nombre||'')+'" onchange="updateGestionCell(this,\'nombre\')"></td>';
+
+    html+='<td><input value="'+(it.ubicacionTexto||'')+'" onchange="updateGestionCell(this,\'ubicacionTexto\')"></td>';
+
+    html+='<td><input value="'+(it.transporte||'')+'" onchange="updateGestionCell(this,\'transporte\')"></td>';
+
+    html+='<td><input type="number" value="'+(it.numJugadores||'')+'" onchange="updateGestionCell(this,\'numJugadores\')"></td>';
+
+    html+='<td><input type="number" value="'+(it.numAdultos||'')+'" onchange="updateGestionCell(this,\'numAdultos\')"></td>';
+
+    html+='<td><input value="'+(it.formacion||'')+'" onchange="updateGestionCell(this,\'formacion\')"></td>';
+
+    html+='<td>';
+
+    html+='<select onchange="updateGestionCell(this,\'estado\')">';
+
+    html+='<option value="propuesta">Propuesta</option>';
+    html+='<option value="ok_equipo">OK equipo/Club</option>';
+    html+='<option value="enviado_mail">Enviado mail</option>';
+    html+='<option value="definitivo">Definitivo</option>';
+
+    html+='</select>';
+
+    html+='</td>';
+
+    html+='<td><input value="'+(it.obs||'')+'" onchange="updateGestionCell(this,\'obs\')"></td>';
+
+    html+='<td><input value="'+(it.plaza||'')+'" onchange="updateGestionCell(this,\'plaza\')"></td>';
+
+    html+='</tr>';
+
+  });
+
+  html+='</tbody>';
+
+  table.innerHTML=html;
+}
+
+function updateGestionCell(el,field){
+
+  var tr=el.closest('tr');
+
+  if(!tr)return;
+
+  var key=tr.getAttribute('data-key');
+
+  var idx=parseInt(tr.getAttribute('data-idx'));
+
+  if(!itemsCache[key])return;
+
+  if(!itemsCache[key][idx])return;
+
+  itemsCache[key][idx][field]=el.value;
+
+  itemsRef().doc(key).set({
+    items:itemsCache[key],
+    season:activeSeason,
+    catId:'torneos'
+  });
+
 }
 
 function initMultiControls(){
@@ -1637,5 +1976,4 @@ loadSeasons().then(function(){
 </script>
 </body>
 </html>
-
 
