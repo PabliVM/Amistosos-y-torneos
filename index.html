@@ -28,9 +28,12 @@ body.dark .day-tip{background:#0f1318}
 body.dark .day-tip::after{border-top-color:#0f1318}
 .btn-dark{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:14px;width:28px;height:28px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--tr);flex-shrink:0}
 .btn-dark:hover{background:rgba(255,255,255,.25)}
+html{
+  overflow-y:scroll;
+  scrollbar-gutter:stable;
+}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.45;-webkit-font-smoothing:antialiased;font-size:13px;padding-bottom:40px}
-
 /* HEADER — RM BLUE */
 .header{background:var(--rm-blue);padding:12px 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.15)}
 .header-logo{width:38px;height:38px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;padding:3px}
@@ -533,7 +536,11 @@ function loadItemsForSeason(season,forceReload){
       // Migrate: assign _id to items that don't have one
       var needsSave=false;
       items.forEach(function(it,i){
-        if(!it._id){it._id='it_'+Date.now()+'_'+i;needsSave=true;}
+if(!it._id){
+  it._id='it_'+Date.now()+'_'+i+'_'+Math.random().toString(36).slice(2);
+  needsSave=true;
+}
+
       });
       itemsCache[k]=items;
       // Save back if we added _ids
@@ -623,26 +630,65 @@ function renderTeamBar(){
   }
   html+='<button class="btn-plan '+(showingPlan?'active':'')+'" onclick="togglePlanView()">Planificación</button>';
   html+='<button class="btn-multi '+(showingMulti?'active':'')+'" onclick="toggleMultiView()">Varios equipos</button>';
+
   document.getElementById('teamBar').innerHTML=html;
+
   document.getElementById('teamBar').querySelectorAll('.team-btn').forEach(function(btn){
     btn.addEventListener('click',function(){
+      var scrollYBefore = window.scrollY;
       var k=this.getAttribute('data-team');
+
       activeTeam=k;
-      if(showingPlan){showingPlan=false;document.getElementById('mainView').classList.remove('hidden');document.getElementById('planView').classList.remove('active');}
-      if(showingMulti){showingMulti=false;document.getElementById('mainView').classList.remove('hidden');document.getElementById('multiView').classList.remove('active');}
+
+      if(showingPlan){
+        showingPlan=false;
+        document.getElementById('mainView').classList.remove('hidden');
+        document.getElementById('planView').classList.remove('active');
+      }
+
+      if(showingMulti){
+        showingMulti=false;
+        document.getElementById('mainView').classList.remove('hidden');
+        document.getElementById('multiView').classList.remove('active');
+      }
+
       renderTeamBar();
-      // Render immediately with whatever is in cache
-      renderAll();
-      // Then force reload everything from Firebase
+
       showSync('saving');
-      loadItemsForSeason(activeSeason,true).then(function(){return loadFechasClave();}).then(function(){showSync('ok');renderAll();}).catch(function(e){console.error(e);showSync('error');renderAll();});
+
+      loadItemsForSeason(activeSeason,true)
+        .then(function(){
+          return loadFechasClave();
+        })
+        .then(function(){
+          showSync('ok');
+          renderAll();
+
+          requestAnimationFrame(function(){
+            window.scrollTo(0, scrollYBefore);
+          });
+        })
+        .catch(function(e){
+          console.error(e);
+          showSync('error');
+          renderAll();
+
+          requestAnimationFrame(function(){
+            window.scrollTo(0, scrollYBefore);
+          });
+        });
     });
   });
 }
 
+
+
 function togglePlanView(){
-  showingMulti=false;document.getElementById('multiView').classList.remove('active');
+  showingMulti=false;
+  document.getElementById('multiView').classList.remove('active');
+
   showingPlan=!showingPlan;
+
   if(showingPlan){
     document.getElementById('mainView').classList.add('hidden');
     document.getElementById('planView').classList.add('active');
@@ -655,6 +701,7 @@ function togglePlanView(){
     renderAll();
   }
 }
+
 
 function toggleMultiView(){
   showingPlan=false;document.getElementById('planView').classList.remove('active');
