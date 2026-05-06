@@ -9,6 +9,17 @@
 
 
 
+
+
+
+
+
+
+
+
+
+<style>
+
 .gestion-estado.propuesta select{
 background:#fef2f2;
 color:#dc2626;
@@ -37,15 +48,6 @@ font-weight:700;
 border-radius:4px;
 }
 
-
-
-
-
-
-
-
-
-<style>
 :root{--bg:#f0f2f5;--surface:#fff;--surface-alt:#fafbfc;--border:#dfe1e6;--border-light:#eaecf0;--text:#1a1d23;--text-sec:#5a6170;--text-mut:#8b919e;--text-faint:#b4b9c4;--rm-blue:#2563eb;--rm-blue-lt:#3b7cf5;--rm-blue-bg:#edf1fc;--green:#16a34a;--green-bg:#e6f7ee;--green-bdr:#b4e4cc;--orange:#ea580c;--orange-bg:#fff0e6;--orange-bdr:#fbcfa8;--red:#dc2626;--red-bg:#fce8e8;--red-bdr:#f0c8c8;--sh-sm:0 1px 3px rgba(0,0,0,.06);--sh-md:0 2px 8px rgba(0,0,0,.08);--sh-lg:0 4px 16px rgba(0,0,0,.12);--r:8px;--rs:5px;--rl:12px;--font:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;--tr:.2s ease}
 body.dark{--bg:#1a1d23;--surface:#23272f;--surface-alt:#2a2e36;--border:#3a3f4a;--border-light:#32363e;--text:#e4e6ea;--text-sec:#a0a5b0;--text-mut:#707580;--text-faint:#505560;--rm-blue-bg:#1e2a4a;--green-bg:#1a2e22;--green-bdr:#2a4a35;--orange-bg:#2e2518;--orange-bdr:#4a3a20;--red-bg:#2e1a1a;--red-bdr:#4a2a2a;--sh-sm:0 1px 3px rgba(0,0,0,.2);--sh-md:0 2px 8px rgba(0,0,0,.3);--sh-lg:0 4px 16px rgba(0,0,0,.4)}
 body.dark .header{box-shadow:0 2px 8px rgba(0,0,0,.4)}
@@ -1065,7 +1067,7 @@ function renderGestionTorneos(){
   html+='<th>Formación</th>';
   html+='<th>Estado</th>';
   html+='<th>Comentarios</th>';
-  html+='<th>Plaza</th>';
+ 
 
   html+='</tr>';
 
@@ -1116,11 +1118,12 @@ function renderGestionTorneos(){
 
    var estActual=normalizarEstado(it.estado);
 
-   html+='<td class="gestion-estado '+estActual+'">';
+   html+='<td class="gestion-estado '+estActual+'" style="white-space:nowrap;">';
+
 
    html+='<select onchange="updateGestionCell(this,\'estado\')">';
 
-
+   html+='<select style="width:auto;min-width:170px;" onchange="updateGestionCell(this,\'estado\')">';
    html+='<option value="propuesta" '+(estActual==='propuesta'?'selected':'')+'>🔴 Propuesta</option>';
 
    html+='<option value="ok_equipo" '+(estActual==='ok_equipo'?'selected':'')+'>🟠 OK equipo/Club</option>';
@@ -2119,4 +2122,3 @@ loadSeasons().then(function(){
 </script>
 </body>
 </html>
-
