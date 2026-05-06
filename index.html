@@ -1473,12 +1473,15 @@ function testFirebaseWrite(){
 }
 
 // INIT
-renderSeasons();renderTeamBar();renderAll();
+renderSeasons();renderTeamBar();
+// Show loading message
+document.getElementById('rightCol').innerHTML='<div style="text-align:center;padding:40px;color:var(--text-mut)"><div style="font-size:24px;margin-bottom:8px">⏳</div>Cargando datos...</div>';
+showSync('saving');
 loadSeasons().then(function(){
   renderSeasons();
   return loadCategories();
 }).then(function(){
-  return loadItemsForSeason(activeSeason);
+  return loadItemsForSeason(activeSeason,true);
 }).then(function(){
   return loadFechasClave();
 }).then(function(){
@@ -1487,15 +1490,15 @@ loadSeasons().then(function(){
 }).then(function(canWrite){
   if(canWrite){
     showSync('ok');
-    showBanner('Conectado a Firebase ✓');
   } else {
     showSync('error');
-    showBanner('⚠️ Firebase BLOQUEA escritura. Ve a Firebase Console → Firestore → Rules y cambia a: allow read, write: if true;',true);
+    showBanner('⚠️ Firebase BLOQUEA escritura.',true);
   }
 }).catch(function(e){
   console.error(e);
   showBanner('Error Firebase: '+(e.message||e),true);
   showSync('error');
+  renderAll();
 });
 </script>
 </body>
