@@ -502,6 +502,36 @@ background:#fff;
 border-radius:3px
 }
 
+
+.gestion-team-filter-wrap{
+display:flex;
+flex-wrap:wrap;
+gap:8px;
+align-items:center;
+}
+
+.gestion-team-filter-wrap button{
+padding:4px 10px;
+font-size:10px;
+font-weight:700;
+border-radius:14px;
+border:1px solid var(--border);
+background:var(--surface);
+cursor:pointer;
+}
+
+.gestion-team-filter-wrap button:hover{
+border-color:var(--rm-blue);
+color:var(--rm-blue);
+}
+
+
+
+
+
+
+
+
 .gestion-team-filter{
 display:flex;
 gap:4px;
@@ -567,7 +597,19 @@ display:none;
 
 <div class="gestion-view" id="gestionView">
   <div class="gestion-controls">
-   <div id="gestionEquipoFilter" class="gestion-team-filter"></div>
+   <div class="gestion-team-filter-wrap">
+
+<button onclick="seleccionarTodosGestion()">
+Seleccionar todos
+</button>
+
+<button onclick="deseleccionarTodosGestion()">
+Deseleccionar todos
+</button>
+
+<div id="gestionEquipoFilter" class="gestion-team-filter"></div>
+
+</div>
 
     <select id="gestionEstadoFilter" onchange="renderGestionTorneos()">
       <option value="">Todos los estados</option>
@@ -856,6 +898,8 @@ var showingMulti=false;
 var showingGestion=false;
 var gestionSort='fecha';
 var multiSelectedTeams=['CAS','RMC','JA'];
+
+var gestionSelectedTeams=[...TEAMS.map(t=>t.key)];
 
 function renderTeamBar(){
   var html='';
@@ -2176,6 +2220,28 @@ loadSeasons().then(function(){
   showSync('error');
   renderAll();
 });
+
+function seleccionarTodosGestion(){
+
+gestionSelectedTeams=[...TEAMS.map(t=>t.key)];
+
+renderGestionEquipoFilter();
+
+renderGestionTorneos();
+
+}
+
+function deseleccionarTodosGestion(){
+
+gestionSelectedTeams=[];
+
+renderGestionEquipoFilter();
+
+renderGestionTorneos();
+
+}
+
+
 </script>
 </body>
 </html>
