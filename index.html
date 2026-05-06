@@ -1238,25 +1238,54 @@ function renderItems(cat){
   });
 }
 
+
 function findItemInArray(catId,itemRef){
   var items=getAllItems(catId);
+
+  if(itemRef && itemRef._id){
+    for(var i=0;i<items.length;i++){
+      if(items[i]._id===itemRef._id)return i;
+    }
+  }
+
   var idx=items.indexOf(itemRef);
   if(idx!==-1)return idx;
-  for(var i=0;i<items.length;i++){
-    if(items[i].nombre===itemRef.nombre&&items[i].fechaInicio===itemRef.fechaInicio)return i;
+
+  for(var j=0;j<items.length;j++){
+    if(items[j].nombre===itemRef.nombre && items[j].fechaInicio===itemRef.fechaInicio)return j;
   }
+
   return -1;
 }
+
+
+
+
 
 function makeEditHandler(catId,itemRef){
   return function(e){
     e.stopPropagation();
-    var idx=findItemInArray(catId,itemRef);
-    if(idx===-1){alert('Evento no encontrado');return;}
-    openItemModal(catId,idx);
+
+    try{
+      console.log('EDITANDO EVENTO:', itemRef);
+
+      var idx=findItemInArray(catId,itemRef);
+
+      console.log('ÍNDICE ENCONTRADO:', idx);
+
+      if(idx===-1){
+        alert('Evento no encontrado');
+        return;
+      }
+
+      openItemModal(catId,idx);
+
+    }catch(err){
+      console.error('ERROR AL ABRIR MODAL:', err, itemRef);
+      alert('Error al abrir evento: ' + err.message);
+    }
   };
 }
-
 function makeDelHandler(catId,itemRef){
   return function(e){
     e.stopPropagation();
@@ -1302,6 +1331,27 @@ function selectEst(val,label){
   document.getElementById('estOptions').classList.remove('open');
 }
 
+
+var estadoMap={
+  provisional:'propuesta',
+  propuesta:'propuesta',
+  ok:'ok_equipo',
+  ok_equipo:'ok_equipo',
+  enviado:'enviado_mail',
+  enviado_mail:'enviado_mail',
+  definitivo:'definitivo'
+};
+
+function normalizarEstado(est){
+  est=String(est || 'propuesta').trim();
+  return estadoMap[est] || 'propuesta';
+}
+
+
+
+
+
+
 function openItemModal(cid,idx){
   eT=cid;eI=idx!=null?idx:null;
   var cat=categories.find(function(c){return c.id===cid;});if(!cat)return;
@@ -1325,9 +1375,23 @@ function openItemModal(cid,idx){
   var mParts=curMarcador?curMarcador.split('-'):['',''];
   var vdH='<label>Marcador</label><div style="display:flex;align-items:center;gap:5px"><input id="mScF" type="number" min="0" style="width:36px;text-align:center;padding:3px 1px;font-size:12px" value="'+esc(mParts[0])+'"><span style="font-weight:700;color:var(--text-mut)">-</span><input id="mScC" type="number" min="0" style="width:36px;text-align:center;padding:3px 1px;font-size:12px" value="'+esc(mParts[1])+'"><span style="width:6px"></span><label class="loc-chip" style="margin:0;font-size:9px;padding:2px 5px"><input type="radio" name="mVD" value="victoria" '+(curVD==='victoria'?'checked':'')+'> ✅</label><label class="loc-chip" style="margin:0;font-size:9px;padding:2px 5px"><input type="radio" name="mVD" value="derrota" '+(curVD==='derrota'?'checked':'')+'> ❌</label><label class="loc-chip" style="margin:0;font-size:9px;padding:2px 5px"><input type="radio" name="mVD" value="" '+(curVD===''?'checked':'')+'> —</label></div>';
   // Estado — custom dropdown with SVG icons
-  var curEst=it?it.estado||'propuesta':'propuesta';
-  var estOpts=[{v:'propuesta',l:'Propuesta'},{v:'ok_equipo',l:'OK equipo/Club'},{v:'enviado_mail',l:'Enviado mail'},{v:'definitivo',l:'Definitivo'}];
-  var estH='<label>Estado</label><input type="hidden" id="mE" value="'+curEst+'"><div class="est-dropdown" id="estDropdown"><div class="est-selected" onclick="toggleEstDD()">'+estadoIcon(curEst)+'<span>'+estOpts.find(function(o){return o.v===curEst;}).l+'</span><span class="est-arrow">▾</span></div><div class="est-options" id="estOptions">';
+
+
+var curEst=normalizarEstado(it ? it.estado : 'propuesta');
+
+var estOpts=[
+  {v:'propuesta',l:'Propuesta'},
+  {v:'ok_equipo',l:'OK equipo/Club'},
+  {v:'enviado_mail',l:'Enviado mail'},
+  {v:'definitivo',l:'Definitivo'}
+];
+
+var curEstObj=estOpts.find(function(o){
+  return o.v===curEst;
+}) || estOpts[0];
+
+var estH='<label>Estado</label><input type="hidden" id="mE" value="'+curEst+'"><div class="est-dropdown" id="estDropdown"><div class="est-selected" onclick="toggleEstDD()">'+estadoIcon(curEst)+'<span>'+curEstObj.l+'</span><span class="est-arrow">▾</span></div><div class="est-options" id="estOptions">';
+
   estOpts.forEach(function(o){
     estH+='<div class="est-opt'+(o.v===curEst?' active':'')+'" onclick="selectEst(\''+o.v+'\',\''+o.l+'\')">'+estadoIcon(o.v)+'<span>'+o.l+'</span></div>';
   });
@@ -1380,17 +1444,25 @@ function saveItem(){
     var sc=(document.getElementById('mScC')||{}).value||'';
     var marcador=(sf!==''||sc!=='')?sf+'-'+sc:'';
 
-    var d={
-      nombre:((document.getElementById('mN')||{}).value||'').trim()||'Sin nombre',
-      fechaInicio:fi,fechaFin:ff||fi,
-      ubicacion:locEl?locEl.value:'',
-      ubicacionTexto:((document.getElementById('mLocTxt')||{}).value||'').trim(),
-      estado:(document.getElementById('mE')||{}).value||'propuesta',
-      resultado:resultado,
-      victoriaDerrota:victoriaDerrota,
-      marcador:marcador,
-      obs:((document.getElementById('mO')||{}).value||'').trim()
-    };
+var d={
+  _id:(eI!=null && getAllItems(eT)[eI] && getAllItems(eT)[eI]._id)
+    ? getAllItems(eT)[eI]._id
+    : 'it_'+Date.now()+'_'+Math.random().toString(36).slice(2),
+
+  nombre:((document.getElementById('mN')||{}).value||'').trim()||'Sin nombre',
+  fechaInicio:fi,
+  fechaFin:ff||fi,
+  ubicacion:locEl?locEl.value:'',
+  ubicacionTexto:((document.getElementById('mLocTxt')||{}).value||'').trim(),
+  estado:normalizarEstado((document.getElementById('mE')||{}).value),
+  resultado:resultado,
+  victoriaDerrota:victoriaDerrota,
+  marcador:marcador,
+  obs:((document.getElementById('mO')||{}).value||'').trim()
+};
+
+
+
     var items=getAllItems(eT),catId=eT;
     if(eI!=null&&eI>=0&&eI<items.length){
       Object.assign(items[eI],d);
@@ -1518,3 +1590,5 @@ loadSeasons().then(function(){
 </script>
 </body>
 </html>
+
+
