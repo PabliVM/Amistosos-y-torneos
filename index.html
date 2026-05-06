@@ -879,6 +879,12 @@ function toggleMultiView(){
   showingMulti=!showingMulti;
   if(showingMulti){
     document.getElementById('mainView').classList.add('hidden');
+
+
+  if(showingGestion){
+  showingGestion=false;
+  document.getElementById('gestionView').classList.remove('active');
+}
     document.getElementById('multiView').classList.add('active');
     renderTeamBar();
     initMultiControls();
