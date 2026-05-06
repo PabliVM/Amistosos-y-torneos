@@ -478,6 +478,33 @@ border-radius:3px
 
 
 </style>
+.gestion-team-filter{
+display:flex;
+gap:4px;
+flex-wrap:wrap;
+align-items:center;
+}
+
+.gestion-team-filter label{
+font-size:10px;
+font-weight:700;
+padding:4px 8px;
+border:1px solid var(--border);
+border-radius:14px;
+cursor:pointer;
+background:var(--surface);
+color:var(--text-sec);
+}
+
+.gestion-team-filter label.sel{
+background:var(--rm-blue);
+color:#fff;
+border-color:var(--rm-blue);
+}
+
+.gestion-team-filter input{
+display:none;
+}
 </head>
 <body>
 <div class="header">
@@ -513,9 +540,7 @@ border-radius:3px
 
 <div class="gestion-view" id="gestionView">
   <div class="gestion-controls">
-    <select id="gestionEquipoFilter" onchange="renderGestionTorneos()">
-      <option value="">Todos los equipos</option>
-    </select>
+   <div id="gestionEquipoFilter" class="gestion-team-filter"></div>
 
     <select id="gestionEstadoFilter" onchange="renderGestionTorneos()">
       <option value="">Todos los estados</option>
