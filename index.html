@@ -579,8 +579,9 @@ function changeSeason(){
   document.getElementById('headerSeason').textContent=activeSeason;
   itemsCache={};
   fechasClaveCache={};
+  renderAll();
   showSync('saving');
-  loadItemsForSeason(activeSeason,false).then(function(){return loadFechasClave();}).then(function(){showSync('ok');renderAll();}).catch(function(){showSync('error');renderAll();});
+  loadItemsForSeason(activeSeason,true).then(function(){return loadFechasClave();}).then(function(){showSync('ok');renderAll();}).catch(function(e){console.error(e);showSync('error');renderAll();});
 }
 
 function addSeason(){
@@ -629,16 +630,11 @@ function renderTeamBar(){
       if(showingPlan){showingPlan=false;document.getElementById('mainView').classList.remove('hidden');document.getElementById('planView').classList.remove('active');}
       if(showingMulti){showingMulti=false;document.getElementById('mainView').classList.remove('hidden');document.getElementById('multiView').classList.remove('active');}
       renderTeamBar();
-      // Clear per-team cache entries to force fresh load
-      categories.forEach(function(cat){
-        var mode=cat.scopeMode||'each';
-        if(mode==='each'){
-          var key=cat.id+'_'+activeSeason.replace('/','-')+'_'+activeTeam;
-          delete itemsCache[key];
-        }
-      });
+      // Render immediately with whatever is in cache
+      renderAll();
+      // Then force reload everything from Firebase
       showSync('saving');
-      loadItemsForSeason(activeSeason,false).then(function(){return loadFechasClave();}).then(function(){showSync('ok');renderAll();}).catch(function(){showSync('error');renderAll();});
+      loadItemsForSeason(activeSeason,true).then(function(){return loadFechasClave();}).then(function(){showSync('ok');renderAll();}).catch(function(e){console.error(e);showSync('error');renderAll();});
     });
   });
 }
@@ -1484,7 +1480,7 @@ function saveNewCat(){
 }
 
 function closeModal(){document.getElementById('mo').classList.remove('active');eT=null;eI=null;}
-function renderAll(){try{renderCalendar();renderRight();}catch(e){console.error('renderAll',e);}}
+function renderAll(){try{renderCalendar();renderRight();}catch(e){console.error('renderAll error:',e);showBanner('Error renderizando: '+e.message,true);}}
 
 // TEST Firebase write permission
 function testFirebaseWrite(){
