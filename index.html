@@ -18,7 +18,7 @@
 
 
 
-</style>
+<style>
 
 .gestion-estado select{
 text-align:left;
@@ -475,9 +475,6 @@ background:#fff;
 border-radius:3px
 }
 
-
-
-</style>
 .gestion-team-filter{
 display:flex;
 gap:4px;
@@ -505,6 +502,9 @@ border-color:var(--rm-blue);
 .gestion-team-filter input{
 display:none;
 }
+
+</style>
+
 </head>
 <body>
 <div class="header">
@@ -845,90 +845,41 @@ function renderTeamBar(){
   document.getElementById('teamBar').querySelectorAll('.team-btn').forEach(function(btn){
     btn.addEventListener('click',function(){
       var scrollYBefore = window.scrollY;
-      var k=this.getAttribute('data-team');
+var k=this.getAttribute('data-team');
 
-      activeTeam=k;
+activeTeam=k;
 
+// SALIR DE PLANIFICACIÓN
+if(showingPlan){
+  showingPlan=false;
+  document.getElementById('planView').classList.remove('active');
+  document.getElementById('mainView').classList.remove('hidden');
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-      if(showingPlan){
-        showingPlan=false;
-        document.getElementById('mainView').classList.remove('hidden');
-        document.getElementById('planView').classList.remove('active');
-      }
-
-      if(showingMulti){
-        showingMulti=false;
-        document.getElementById('mainView').classList.remove('hidden');
-        document.getElementById('multiView').classList.remove('active');
-      }
-
-
-
-
-	// SALIR DE PLANIFICACIÓN
-     if(showingPlan){
-  	showingPlan=false;
-  	document.getElementById('planView').classList.remove('active');
-  	document.getElementById('mainView').classList.remove('hidden');
-	}
-
-	// SALIR DE VER VARIOS
-     if(showingMulti){
-  	showingMulti=false;
-  	document.getElementById('multiView').classList.remove('active');
-  	document.getElementById('mainView').classList.remove('hidden');
+// SALIR DE VARIOS EQUIPOS
+if(showingMulti){
+  showingMulti=false;
+  document.getElementById('multiView').classList.remove('active');
+  document.getElementById('mainView').classList.remove('hidden');
 }
 
 // SALIR DE GESTIÓN DE TORNEOS
-    if(showingGestion){
-  	showingGestion=false;
- 	document.getElementById('gestionView').classList.remove('active');
- 	document.getElementById('mainView').classList.remove('hidden');
-	}
-
-      renderTeamBar();
-
-      showSync('saving');
-
-      loadItemsForSeason(activeSeason,true)
-        .then(function(){
-          return loadFechasClave();
-        })
-        .then(function(){
-          showSync('ok');
-          renderAll();
-
-          requestAnimationFrame(function(){
-            window.scrollTo(0, scrollYBefore);
-          });
-        })
-        .catch(function(e){
-          console.error(e);
-          showSync('error');
-          renderAll();
-
-          requestAnimationFrame(function(){
-            window.scrollTo(0, scrollYBefore);
-          });
-        });
-    });
-  });
+if(showingGestion){
+  showingGestion=false;
+  document.getElementById('gestionView').classList.remove('active');
+  document.getElementById('mainView').classList.remove('hidden');
 }
 
+renderAll();
 
+window.scrollTo(0,scrollYBefore);
 
+    });
+
+  });
+
+}
+  
 function togglePlanView(){
   showingMulti=false;
   document.getElementById('multiView').classList.remove('active');
@@ -1006,19 +957,36 @@ loadAllTeamsData().then(function(){
 
 function renderGestionFilters(){
 
-  var sel=document.getElementById('gestionEquipoFilter');
+  var cont=document.getElementById('gestionEquipoFilter');
+  if(!cont)return;
 
-  if(!sel)return;
-
-  sel.innerHTML='<option value="">Todos los equipos</option>';
+  cont.innerHTML='';
 
   TEAMS.forEach(function(t){
 
-    sel.innerHTML+=
-    '<option value="'+t.key+'">'+t.key+'</option>';
+    cont.innerHTML+=
+      '<label class="sel">'+
+      '<input type="checkbox" value="'+t.key+'" checked onchange="toggleGestionEquipo(this)">'+
+      t.key+
+      '</label>';
 
   });
 }
+
+
+function toggleGestionEquipo(cb){
+
+  var label=cb.closest('label');
+
+  if(cb.checked){
+    label.classList.add('sel');
+  }else{
+    label.classList.remove('sel');
+  }
+
+  renderGestionTorneos();
+}
+
 
 function renderGestionTorneos(){
 
@@ -1026,7 +994,15 @@ function renderGestionTorneos(){
 
   if(!table)return;
 
-  var equipoFiltro=document.getElementById('gestionEquipoFilter').value||'';
+  
+  var equiposFiltro=[];
+
+  document.querySelectorAll('#gestionEquipoFilter input:checked').forEach(function(cb){
+  equiposFiltro.push(cb.value);
+  });
+
+
+
   var estadoFiltro=document.getElementById('gestionEstadoFilter').value||'';
 
   var rows=[];
@@ -1043,7 +1019,10 @@ function renderGestionTorneos(){
 
     items.forEach(function(it,idx){
 
-      if(equipoFiltro && t.key!==equipoFiltro)return;
+      if(equiposFiltro.length && equiposFiltro.indexOf(t.key)===-1)return;
+
+
+
 
       if(estadoFiltro && normalizarEstado(it.estado)!==estadoFiltro)return;
 
