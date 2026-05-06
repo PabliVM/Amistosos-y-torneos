@@ -774,6 +774,19 @@ function renderTeamBar(){
 
       activeTeam=k;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
       if(showingPlan){
         showingPlan=false;
         document.getElementById('mainView').classList.remove('hidden');
@@ -785,6 +798,30 @@ function renderTeamBar(){
         document.getElementById('mainView').classList.remove('hidden');
         document.getElementById('multiView').classList.remove('active');
       }
+
+
+
+
+	// SALIR DE PLANIFICACIÓN
+     if(showingPlan){
+  	showingPlan=false;
+  	document.getElementById('planView').classList.remove('active');
+  	document.getElementById('mainView').classList.remove('hidden');
+	}
+
+	// SALIR DE VER VARIOS
+     if(showingMulti){
+  	showingMulti=false;
+  	document.getElementById('multiView').classList.remove('active');
+  	document.getElementById('mainView').classList.remove('hidden');
+}
+
+// SALIR DE GESTIÓN DE TORNEOS
+    if(showingGestion){
+  	showingGestion=false;
+ 	document.getElementById('gestionView').classList.remove('active');
+ 	document.getElementById('mainView').classList.remove('hidden');
+	}
 
       renderTeamBar();
 
