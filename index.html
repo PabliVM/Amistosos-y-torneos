@@ -347,20 +347,22 @@ body.dark .notes-textarea{background:var(--surface-alt);color:var(--text);border
 </div>
 <div class="team-bar" id="teamBar"></div>
 <div class="main" id="mainView">
-  <div class="panel">
-    <div class="panel-header" onclick="togglePanel('calBody')"><div class="panel-title"><span class="chevron" id="chev_calBody">▼</span> Calendario de Temporada <span style="font-size:10px;color:var(--rm-blue);font-weight:500;margin-left:4px" id="calTeamLabel"></span></div></div>
-    <div class="panel-body" id="calBody"><div class="cal-grid" id="calGrid"></div></div>
-  </div>
-  <div class="notes-panel panel" id="notesPanel" style="display:none">
-    <div class="panel-header" onclick="togglePanel('notesBody')">
-      <div class="panel-title"><span class="chevron" id="chev_notesBody">▼</span> 📝 NOTAS <span id="noteTeamLabel" style="font-size:10px;color:var(--rm-blue);font-weight:500;margin-left:4px"></span></div>
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <div class="panel">
+      <div class="panel-header" onclick="togglePanel('calBody')"><div class="panel-title"><span class="chevron" id="chev_calBody">▼</span> Calendario de Temporada <span style="font-size:10px;color:var(--rm-blue);font-weight:500;margin-left:4px" id="calTeamLabel"></span></div></div>
+      <div class="panel-body" id="calBody"><div class="cal-grid" id="calGrid"></div></div>
     </div>
-    <div class="panel-body" id="notesBody">
-      <div class="notes-body">
-        <textarea class="notes-textarea" id="notesTextarea" placeholder="Escribe aquí las notas del equipo..." oninput="onNotesInput()"></textarea>
-        <div class="notes-footer">
-          <span class="notes-status" id="notesStatus"></span>
-          <button class="btn-p" onclick="saveNotes()">Guardar</button>
+    <div class="panel" id="notesPanel" style="display:none">
+      <div class="panel-header" onclick="togglePanel('notesBody')">
+        <div class="panel-title"><span class="chevron" id="chev_notesBody">▼</span> 📝 NOTAS <span id="noteTeamLabel" style="font-size:10px;color:var(--rm-blue);font-weight:500;margin-left:4px"></span></div>
+      </div>
+      <div class="panel-body" id="notesBody">
+        <div class="notes-body">
+          <textarea class="notes-textarea" id="notesTextarea" placeholder="Escribe aquí las notas del equipo..." oninput="onNotesInput()"></textarea>
+          <div class="notes-footer">
+            <span class="notes-status" id="notesStatus"></span>
+            <button class="btn-p" onclick="saveNotes()">Guardar</button>
+          </div>
         </div>
       </div>
     </div>
