@@ -300,7 +300,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .gestion-wrap{overflow:auto;max-height:calc(100vh - 150px);border:1px solid var(--border);border-radius:var(--rl);background:var(--surface)}
 .gestion-table{border-collapse:collapse;width:100%;min-width:100%;table-layout:fixed;font-size:10px;}
 .gestion-table th,.gestion-table td{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.gestion-table th:nth-child(1){width:45px}.gestion-table th:nth-child(2){width:85px}.gestion-table th:nth-child(3){width:85px}.gestion-table th:nth-child(4){width:40px}.gestion-table th:nth-child(5){width:150px}.gestion-table th:nth-child(6){width:120px}.gestion-table th:nth-child(7){width:80px}.gestion-table th:nth-child(8){width:95px}.gestion-table th:nth-child(9){width:95px}.gestion-table th:nth-child(10){width:110px}.gestion-table th:nth-child(11){width:auto}
+.gestion-table th:nth-child(1){width:45px}.gestion-table th:nth-child(2){width:85px}.gestion-table th:nth-child(3){width:85px}.gestion-table th:nth-child(4){width:40px}.gestion-table th:nth-child(5){width:150px}.gestion-table th:nth-child(6){width:120px}.gestion-table th:nth-child(7){width:80px}.gestion-table th:nth-child(8){width:55px}.gestion-table th:nth-child(9){width:55px}.gestion-table th:nth-child(10){width:110px}.gestion-table th:nth-child(11){width:auto;min-width:180px}
 .gestion-table th{position:sticky;top:0;background:var(--rm-blue);color:#fff;padding:8px 6px;border:1px solid rgba(255,255,255,.2);white-space:nowrap}
 .gestion-table td{border:1px solid var(--border-light);padding:3px 4px;text-align:center}
 .gestion-table tr:nth-child(even){background:var(--surface-alt)}
@@ -361,7 +361,6 @@ body.dark .notes-textarea{background:var(--surface-alt);color:var(--text);border
           <textarea class="notes-textarea" id="notesTextarea" placeholder="Escribe aquí las notas del equipo..." oninput="onNotesInput()"></textarea>
           <div class="notes-footer">
             <span class="notes-status" id="notesStatus"></span>
-            <button class="btn-p" onclick="saveNotes()">Guardar</button>
           </div>
         </div>
       </div>
@@ -717,7 +716,7 @@ function renderGestionTorneos(){
     if(gestionSort==='equipo'){var ord=TEAMS.map(function(t){return t.key;});var pa=ord.indexOf(a.equipo),pb=ord.indexOf(b.equipo);if(pa!==pb)return pa-pb;}
     return (a.item.fechaInicio||'').localeCompare(b.item.fechaInicio||'');
   });
-  var html='<colgroup><col style="width:4%"><col style="width:9%"><col style="width:9%"><col style="width:4%"><col style="width:16%"><col style="width:12%"><col style="width:7%"><col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:9%"><col style="width:6%"></colgroup>';
+  var html='<colgroup><col style="width:4%"><col style="width:8%"><col style="width:8%"><col style="width:4%"><col style="width:16%"><col style="width:12%"><col style="width:7%"><col style="width:5%"><col style="width:5%"><col style="width:9%"><col style="width:auto"></colgroup>';
   html+='<thead><tr><th>Equipo</th><th>Fecha inicio</th><th>Fecha final</th><th>Días</th><th>Nombre torneo</th><th>Lugar</th><th>Transporte</th><th>Nº jugadores</th><th>Nº adultos</th><th>Formación</th><th>Estado</th><th>Comentarios</th></tr></thead><tbody>';
   rows.forEach(function(r){
     var it=r.item;var estActual=normalizarEstado(it.estado);
