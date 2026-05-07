@@ -444,7 +444,7 @@ function resIcon(r){var o=RESULT_OPTIONS.find(function(x){return x.v===r;});retu
 
 var TEAMS=[{key:'CAS',name:'Castilla'},{key:'RMC',name:'Real Madrid C'},{key:'JA',name:'Juvenil A'},{key:'JB',name:'Juvenil B'},{key:'JC',name:'Juvenil C'},{key:'CA',name:'Cadete A'},{key:'CB',name:'Cadete B'},{key:'IA',name:'Infantil A'},{key:'IB',name:'Infantil B'},{key:'AA',name:'Alevín A'},{key:'AB',name:'Alevín B'},{key:'AC',name:'Alevín C'},{key:'BA',name:'Benjamín A'},{key:'BB',name:'Benjamín B'},{key:'PA',name:'Prebenjamín A'},{key:'PB',name:'Prebenjamín B'},{key:'DB',name:'Debutante'}];
 
-var activeTeam='CAS',activeSeason='2026/2027';
+var activeTeam=null,activeSeason='2026/2027';
 var seasons=['2026/2027'];
 var categories=[
   {id:'torneos',title:'Torneos',color:'#facc15',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:'each',teams:[],order:0},
@@ -1125,23 +1125,47 @@ function saveNewCat(){
 }
 
 function closeModal(){document.getElementById('mo').classList.remove('active');eT=null;eI=null;}
-function renderAll(){try{renderCalendar();renderRight();}catch(e){console.error('renderAll',e);}}
+function renderAll(){if(!activeTeam)return;try{renderCalendar();renderRight();}catch(e){console.error('renderAll',e);}}
 
 // INIT
-renderSeasons();renderTeamBar();renderAll();
+function showWelcomeScreen(){
+  // Ocultar main, mostrar pantalla de selección
+  document.getElementById('mainView').classList.add('hidden');
+  var existing=document.getElementById('welcomeScreen');
+  if(existing)existing.remove();
+  var div=document.createElement('div');
+  div.id='welcomeScreen';
+  div.style.cssText='padding:40px 24px;max-width:900px;margin:0 auto';
+  div.innerHTML='<div style="text-align:center;margin-bottom:28px"><div style="font-size:22px;font-weight:700;color:var(--text);margin-bottom:6px">Selecciona un equipo</div><div style="font-size:13px;color:var(--text-mut)">Los datos se cargarán al hacer clic</div></div><div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center">'+
+    TEAMS.map(function(t){return '<button onclick="selectTeamFromWelcome(\''+t.key+'\')" style="padding:12px 20px;font-size:13px;font-weight:700;font-family:var(--font);background:var(--surface);color:var(--text);border:1.5px solid var(--border);border-radius:10px;cursor:pointer;min-width:90px;transition:all .15s" onmouseover="this.style.borderColor=\'var(--rm-blue)\';this.style.color=\'var(--rm-blue)\'" onmouseout="this.style.borderColor=\'var(--border)\';this.style.color=\'var(--text)\'">'+t.key+'<div style="font-size:10px;font-weight:400;color:var(--text-mut);margin-top:2px">'+t.name+'</div></button>';}).join('')+
+  '</div>';
+  // Insertar después del teamBar
+  var tb=document.getElementById('teamBar');
+  tb.parentNode.insertBefore(div,tb.nextSibling);
+}
+
+function selectTeamFromWelcome(k){
+  activeTeam=k;
+  var welcome=document.getElementById('welcomeScreen');
+  if(welcome)welcome.remove();
+  document.getElementById('mainView').classList.remove('hidden');
+  renderTeamBar();
+  showSync('saving');
+  loadItemsForSeason(activeSeason,true).then(function(){return loadFechasClave();}).then(function(){
+    showSync('ok');
+    renderAll();
+    loadNotes();
+  }).catch(function(e){showSync('error');renderAll();});
+}
+
+renderSeasons();renderTeamBar();
 showSync('saving');
 loadSeasons().then(function(){
   renderSeasons();
   return loadCategories();
 }).then(function(){
-  return loadItemsForSeason(activeSeason);
-}).then(function(){
-  return loadFechasClave();
-}).then(function(){
-  renderAll();
   showSync('ok');
-  showBanner('Conectado a Firebase ✓');
-  loadNotes();
+  showWelcomeScreen();
 }).catch(function(e){
   console.error(e);
   showBanner('Error Firebase: '+(e.message||e),true);
