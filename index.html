@@ -313,6 +313,16 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .gestion-team-filter label{font-size:10px;font-weight:700;padding:4px 8px;border:1px solid var(--border);border-radius:14px;cursor:pointer;background:var(--surface);color:var(--text-sec);}
 .gestion-team-filter label.sel{background:var(--rm-blue);color:#fff;border-color:var(--rm-blue);}
 .gestion-team-filter input{display:none;}
+/* NOTAS */
+.notes-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);box-shadow:var(--sh-sm);margin-top:0}
+.notes-panel .panel-header{border-radius:var(--rl) var(--rl) 0 0}
+.notes-body{padding:10px 12px}
+.notes-textarea{width:100%;min-height:160px;resize:vertical;padding:10px 12px;border:1px solid var(--border);border-radius:var(--rs);font-size:12px;font-family:var(--font);color:var(--text);background:var(--surface);line-height:1.6;transition:border-color var(--tr)}
+.notes-textarea:focus{outline:none;border-color:var(--rm-blue)}
+.notes-footer{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:6px}
+.notes-status{font-size:10px;color:var(--text-mut);flex:1}
+.notes-status.saving{color:#f59e0b}.notes-status.saved{color:var(--green)}.notes-status.error{color:var(--red)}
+body.dark .notes-textarea{background:var(--surface-alt);color:var(--text);border-color:var(--border)}
 </style>
 </head>
 <body>
@@ -340,6 +350,20 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
   <div class="panel">
     <div class="panel-header" onclick="togglePanel('calBody')"><div class="panel-title"><span class="chevron" id="chev_calBody">▼</span> Calendario de Temporada <span style="font-size:10px;color:var(--rm-blue);font-weight:500;margin-left:4px" id="calTeamLabel"></span></div></div>
     <div class="panel-body" id="calBody"><div class="cal-grid" id="calGrid"></div></div>
+  </div>
+  <div class="notes-panel panel" id="notesPanel" style="display:none">
+    <div class="panel-header" onclick="togglePanel('notesBody')">
+      <div class="panel-title"><span class="chevron" id="chev_notesBody">▼</span> 📝 NOTAS <span id="noteTeamLabel" style="font-size:10px;color:var(--rm-blue);font-weight:500;margin-left:4px"></span></div>
+    </div>
+    <div class="panel-body" id="notesBody">
+      <div class="notes-body">
+        <textarea class="notes-textarea" id="notesTextarea" placeholder="Escribe aquí las notas del equipo..." oninput="onNotesInput()"></textarea>
+        <div class="notes-footer">
+          <span class="notes-status" id="notesStatus"></span>
+          <button class="btn-p" onclick="saveNotes()">Guardar</button>
+        </div>
+      </div>
+    </div>
   </div>
   <div id="rightCol" class="right-col"></div>
 </div>
@@ -572,7 +596,7 @@ function changeSeason(){
   fechasClaveCache={};
   renderAll();
   showSync('saving');
-  loadItemsForSeason(activeSeason,true).then(function(){return loadFechasClave();}).then(function(){showSync('ok');renderAll();}).catch(function(e){console.error(e);showSync('error');renderAll();});
+  loadItemsForSeason(activeSeason,true).then(function(){return loadFechasClave();}).then(function(){showSync('ok');renderAll();loadNotes();}).catch(function(e){console.error(e);showSync('error');renderAll();});
 }
 
 function addSeason(){
@@ -622,7 +646,7 @@ function renderTeamBar(){
       renderAll();
       // ── FIX: recargar datos del equipo desde Firebase al cambiar de equipo ──
       showSync('saving');
-      loadItemsForSeason(activeSeason,true).then(function(){return loadFechasClave();}).then(function(){showSync('ok');renderAll();window.scrollTo(0,scrollYBefore);}).catch(function(e){showSync('error');renderAll();});
+      loadItemsForSeason(activeSeason,true).then(function(){return loadFechasClave();}).then(function(){showSync('ok');renderAll();loadNotes();window.scrollTo(0,scrollYBefore);}).catch(function(e){showSync('error');renderAll();});
     });
   });
 }
@@ -1115,6 +1139,7 @@ loadSeasons().then(function(){
   renderAll();
   showSync('ok');
   showBanner('Conectado a Firebase ✓');
+  loadNotes();
 }).catch(function(e){
   console.error(e);
   showBanner('Error Firebase: '+(e.message||e),true);
@@ -1123,6 +1148,64 @@ loadSeasons().then(function(){
 
 function seleccionarTodosGestion(){document.querySelectorAll('#gestionEquipoFilter input').forEach(function(cb){cb.checked=true;});document.querySelectorAll('#gestionEquipoFilter label').forEach(function(l){l.classList.add('sel');});renderGestionTorneos();}
 function deseleccionarTodosGestion(){document.querySelectorAll('#gestionEquipoFilter input').forEach(function(cb){cb.checked=false;});document.querySelectorAll('#gestionEquipoFilter label').forEach(function(l){l.classList.remove('sel');});renderGestionTorneos();}
+
+// ── NOTAS ──
+var notesCache={};
+var _notesTimer=0;
+
+function notesKey(){return 'notas_'+activeSeason.replace('/','-')+'_'+activeTeam;}
+
+function loadNotes(){
+  var k=notesKey();
+  if(notesCache[k]!=null){renderNotesPanel();return Promise.resolve();}
+  return db.collection('planificacion_notas').doc(k).get().then(function(doc){
+    notesCache[k]=doc.exists?(doc.data().texto||''):'';
+    renderNotesPanel();
+  }).catch(function(e){console.error('loadNotes',e);notesCache[k]='';renderNotesPanel();});
+}
+
+function renderNotesPanel(){
+  var k=notesKey();
+  var ta=document.getElementById('notesTextarea');
+  var lbl=document.getElementById('noteTeamLabel');
+  var panel=document.getElementById('notesPanel');
+  if(!ta||!panel)return;
+  var t=TEAMS.find(function(x){return x.key===activeTeam;});
+  if(lbl)lbl.textContent=t?'— '+t.name:'';
+  ta.value=notesCache[k]||'';
+  panel.style.display='block';
+  setNotesStatus('');
+}
+
+function onNotesInput(){
+  setNotesStatus('Escribiendo...');
+  clearTimeout(_notesTimer);
+  _notesTimer=setTimeout(function(){saveNotes();},1500);
+}
+
+function saveNotes(){
+  clearTimeout(_notesTimer);
+  var k=notesKey();
+  var ta=document.getElementById('notesTextarea');
+  if(!ta)return;
+  var texto=ta.value;
+  notesCache[k]=texto;
+  setNotesStatus('Guardando...','saving');
+  db.collection('planificacion_notas').doc(k).set({texto:texto,equipo:activeTeam,season:activeSeason,updatedAt:Date.now()}).then(function(){
+    setNotesStatus('Guardado ✓','saved');
+    setTimeout(function(){setNotesStatus('');},2000);
+  }).catch(function(e){
+    setNotesStatus('Error al guardar','error');
+    showBanner('Error guardando notas: '+e.message,true);
+  });
+}
+
+function setNotesStatus(msg,cls){
+  var el=document.getElementById('notesStatus');
+  if(!el)return;
+  el.textContent=msg;
+  el.className='notes-status'+(cls?' '+cls:'');
+}
 </script>
 </body>
 </html>
