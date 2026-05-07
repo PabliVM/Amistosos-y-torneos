@@ -1294,8 +1294,10 @@ function showWelcomeScreen(){
       '</div>'+
     '</div>';
 
-  var tb=document.getElementById('teamBar');
-  tb.parentNode.insertBefore(div,tb.nextSibling);
+  // Insertar el welcome antes del mainView para que siempre sea visible
+  var mainV=document.getElementById('mainView');
+  mainV.parentNode.insertBefore(div,mainV);
+  div.style.display='block';
 }
 
 function selectTeamFromWelcome(k){
