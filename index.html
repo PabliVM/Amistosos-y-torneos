@@ -626,6 +626,7 @@ var showingPlan=false,showingMulti=false,showingGestion=false,gestionSort='fecha
 var gestionSelectedTeams=TEAMS.map(function(t){return t.key;});
 
 function renderTeamBar(){
+  if(lockedTeam){document.getElementById('teamBar').style.display='none';return;}
   var html='';
   for(var i=0;i<TEAMS.length;i++){
     var t=TEAMS[i];
@@ -653,6 +654,7 @@ function renderTeamBar(){
 }
 
 function togglePlanView(){
+  if(lockedTeam)return;
   showingMulti=false;document.getElementById('multiView').classList.remove('active');
   showingPlan=!showingPlan;
   if(showingPlan){
@@ -665,6 +667,7 @@ function togglePlanView(){
 }
 
 function toggleMultiView(){
+  if(lockedTeam)return;
   showingPlan=false;document.getElementById('planView').classList.remove('active');
   showingMulti=!showingMulti;
   if(showingMulti){
@@ -679,6 +682,7 @@ function toggleMultiView(){
 }
 
 function toggleGestionTorneos(){
+  if(lockedTeam)return;
   showingPlan=false;showingMulti=false;showingGestion=!showingGestion;
   document.getElementById('planView').classList.remove('active');document.getElementById('multiView').classList.remove('active');
   if(showingGestion){
@@ -1258,6 +1262,29 @@ function selectTeamFromWelcome(k){
   }).catch(function(e){showSync('error');renderAll();});
 }
 
+// ── MODO BLOQUEADO (enlace directo a equipo) ──
+var lockedTeam=null;
+
+function applyLockedMode(){
+  if(!lockedTeam)return;
+  // Ocultar barra de equipos completamente
+  document.getElementById('teamBar').style.display='none';
+  // Ocultar selector de temporada y botones de añadir temporada
+  var seasonArea=document.querySelector('.season-area');
+  if(seasonArea)seasonArea.style.display='none';
+  // Añadir badge del equipo en el header
+  var existing=document.getElementById('lockedBadge');
+  if(!existing){
+    var badge=document.createElement('span');
+    badge.id='lockedBadge';
+    badge.style.cssText='background:rgba(255,255,255,.2);color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;margin-left:4px;flex-shrink:0';
+    var t=TEAMS.find(function(x){return x.key===lockedTeam;});
+    badge.textContent=(t?t.name:lockedTeam);
+    var h1=document.querySelector('.header h1');
+    if(h1)h1.parentNode.insertBefore(badge,h1.nextSibling);
+  }
+}
+
 renderSeasons();renderTeamBar();
 showSync('saving');
 loadSeasons().then(function(){
@@ -1265,7 +1292,23 @@ loadSeasons().then(function(){
   return loadCategories();
 }).then(function(){
   showSync('ok');
-  showWelcomeScreen();
+  // ── Detectar ?equipo=CAS en la URL ──
+  var urlParams=new URLSearchParams(window.location.search);
+  var equipoParam=(urlParams.get('equipo')||'').toUpperCase().trim();
+  var validKeys=TEAMS.map(function(t){return t.key;});
+  if(equipoParam&&validKeys.indexOf(equipoParam)!==-1){
+    // Modo bloqueado: solo este equipo
+    lockedTeam=equipoParam;
+    activeTeam=equipoParam;
+    applyLockedMode();
+    renderTeamBar();
+    return loadItemsForSeason(activeSeason,true).then(function(){return loadFechasClave();}).then(function(){
+      renderAll();
+      loadNotes();
+    });
+  } else {
+    showWelcomeScreen();
+  }
 }).catch(function(e){
   console.error(e);
   showBanner('Error Firebase: '+(e.message||e),true);
