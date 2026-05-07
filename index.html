@@ -970,6 +970,7 @@ function loadFechasClave(){
 function saveFechasClave(){var k=fcKey(),data=getFechasClave();showSync('saving');db.collection('planificacion_fechas_clave').doc(k).set(data).then(function(){showSync('ok');}).catch(function(e){showSync('error');showBanner('Firebase: '+e.message,true);});}
 function fcPaletteHTML(fieldId,sel){return '<div class="color-palette">'+COLORS.map(function(c){return '<div class="csw '+(c.h===sel?'sel':'')+'" style="background:'+c.h+'" onclick="pickFC(this,\''+fieldId+'\',\''+c.h+'\')" title="'+c.n+'"><span class="ck">✓</span></div>';}).join('')+'</div>';}
 function openFCModal(){
+  if(lockedTeam)return;
   eT='__fc';eI=null;var fc=getFechasClave();
   document.getElementById('mt').textContent='Fechas de Inicios — '+activeTeam;
   document.getElementById('mbd').innerHTML='<label>Inicio de Pretemporada</label><input id="fcPre" type="date" value="'+esc(fc.pretemporada)+'"><label>Color</label><input type="hidden" id="fcPreColor" value="'+(fc.pretemporadaColor||'#1a1a1a')+'">'+fcPaletteHTML('fcPreColor',fc.pretemporadaColor||'#1a1a1a')+'<label style="margin-top:14px">Inicio de Competición</label><input id="fcComp" type="date" value="'+esc(fc.competicion)+'"><label>Color</label><input type="hidden" id="fcCompColor" value="'+(fc.competicionColor||'#1a1a1a')+'">'+fcPaletteHTML('fcCompColor',fc.competicionColor||'#1a1a1a');
@@ -996,16 +997,28 @@ function renderRight(){
   if(fc.pretemporada)fcItems+='<div style="display:flex;align-items:center;gap:8px;padding:5px 0"><span style="width:12px;height:12px;border-radius:50%;background:'+(fc.pretemporadaColor||'#1a1a1a')+';flex-shrink:0;border:1px solid rgba(0,0,0,.1)"></span><span style="font-size:11px;font-weight:600">Inicio Pretemporada</span><span style="font-size:10px;color:var(--text-mut);margin-left:auto">'+dtD(fc.pretemporada)+'</span></div>';
   if(fc.competicion)fcItems+='<div style="display:flex;align-items:center;gap:8px;padding:5px 0"><span style="width:12px;height:12px;border-radius:50%;background:'+(fc.competicionColor||'#1a1a1a')+';flex-shrink:0;border:1px solid rgba(0,0,0,.1)"></span><span style="font-size:11px;font-weight:600">Inicio Competición</span><span style="font-size:10px;color:var(--text-mut);margin-left:auto">'+dtD(fc.competicion)+'</span></div>';
   if(!fcItems)fcItems='<div class="empty-st" style="color:#8b6914">Sin fechas definidas.</div>';
-  fcPanel.innerHTML='<div class="panel-header" style="border-bottom:1px solid #e8d88e" onclick="togglePanel(\''+fcBid+'\')"><div class="panel-title" style="color:#8b6914"><span class="chevron '+(fcCol?'collapsed':'')+'" id="chev_'+fcBid+'" style="color:#c4a82b">▼</span>📅 FECHAS DE INICIOS</div><div class="cat-acts" onclick="event.stopPropagation()"><button class="btn-add" style="background:#c4a82b" onclick="openFCModal()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Editar</button></div></div><div class="panel-body '+(fcCol?'collapsed':'')+'" id="'+fcBid+'">'+fcItems+'</div>';
+  // En modo bloqueado: sin botón Editar en fechas de inicios
+  var fcEditBtn=lockedTeam?'':'<div class="cat-acts" onclick="event.stopPropagation()"><button class="btn-add" style="background:#c4a82b" onclick="openFCModal()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Editar</button></div>';
+  fcPanel.innerHTML='<div class="panel-header" style="border-bottom:1px solid #e8d88e" onclick="togglePanel(\''+fcBid+'\')"><div class="panel-title" style="color:#8b6914"><span class="chevron '+(fcCol?'collapsed':'')+'" id="chev_'+fcBid+'" style="color:#c4a82b">▼</span>📅 FECHAS DE INICIOS</div>'+fcEditBtn+'</div><div class="panel-body '+(fcCol?'collapsed':'')+'" id="'+fcBid+'">'+fcItems+'</div>';
   col.appendChild(fcPanel);
   var sorted=categories.slice().sort(function(a,b){return(a.order||0)-(b.order||0);});var visible=sorted.filter(function(cat){return catVisible(cat,activeTeam);});
   visible.forEach(function(cat,vi){
     var items=getAllItems(cat.id),bid='cb_'+cat.id,ic=collapsed[bid];var p=document.createElement('div');p.className='panel';
-    var moveBtns='<button class="btn-mv" onclick="event.stopPropagation();moveCat(\''+cat.id+'\',-1)" title="Subir" '+(vi===0?'disabled':'')+'>▲</button><button class="btn-mv" onclick="event.stopPropagation();moveCat(\''+cat.id+'\',1)" title="Bajar" '+(vi===visible.length-1?'disabled':'')+'>▼</button>';
-    p.innerHTML='<div class="panel-header" onclick="togglePanel(\''+bid+'\')"><div class="panel-title"><span class="chevron '+(ic?'collapsed':'')+'" id="chev_'+bid+'">▼</span><span class="panel-color-dot" style="background:'+cat.color+'"></span>'+esc(cat.title)+' '+scopeBadge(cat)+' <span style="font-size:9px;color:var(--text-mut);font-weight:400;margin-left:2px">('+items.length+')</span></div><div class="cat-acts" onclick="event.stopPropagation()">'+moveBtns+'<button class="btn-cfg" onclick="openCatCfg(\''+cat.id+'\')">'+IC.cfg+'</button><button class="btn-add" onclick="openItemModal(\''+cat.id+'\')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Añadir</button></div></div><div class="panel-body '+(ic?'collapsed':'')+'" id="'+bid+'"><div class="card-list" id="list_'+cat.id+'"></div></div>';
+    // En modo bloqueado: sin botones de mover, config ni añadir
+    var catActs=lockedTeam?'':
+      '<div class="cat-acts" onclick="event.stopPropagation()">'+
+        '<button class="btn-mv" onclick="event.stopPropagation();moveCat(\''+cat.id+'\',-1)" title="Subir" '+(vi===0?'disabled':'')+'>▲</button>'+
+        '<button class="btn-mv" onclick="event.stopPropagation();moveCat(\''+cat.id+'\',1)" title="Bajar" '+(vi===visible.length-1?'disabled':'')+'>▼</button>'+
+        '<button class="btn-cfg" onclick="openCatCfg(\''+cat.id+'\')">'+IC.cfg+'</button>'+
+        '<button class="btn-add" onclick="openItemModal(\''+cat.id+'\')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Añadir</button>'+
+      '</div>';
+    p.innerHTML='<div class="panel-header" onclick="togglePanel(\''+bid+'\')"><div class="panel-title"><span class="chevron '+(ic?'collapsed':'')+'" id="chev_'+bid+'">▼</span><span class="panel-color-dot" style="background:'+cat.color+'"></span>'+esc(cat.title)+' '+scopeBadge(cat)+' <span style="font-size:9px;color:var(--text-mut);font-weight:400;margin-left:2px">('+items.length+')</span></div>'+catActs+'</div><div class="panel-body '+(ic?'collapsed':'')+'" id="'+bid+'"><div class="card-list" id="list_'+cat.id+'"></div></div>';
     col.appendChild(p);renderItems(cat);
   });
-  var ad=document.createElement('div');ad.style.padding='2px 0';ad.innerHTML='<button class="btn-new-cat" onclick="openNewCat()">+ Nueva categoría</button>';col.appendChild(ad);
+  // En modo bloqueado: sin botón nueva categoría
+  if(!lockedTeam){
+    var ad=document.createElement('div');ad.style.padding='2px 0';ad.innerHTML='<button class="btn-new-cat" onclick="openNewCat()">+ Nueva categoría</button>';col.appendChild(ad);
+  }
 }
 
 function renderItems(cat){
@@ -1021,13 +1034,62 @@ function renderItems(cat){
     var matchInfo=(marcTxt||vdIcon)?'<span style="font-size:10px;font-weight:700;color:var(--text);white-space:nowrap;flex-shrink:0">'+(vdIcon?vdIcon:'')+(marcTxt?' '+marcTxt:'')+'</span>':'';
     var itemId=it._id||('idx_'+ri);
     var div=document.createElement('div');div.className='item-card '+cls;
-    div.innerHTML='<div class="item-row"><span class="st-badge '+((it.estado||'propuesta'))+'">'+estadoIcon(it.estado)+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+locTxt+matchInfo+'<span class="item-dt">'+dt+'</span>'+(it.obs?'<span class="obs-dot" data-obs="'+esc(it.obs).replace(/"/g,'&quot;')+'">💬</span>':'')+'<div class="item-acts"><button onclick="openItemById(\''+cat.id+'\',\''+itemId+'\')">'+IC.ed+'</button><button onclick="delItemById(\''+cat.id+'\',\''+itemId+'\')">'+IC.dl+'</button></div></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'');
+
+    if(lockedTeam){
+      // Modo solo lectura: sin botones editar/borrar, tooltip al hover con info completa
+      var estLabel={propuesta:'Propuesta',provisional:'Propuesta',ok_equipo:'OK equipo/Club',enviado_mail:'Enviado mail',definitivo:'Definitivo'};
+      var tipLines=[];
+      tipLines.push(it.nombre||(it.nombre||''));
+      tipLines.push(dt);
+      if(it.ubicacionTexto)tipLines.push((loc?loc+' ':'')+it.ubicacionTexto);
+      else if(loc)tipLines.push(loc);
+      if(marcTxt||vdIcon)tipLines.push((vdIcon?vdIcon+' ':'')+marcTxt);
+      if(it.resultado)tipLines.push(it.resultado);
+      tipLines.push(estLabel[it.estado||'propuesta']||'Propuesta');
+      if(it.obs)tipLines.push('💬 '+it.obs);
+      var tipData=tipLines.filter(Boolean).join(' · ');
+
+      div.innerHTML='<div class="item-row">'+
+        '<span class="st-badge '+(it.estado||'propuesta')+'">'+estadoIcon(it.estado)+'</span>'+
+        (loc?'<span class="item-loc">'+loc+'</span>':'')+
+        '<span class="item-nm">'+esc(it.nombre)+'</span>'+
+        locTxt+matchInfo+
+        '<span class="item-dt">'+dt+'</span>'+
+      '</div>'+
+      (it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'');
+
+      // Tooltip rico al hover
+      div.style.cursor='default';
+      div.setAttribute('data-tip',tipData);
+      div.addEventListener('mouseenter',function(e){
+        var tip=document.getElementById('obsTip');
+        var lines=this.getAttribute('data-tip').split(' · ');
+        tip.innerHTML='<div style="font-weight:700;font-size:12px;margin-bottom:4px">'+esc(lines[0])+'</div>'+
+          lines.slice(1).map(function(l){return '<div style="font-size:11px;opacity:.75;margin-top:2px">'+esc(l)+'</div>';}).join('');
+        tip.style.display='block';
+        var r=this.getBoundingClientRect();
+        var left=Math.max(8,Math.min(r.left,window.innerWidth-tip.offsetWidth-8));
+        tip.style.left=left+'px';
+        tip.style.top=(r.top-tip.offsetHeight-8)+'px';
+        if(parseInt(tip.style.top)<8)tip.style.top=(r.bottom+8)+'px';
+      });
+      div.addEventListener('mouseleave',function(){document.getElementById('obsTip').style.display='none';});
+
+    } else {
+      // Modo normal: con botones editar/borrar
+      div.innerHTML='<div class="item-row"><span class="st-badge '+((it.estado||'propuesta'))+'">'+estadoIcon(it.estado)+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+locTxt+matchInfo+'<span class="item-dt">'+dt+'</span>'+(it.obs?'<span class="obs-dot" data-obs="'+esc(it.obs).replace(/"/g,'&quot;')+'">💬</span>':'')+'<div class="item-acts"><button onclick="openItemById(\''+cat.id+'\',\''+itemId+'\')">'+IC.ed+'</button><button onclick="delItemById(\''+cat.id+'\',\''+itemId+'\')">'+IC.dl+'</button></div></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'');
+      l.appendChild(div);
+      return; // obs-dot listeners se añaden abajo solo en modo normal
+    }
     l.appendChild(div);
   });
-  l.querySelectorAll('.obs-dot').forEach(function(dot){
-    dot.addEventListener('mouseenter',function(e){var tip=document.getElementById('obsTip');tip.textContent=this.getAttribute('data-obs');tip.style.display='block';var r=this.getBoundingClientRect();tip.style.left=Math.min(r.left,window.innerWidth-400)+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';if(parseInt(tip.style.top)<0)tip.style.top=(r.bottom+8)+'px';});
-    dot.addEventListener('mouseleave',function(){document.getElementById('obsTip').style.display='none';});
-  });
+
+  if(!lockedTeam){
+    l.querySelectorAll('.obs-dot').forEach(function(dot){
+      dot.addEventListener('mouseenter',function(e){var tip=document.getElementById('obsTip');tip.textContent=this.getAttribute('data-obs');tip.style.display='block';var r=this.getBoundingClientRect();tip.style.left=Math.min(r.left,window.innerWidth-400)+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';if(parseInt(tip.style.top)<0)tip.style.top=(r.bottom+8)+'px';});
+      dot.addEventListener('mouseleave',function(){document.getElementById('obsTip').style.display='none';});
+    });
+  }
 }
 
 function esc(s){if(s==null)return '';var d=document.createElement('div');d.textContent=String(s);return d.innerHTML;}
@@ -1050,6 +1112,7 @@ var estadoMap={provisional:'propuesta',propuesta:'propuesta',ok:'ok_equipo',ok_e
 function normalizarEstado(est){est=String(est||'propuesta').trim();return estadoMap[est]||'propuesta';}
 
 function openItemModal(cid,idx){
+  if(lockedTeam)return;
   eT=cid;eI=idx!=null?idx:null;var cat=categories.find(function(c){return c.id===cid;});if(!cat)return;
   var items=getAllItems(cid),it=eI!=null?items[eI]:null;
   document.getElementById('mt').textContent=(it?'Editar':'Añadir')+' — '+cat.title;
