@@ -333,6 +333,7 @@ body.dark .notes-textarea{background:var(--surface-alt);color:var(--text);border
   <h1>Planificación de Temporada <span id="headerSeason">2026/2027</span></h1>
   <span class="sync-dot ok" id="syncDot" style="margin-left:6px"></span>
   <button class="btn-dark" onclick="toggleDark()" id="darkBtn" title="Modo oscuro/claro"><svg id="darkIcon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+  <button class="btn-dark" onclick="openBackupModal()" title="Backups" style="font-size:13px">💾</button>
   <div class="season-area">
     <label>Temporada</label>
     <select id="seasonSel" onchange="changeSeason()"></select>
@@ -342,6 +343,21 @@ body.dark .notes-textarea{background:var(--surface-alt);color:var(--text);border
 </div>
 <div class="banner" id="banner"><span id="bannerMsg"></span><button class="bx" onclick="document.getElementById('banner').className='banner'">×</button></div>
 <div id="obsTip"></div>
+
+<!-- BACKUP MODAL -->
+<div class="modal-overlay" id="backupModal" onclick="if(event.target===this)document.getElementById('backupModal').classList.remove('active')">
+  <div class="modal" style="max-width:560px">
+    <div class="mh">
+      <h3>💾 Backups</h3>
+      <button class="mx" onclick="document.getElementById('backupModal').classList.remove('active')">&times;</button>
+    </div>
+    <div class="mb" id="backupBody" style="padding:10px 18px"></div>
+    <div class="mf" style="justify-content:space-between">
+      <button class="btn-s" onclick="exportarJSON()">⬇️ Exportar todo como JSON</button>
+      <button class="btn-p" onclick="crearBackupManual()">💾 Crear backup ahora</button>
+    </div>
+  </div>
+</div>
 <div class="mdd-overlay" id="mddOverlay" onclick="if(event.target===this)closeMDD()">
   <div class="mdd-box"><div class="mdd-header"><h3 id="mddTitle"></h3><button class="mdd-close" onclick="closeMDD()">&times;</button></div><div class="mdd-body" id="mddBody"></div></div>
 </div>
@@ -580,7 +596,11 @@ function saveItemsFB(catId){
   var k=itemsKey(catId,activeSeason);
   var data={items:itemsCache[k]||[],season:activeSeason,catId:catId};
   showSync('saving');
-  return itemsRef().doc(k).set(data).then(function(){showSync('ok');}).catch(function(e){showSync('error');showBanner('❌ No se pudo guardar: '+e.message,true);});
+  return itemsRef().doc(k).set(data).then(function(){
+    showSync('ok');
+    // Backup automático silencioso cada vez que se guarda
+    guardarBackupAuto(catId,k,data.items);
+  }).catch(function(e){showSync('error');showBanner('❌ No se pudo guardar: '+e.message,true);});
 }
 
 function renderSeasons(){
@@ -1243,14 +1263,8 @@ function showWelcomeScreen(){
   div.id='welcomeScreen';
   div.innerHTML=
     '<style>'+
-    '#welcomeScreen{padding:28px 32px 80px;animation:wlcFadeIn .3s ease}'+
+    '#welcomeScreen{padding:20px 24px 80px;animation:wlcFadeIn .3s ease}'+
     '@keyframes wlcFadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}'+
-    '.wlc-hero{display:flex;align-items:center;gap:14px;margin-bottom:28px;padding:18px 22px;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--sh-sm)}'+
-    '.wlc-hero-logo{width:48px;height:48px;border-radius:50%;background:var(--rm-blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;padding:4px}'+
-    '.wlc-hero-logo img{width:100%;height:100%;object-fit:contain}'+
-    '.wlc-hero-text h2{font-size:19px;font-weight:700;color:var(--text);margin:0 0 2px;letter-spacing:-.3px}'+
-    '.wlc-hero-text p{font-size:12px;color:var(--text-mut);margin:0}'+
-    '.wlc-season-badge{margin-left:auto;background:var(--rm-blue);color:#fff;font-size:12px;font-weight:700;padding:6px 16px;border-radius:20px;flex-shrink:0}'+
     '.wlc-layout{display:grid;grid-template-columns:1fr 260px;gap:20px;align-items:start}'+
     '.wlc-left{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 22px;box-shadow:var(--sh-sm)}'+
     '.wlc-left-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--text-mut);margin-bottom:14px}'+
@@ -1269,11 +1283,6 @@ function showWelcomeScreen(){
     '.wlc-view-btn:hover .wlc-vb-title{color:var(--rm-blue)}'+
     '.wlc-vb-sub{font-size:10px;color:var(--text-mut);margin-top:3px}'+
     '</style>'+
-    '<div class="wlc-hero">'+
-      '<div class="wlc-hero-logo"><img src="https://raw.githubusercontent.com/PabliVM/PLANNING/main/assets/rm.png" alt="RM" onerror="this.src=\'https://raw.githubusercontent.com/PabliVM/Amistosos-y-torneos/main/rm_.png\'"></div>'+
-      '<div class="wlc-hero-text"><h2>Planificación de Temporada</h2><p>Selecciona un equipo o una vista para empezar</p></div>'+
-      '<div class="wlc-season-badge">'+activeSeason+'</div>'+
-    '</div>'+
     '<div class="wlc-layout">'+
       '<div class="wlc-left">'+
         '<div class="wlc-left-title">Equipos</div>'+
@@ -1379,6 +1388,151 @@ loadSeasons().then(function(){
 });
 
 function seleccionarTodosGestion(){document.querySelectorAll('#gestionEquipoFilter input').forEach(function(cb){cb.checked=true;});document.querySelectorAll('#gestionEquipoFilter label').forEach(function(l){l.classList.add('sel');});renderGestionTorneos();}
+function deseleccionarTodosGestion(){document.querySelectorAll('#gestionEquipoFilter input').forEach(function(cb){cb.checked=false;});document.querySelectorAll('#gestionEquipoFilter label').forEach(function(l){l.classList.remove('sel');});renderGestionTorneos();}
+
+// ── BACKUPS ──
+var MAX_BACKUPS_PER_KEY=10;
+
+function backupsRef(){return db.collection('planificacion_backups');}
+
+function guardarBackupAuto(catId,key,items){
+  if(!items||items.length===0)return; // no guardar si está vacío
+  var ts=Date.now();
+  var backupId=key+'_'+ts;
+  var data={
+    key:key,catId:catId,season:activeSeason,
+    equipo:activeTeam,ts:ts,
+    fecha:new Date(ts).toLocaleString('es-ES'),
+    items:JSON.parse(JSON.stringify(items)),
+    tipo:'auto'
+  };
+  backupsRef().doc(backupId).set(data).then(function(){
+    // Limpiar backups antiguos — conservar solo los últimos MAX_BACKUPS_PER_KEY
+    backupsRef().where('key','==',key).orderBy('ts','desc').get().then(function(snap){
+      if(snap.size>MAX_BACKUPS_PER_KEY){
+        var batch=db.batch();
+        snap.docs.slice(MAX_BACKUPS_PER_KEY).forEach(function(d){batch.delete(d.ref);});
+        batch.commit();
+      }
+    }).catch(function(){});
+  }).catch(function(e){console.warn('Backup auto falló:',e);});
+}
+
+function crearBackupManual(){
+  var ts=Date.now();
+  var batch=db.batch();
+  var count=0;
+  var savedTeam=activeTeam;
+  // Backup de todos los equipos y categorías de la temporada activa
+  TEAMS.forEach(function(t){
+    activeTeam=t.key;
+    categories.forEach(function(cat){
+      var k=itemsKey(cat.id,activeSeason);
+      var items=itemsCache[k];
+      if(!items||items.length===0)return;
+      var backupId=k+'_manual_'+ts;
+      batch.set(backupsRef().doc(backupId),{
+        key:k,catId:cat.id,season:activeSeason,
+        equipo:t.key,ts:ts,
+        fecha:new Date(ts).toLocaleString('es-ES'),
+        items:JSON.parse(JSON.stringify(items)),
+        tipo:'manual'
+      });
+      count++;
+    });
+  });
+  activeTeam=savedTeam;
+  if(count===0){showBanner('No hay datos cargados para hacer backup',true);return;}
+  batch.commit().then(function(){
+    showBanner('✅ Backup manual creado ('+count+' colecciones)');
+    openBackupModal();
+  }).catch(function(e){showBanner('Error en backup: '+e.message,true);});
+}
+
+function openBackupModal(){
+  document.getElementById('backupModal').classList.add('active');
+  var body=document.getElementById('backupBody');
+  body.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-mut)">Cargando backups...</div>';
+  // Cargar backups de la temporada activa, ordenados por fecha desc
+  backupsRef().where('season','==',activeSeason).orderBy('ts','desc').limit(50).get().then(function(snap){
+    if(snap.empty){body.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-mut)">No hay backups para esta temporada.</div>';return;}
+    // Agrupar por timestamp (cada backup manual agrupa varios)
+    var groups={};
+    snap.docs.forEach(function(d){
+      var data=d.data();
+      var gKey=(data.tipo==='manual'?'M_':'')+data.ts;
+      if(!groups[gKey])groups[gKey]={ts:data.ts,fecha:data.fecha,tipo:data.tipo,docs:[]};
+      groups[gKey].docs.push({id:d.id,data:data});
+    });
+    var sorted=Object.values(groups).sort(function(a,b){return b.ts-a.ts;});
+    var html='<div style="font-size:10px;color:var(--text-mut);margin-bottom:10px">Los backups automáticos se crean cada vez que guardas. Se conservan los últimos '+MAX_BACKUPS_PER_KEY+' por categoría.</div>';
+    html+='<div style="display:flex;flex-direction:column;gap:6px;max-height:360px;overflow-y:auto">';
+    sorted.forEach(function(g){
+      var tipoBadge=g.tipo==='manual'
+        ?'<span style="background:#edf1fc;color:#2563eb;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px">MANUAL</span>'
+        :'<span style="background:#f0fdf4;color:#16a34a;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px">AUTO</span>';
+      var totalItems=g.docs.reduce(function(acc,d){return acc+(d.data.items||[]).length;},0);
+      var equipos=[...new Set(g.docs.map(function(d){return d.data.equipo;}))].join(', ');
+      html+='<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface-alt);border:1px solid var(--border-light);border-radius:8px">'+
+        '<div style="flex:1;min-width:0">'+
+          '<div style="font-size:11px;font-weight:600;color:var(--text)">'+g.fecha+'</div>'+
+          '<div style="font-size:10px;color:var(--text-mut);margin-top:2px">'+totalItems+' eventos · '+g.docs.length+' colecciones · '+equipos+'</div>'+
+        '</div>'+
+        tipoBadge+
+        '<button onclick="restaurarBackup('+g.ts+',\''+g.tipo+'\')" style="padding:4px 10px;font-size:10px;font-weight:600;background:var(--rm-blue);color:#fff;border:none;border-radius:6px;cursor:pointer">Restaurar</button>'+
+      '</div>';
+    });
+    html+='</div>';
+    body.innerHTML=html;
+  }).catch(function(e){body.innerHTML='<div style="color:var(--red);padding:12px">Error cargando backups: '+e.message+'</div>';});
+}
+
+function restaurarBackup(ts,tipo){
+  if(!confirm('¿Restaurar este backup? Se sobreescribirán los datos actuales de los equipos incluidos en el backup.'))return;
+  var gKey=(tipo==='manual'?'M_':'')+ts;
+  backupsRef().where('season','==',activeSeason).where('ts','==',ts).get().then(function(snap){
+    if(snap.empty){showBanner('Backup no encontrado',true);return;}
+    var batch=db.batch();
+    snap.docs.forEach(function(d){
+      var data=d.data();
+      // Restaurar en caché
+      itemsCache[data.key]=JSON.parse(JSON.stringify(data.items));
+      // Restaurar en Firestore
+      batch.set(itemsRef().doc(data.key),{items:data.items,season:data.season,catId:data.catId});
+    });
+    return batch.commit();
+  }).then(function(){
+    document.getElementById('backupModal').classList.remove('active');
+    renderAll();
+    showBanner('✅ Backup restaurado correctamente');
+  }).catch(function(e){showBanner('Error al restaurar: '+e.message,true);});
+}
+
+function exportarJSON(){
+  var savedTeam=activeTeam;
+  var exportData={season:activeSeason,fecha:new Date().toLocaleString('es-ES'),equipos:{}};
+  TEAMS.forEach(function(t){
+    activeTeam=t.key;
+    exportData.equipos[t.key]={nombre:t.name,categorias:{}};
+    categories.forEach(function(cat){
+      var k=itemsKey(cat.id,activeSeason);
+      var items=itemsCache[k];
+      if(items&&items.length>0){
+        exportData.equipos[t.key].categorias[cat.id]={titulo:cat.title,items:items};
+      }
+    });
+  });
+  activeTeam=savedTeam;
+  var json=JSON.stringify(exportData,null,2);
+  var blob=new Blob([json],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;
+  a.download='planificacion_'+activeSeason.replace('/','_')+'_'+Date.now()+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showBanner('✅ JSON exportado');
+}document.querySelectorAll('#gestionEquipoFilter input').forEach(function(cb){cb.checked=true;});document.querySelectorAll('#gestionEquipoFilter label').forEach(function(l){l.classList.add('sel');});renderGestionTorneos();}
 function deseleccionarTodosGestion(){document.querySelectorAll('#gestionEquipoFilter input').forEach(function(cb){cb.checked=false;});document.querySelectorAll('#gestionEquipoFilter label').forEach(function(l){l.classList.remove('sel');});renderGestionTorneos();}
 
 // ── NOTAS ──
