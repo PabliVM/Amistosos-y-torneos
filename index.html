@@ -1262,7 +1262,16 @@ function renderItems(cat){
     // Sección de partidos (siempre visible si hay rango, editable o no)
     if(hasRange){
       var psec=document.createElement('div');psec.className='partidos-section';
-      var psHtml='<div class="partidos-header"><span class="partidos-title">⚽ Partidos ('+partidos.length+')</span>'+partidosBtnHtml+'</div>';
+      var psId='ps_'+itemId;
+      var psCollapsed=collapsed[psId]!==false; // colapsado por defecto
+      var psHtml='<div class="partidos-header" onclick="togglePartidos(\''+psId+'\',this)" style="cursor:pointer">'+
+        '<span style="display:flex;align-items:center;gap:5px">'+
+          '<span class="chevron '+(psCollapsed?'collapsed':'')+'" id="chev_'+psId+'" style="font-size:9px;color:var(--text-mut)">▼</span>'+
+          '<span class="partidos-title">⚽ Partidos ('+partidos.length+')</span>'+
+        '</span>'+
+        partidosBtnHtml+
+      '</div>';
+      psHtml+='<div id="'+psId+'" style="'+(psCollapsed?'display:none':'')+'">'; 
       var pSorted=partidos.slice().sort(function(a,b){var x=(a.fecha||'')+(a.hora||'');var y=(b.fecha||'')+(b.hora||'');return x<y?-1:x>y?1:0;});
       pSorted.forEach(function(p){
         var pvd=p.victoriaDerrota==='victoria'?'✅':(p.victoriaDerrota==='derrota'?'❌':'');
@@ -1280,6 +1289,7 @@ function renderItems(cat){
           (!lockedTeam?'<div class="partido-acts"><button onclick="openPartidoModal(\''+cat.id+'\',\''+itemId+'\',\''+p._id+'\')">'+IC.ed+'</button><button onclick="_quickDelPartido(\''+cat.id+'\',\''+itemId+'\',\''+p._id+'\')">'+IC.dl+'</button></div>':'')+
         '</div>';
       });
+      psHtml+='</div>';
       psec.innerHTML=psHtml;
       div.appendChild(psec);
       // obs dots en partidos
@@ -1299,6 +1309,16 @@ function renderItems(cat){
       dot.addEventListener('mouseleave',function(){document.getElementById('obsTip').style.display='none';});
     });
   }
+}
+
+function togglePartidos(psId,headerEl){
+  var body=document.getElementById(psId);
+  var chev=document.getElementById('chev_'+psId);
+  if(!body)return;
+  var isHidden=body.style.display==='none';
+  body.style.display=isHidden?'':'none';
+  if(chev){isHidden?chev.classList.remove('collapsed'):chev.classList.add('collapsed');}
+  collapsed[psId]=!isHidden;
 }
 
 function _quickDelPartido(catId,itemId,partidoId){
