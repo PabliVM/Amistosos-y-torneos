@@ -6,8 +6,8 @@
 <title>Planificación de Temporada</title>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-
-  <style>
+<style>
+/* ── BASE STYLES (unchanged) ── */
 .gestion-estado select{text-align:left;padding-left:10px;}
 .gestion-table td{vertical-align:middle;}
 .gestion-estado.propuesta select{background:#fef2f2;color:#dc2626;font-weight:700;border-radius:4px;}
@@ -40,7 +40,6 @@ html{overflow-y:scroll;scrollbar-gutter:stable;}
 body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.45;-webkit-font-smoothing:antialiased;font-size:13px;padding-bottom:40px}
 .header{background:var(--rm-blue);padding:12px 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.15)}
 .header-logo{width:38px;height:38px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;padding:3px}
-.header-logo svg{width:100%;height:100%}
 .header h1{font-size:17px;font-weight:700;color:#fff;white-space:nowrap;letter-spacing:-.3px}
 .header h1 span{color:rgba(255,255,255,.7);font-weight:500;margin-left:6px}
 .season-area{margin-left:auto;display:flex;align-items:center;gap:6px;flex-shrink:0}
@@ -59,6 +58,18 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .banner.error{background:#991b1b;font-weight:500}
 .banner .bx{margin-left:auto;cursor:pointer;background:none;border:none;color:#fff;font-size:18px;font-weight:700;flex-shrink:0;padding:0 4px;opacity:.7}
 .banner .bx:hover{opacity:1}
+/* READONLY BANNER */
+.readonly-banner{display:none;position:sticky;top:62px;z-index:98;background:#7c3aed;color:#fff;padding:8px 20px;font-size:12px;font-weight:600;text-align:center;letter-spacing:.2px}
+.readonly-banner.show{display:block}
+/* READONLY MODE */
+body.readonly .item-acts{display:none!important}
+body.readonly .btn-add{opacity:.35;pointer-events:none;cursor:not-allowed}
+body.readonly .btn-cfg{opacity:.35;pointer-events:none;cursor:not-allowed}
+body.readonly .btn-mv{opacity:.35;pointer-events:none;cursor:not-allowed}
+body.readonly .btn-new-cat{opacity:.35;pointer-events:none;cursor:not-allowed}
+body.readonly .item-card{opacity:.8}
+body.readonly .gestion-table input,body.readonly .gestion-table select{pointer-events:none;opacity:.6;background:var(--surface-alt)!important}
+body.readonly .notes-textarea{pointer-events:none;opacity:.7;background:var(--surface-alt)!important}
 .team-bar{background:var(--surface);padding:10px 24px;display:flex;align-items:center;gap:5px;overflow-x:auto;position:sticky;top:62px;z-index:99;border-bottom:1px solid var(--border)}
 .team-bar::-webkit-scrollbar{height:0}
 .team-btn{padding:5px 14px;font-size:11px;font-weight:600;font-family:var(--font);border:1.5px solid var(--border);border-radius:20px;background:var(--surface);color:var(--text-sec);cursor:pointer;white-space:nowrap;transition:all var(--tr)}
@@ -86,7 +97,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .cal-d.e{visibility:hidden}.cal-d.w{color:var(--text-faint)}
 .cal-d.has-event{cursor:help;font-weight:700}
 .cal-d.has-event:hover .day-tip{display:block}
-.day-tip{display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;font-size:11px;padding:8px 12px;border-radius:8px;min-width:180px;max-width:280px;width:max-content;text-align:left;z-index:200;box-shadow:var(--sh-lg);font-weight:400;line-height:1.5;white-space:normal;word-wrap:break-word;pointer-events:none}
+.day-tip{display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;font-size:11px;padding:8px 12px;border-radius:8px;min-width:180px;max-width:300px;width:max-content;text-align:left;z-index:200;box-shadow:var(--sh-lg);font-weight:400;line-height:1.5;white-space:normal;word-wrap:break-word;pointer-events:none}
 .day-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#1e293b}
 .cal-month:first-child .day-tip,.cal-month:nth-child(4n+1) .day-tip{left:0;transform:none}
 .cal-month:first-child .day-tip::after,.cal-month:nth-child(4n+1) .day-tip::after{left:14px;transform:none}
@@ -254,7 +265,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .plan-evt-icon{padding:0;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff}
 .plan-evt-icon svg{width:14px;height:14px;display:block}
 .plan-evt-icon[data-est="propuesta"]{background:#fef2f2}
-.plan-evt-icon[data-est="provisional"]{background:#fef2f2}
 .plan-evt-icon[data-est="ok_equipo"]{background:#fff7ed}
 .plan-evt-icon[data-est="enviado_mail"]{background:#fefce8}
 .plan-evt-icon[data-est="definitivo"]{background:#f0fdf4}
@@ -268,14 +278,13 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 @media print{
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}
   body{background:#fff!important;padding:0!important;font-size:8px!important}
-  body.dark{--bg:#fff;--surface:#fff;--surface-alt:#fafbfc;--border:#dfe1e6;--border-light:#eaecf0;--text:#1a1d23;--text-sec:#5a6170;--text-mut:#8b919e}
-  .header,.team-bar,.banner,#obsTip,.btn-season,.sync-dot,.btn-dark,.season-area,footer,.modal-overlay,.btn-plan,.btn-multi{display:none!important}
+  .header,.team-bar,.banner,.readonly-banner,#obsTip,.btn-season,.sync-dot,.btn-dark,.season-area,footer,.modal-overlay,.btn-plan,.btn-multi{display:none!important}
   #multiControlsPanel{display:none!important}
   .multi-view{display:block!important;padding:0!important}
   .multi-view .multi-cal{max-height:none!important;overflow:visible!important}
   .multi-months{gap:6px!important;flex-wrap:wrap!important}
   .multi-month{min-width:0!important;break-inside:avoid;flex:1 1 30%!important}
-  .multi-month-head{padding:5px 8px!important;font-size:11px!important;-webkit-print-color-adjust:exact!important}
+  .multi-month-head{padding:5px 8px!important;font-size:11px!important;}
   .multi-cell{min-height:40px!important}
   .multi-cell-evt-bar{height:10px!important}
   .multi-cell-evt-icon svg{width:8px!important;height:8px!important}
@@ -283,9 +292,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
   .multi-cell-num{font-size:9px!important}
   .multi-dh span{font-size:8px!important}
   .print-header{display:flex!important;align-items:center;gap:12px;padding:10px 16px;background:#2563eb!important;color:#fff!important;margin-bottom:8px;border-radius:6px}
-  .print-header img{width:36px;height:36px}
-  .print-header h2{font-size:14px;font-weight:700;margin:0}
-  .print-header span{font-size:11px;opacity:.7;margin-left:auto}
   .plan-fc,.multi-cell-fc{-webkit-print-color-adjust:exact!important}
 }
 .print-header{display:none}
@@ -317,12 +323,32 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 .notes-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);box-shadow:var(--sh-sm);margin-top:0}
 .notes-panel .panel-header{border-radius:var(--rl) var(--rl) 0 0}
 .notes-body{padding:10px 12px}
-.notes-textarea{width:100%;min-height:160px;resize:vertical;padding:10px 12px;border:1px solid var(--border);border-radius:var(--rs);font-size:12px;font-family:var(--font);color:var(--text);background:var(--surface);line-height:1.6;transition:border-color var(--tr)}
+.notes-textarea{width:100%;min-height:140px;resize:vertical;padding:10px 12px;border:1px solid var(--border);border-radius:var(--rs);font-size:12px;font-family:var(--font);color:var(--text);background:var(--surface);line-height:1.6;transition:border-color var(--tr)}
 .notes-textarea:focus{outline:none;border-color:var(--rm-blue)}
-.notes-footer{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-top:6px}
-.notes-status{font-size:10px;color:var(--text-mut);flex:1}
+.notes-footer{display:flex;align-items:center;margin-top:6px}
+.notes-status{font-size:10px;color:var(--text-mut)}
 .notes-status.saving{color:#f59e0b}.notes-status.saved{color:var(--green)}.notes-status.error{color:var(--red)}
 body.dark .notes-textarea{background:var(--surface-alt);color:var(--text);border-color:var(--border)}
+/* ── INICIO CAMBIO PARTIDOS ── */
+.partidos-section{margin-top:8px;border-top:1px dashed var(--border-light);padding-top:6px}
+.partidos-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
+.partidos-title{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-mut)}
+.partido-card{display:flex;align-items:center;gap:5px;padding:4px 7px;border-radius:4px;border:1px solid var(--border-light);background:var(--surface-alt);margin-bottom:3px;font-size:10px}
+.partido-card:hover{border-color:var(--border)}
+.partido-fecha{font-size:9px;color:var(--text-mut);flex-shrink:0;min-width:52px}
+.partido-hora{font-size:9px;color:var(--text-mut);flex-shrink:0}
+.partido-rival{font-weight:600;color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.partido-loc{font-size:10px;flex-shrink:0}
+.partido-marcador{font-size:10px;font-weight:700;color:var(--text);flex-shrink:0;white-space:nowrap}
+.partido-vd{font-size:10px;flex-shrink:0}
+.partido-acts{display:flex;gap:1px;opacity:0;transition:opacity var(--tr);flex-shrink:0}
+.partido-card:hover .partido-acts{opacity:1}
+.partido-acts button{background:none;border:none;cursor:pointer;width:18px;height:18px;border-radius:3px;display:flex;align-items:center;justify-content:center;color:var(--text-mut)}
+.partido-acts button:hover{background:var(--bg);color:var(--text)}
+.partido-acts button svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:1.8;pointer-events:none}
+.btn-add-partido{display:inline-flex;align-items:center;gap:2px;padding:2px 8px;font-size:9px;font-weight:600;background:transparent;color:var(--text-mut);border:1px dashed var(--border);border-radius:4px;cursor:pointer;font-family:var(--font);transition:all var(--tr)}
+.btn-add-partido:hover{border-color:var(--rm-blue);color:var(--rm-blue)}
+/* ── FIN CAMBIO PARTIDOS ── */
 </style>
 </head>
 <body>
@@ -340,6 +366,8 @@ body.dark .notes-textarea{background:var(--surface-alt);color:var(--text);border
     <button class="btn-season danger" onclick="delSeason()" title="Eliminar temporada">×</button>
   </div>
 </div>
+<!-- READONLY BANNER -->
+<div class="readonly-banner" id="readonlyBanner">🔒 Solo lectura — <span id="readonlyHolder"></span> está editando este equipo</div>
 <div class="banner" id="banner"><span id="bannerMsg"></span><button class="bx" onclick="document.getElementById('banner').className='banner'">×</button></div>
 <div id="obsTip"></div>
 <div class="mdd-overlay" id="mddOverlay" onclick="if(event.target===this)closeMDD()">
@@ -359,9 +387,7 @@ body.dark .notes-textarea{background:var(--surface-alt);color:var(--text);border
       <div class="panel-body" id="notesBody">
         <div class="notes-body">
           <textarea class="notes-textarea" id="notesTextarea" placeholder="Escribe aquí las notas del equipo..." oninput="onNotesInput()"></textarea>
-          <div class="notes-footer">
-            <span class="notes-status" id="notesStatus"></span>
-          </div>
+          <div class="notes-footer"><span class="notes-status" id="notesStatus"></span></div>
         </div>
       </div>
     </div>
@@ -419,7 +445,6 @@ body.dark .notes-textarea{background:var(--surface-alt);color:var(--text);border
   <div class="modal"><div class="mh"><h3 id="mt"></h3><button class="mx" onclick="closeModal()">&times;</button></div><div class="mb" id="mbd"></div><div class="mf" id="mft"></div></div>
 </div>
 <footer style="background:var(--rm-blue);padding:12px 24px;text-align:center;color:rgba(255,255,255,.5);font-size:10px;letter-spacing:.3px;position:fixed;bottom:0;left:0;right:0;z-index:50">Real Madrid CF — Planificación de Temporada</footer>
-
 <script>
 firebase.initializeApp({apiKey:"AIzaSyAyPmMciYVe1RHaRYMww4kEg2nSAEc_dfw",authDomain:"amistosos-y-torneos.firebaseapp.com",projectId:"amistosos-y-torneos",storageBucket:"amistosos-y-torneos.firebasestorage.app",messagingSenderId:"7038951639",appId:"1:7038951639:web:8daf47f203ca91f00a5092"});
 var db=firebase.firestore();
@@ -511,16 +536,11 @@ function loadCategories(){
         if(existing){
           if(!Array.isArray(existing.teams))existing.teams=[];
           if(existing.order===undefined)existing.order=def.order;
-          // ── FIX: solo forzar scopeMode y teams, NO el color (respeta colores guardados) ──
           var needsUpdate=false;
           if(existing.scopeMode!==def.scopeMode){existing.scopeMode=def.scopeMode;needsUpdate=true;}
           if(def.scopeMode==='each'&&existing.teams.length>0){existing.teams=[];needsUpdate=true;}
           if(def.scopeMode==='all'){existing.teams=[];needsUpdate=true;}
-          if(def.scopeMode==='multi'){
-            var defTeams=def.teams.slice().sort().join(',');
-            var exTeams=existing.teams.slice().sort().join(',');
-            if(defTeams!==exTeams){existing.teams=def.teams.slice();needsUpdate=true;}
-          }
+          if(def.scopeMode==='multi'){var defTeams=def.teams.slice().sort().join(',');var exTeams=existing.teams.slice().sort().join(',');if(defTeams!==exTeams){existing.teams=def.teams.slice();needsUpdate=true;}}
           if(needsUpdate){batch.set(catsRef().doc(def.id),Object.assign({},existing));changed=true;}
           categories.push(existing);
         } else {
@@ -529,18 +549,8 @@ function loadCategories(){
           changed=true;
         }
       });
-      loaded.forEach(function(c){
-        if(BASE_IDS.indexOf(c.id)===-1&&c.id.indexOf('cat_')===0){
-          if(!c.scopeMode)c.scopeMode='each';
-          if(!Array.isArray(c.teams))c.teams=[];
-          categories.push(c);
-        }
-      });
-      loaded.forEach(function(c){
-        if(BASE_IDS.indexOf(c.id)===-1&&c.id.indexOf('cat_')!==0){
-          batch.delete(catsRef().doc(c.id));changed=true;
-        }
-      });
+      loaded.forEach(function(c){if(BASE_IDS.indexOf(c.id)===-1&&c.id.indexOf('cat_')===0){if(!c.scopeMode)c.scopeMode='each';if(!Array.isArray(c.teams))c.teams=[];categories.push(c);}});
+      loaded.forEach(function(c){if(BASE_IDS.indexOf(c.id)===-1&&c.id.indexOf('cat_')!==0){batch.delete(catsRef().doc(c.id));changed=true;}});
       if(changed)return batch.commit();
     }
   }).catch(function(e){console.error(e);showBanner('Firebase: '+e.message,true);});
@@ -556,6 +566,7 @@ function loadItemsForSeason(season,forceReload){
       var needsSave=false;
       items.forEach(function(it,i){
         if(!it._id){it._id='it_'+Date.now()+'_'+i;needsSave=true;}
+        if(!it.partidos)it.partidos=[];
       });
       itemsCache[k]=items;
       if(needsSave&&items.length>0){itemsRef().doc(k).set({items:items,season:season,catId:cat.id}).catch(function(){});}
@@ -577,6 +588,7 @@ function catVisible(cat,team){
 }
 
 function saveItemsFB(catId){
+  if(!canEditCurrentTeam()){showBanner('Solo lectura: otro usuario está editando este equipo',true);return Promise.resolve();}
   var k=itemsKey(catId,activeSeason);
   var data={items:itemsCache[k]||[],season:activeSeason,catId:catId};
   showSync('saving');
@@ -589,14 +601,11 @@ function renderSeasons(){
   document.getElementById('headerSeason').textContent=activeSeason;
 }
 
-// ── FIX: changeSeason recarga datos desde Firebase ──
 function changeSeason(){
   activeSeason=document.getElementById('seasonSel').value;
   document.getElementById('headerSeason').textContent=activeSeason;
-  itemsCache={};
-  fechasClaveCache={};
-  renderAll();
-  showSync('saving');
+  itemsCache={};fechasClaveCache={};
+  renderAll();showSync('saving');
   loadItemsForSeason(activeSeason,true).then(function(){return loadFechasClave();}).then(function(){showSync('ok');renderAll();loadNotes();}).catch(function(e){console.error(e);showSync('error');renderAll();});
 }
 
@@ -605,8 +614,7 @@ function addSeason(){
   if(parts.length<2||isNaN(parts[1]))return;
   var ns=parts[1]+'/'+(parts[1]+1);
   if(seasons.indexOf(ns)!==-1){showBanner(ns+' ya existe',true);return;}
-  seasons.push(ns);activeSeason=ns;
-  itemsCache={};fechasClaveCache={};
+  seasons.push(ns);activeSeason=ns;itemsCache={};fechasClaveCache={};
   renderSeasons();renderAll();showSync('saving');
   seasonsRef().doc(ns.replace('/','-')).set({name:ns,order:seasons.length-1}).then(function(){showSync('ok');showBanner('Temporada '+ns+' creada');}).catch(function(e){showSync('error');showBanner('Firebase: '+e.message,true);});
 }
@@ -623,7 +631,6 @@ function delSeason(){
 }
 
 var showingPlan=false,showingMulti=false,showingGestion=false,gestionSort='fecha',multiSelectedTeams=['CAS','RMC','JA'];
-var gestionSelectedTeams=TEAMS.map(function(t){return t.key;});
 
 function renderTeamBar(){
   if(lockedTeam){document.getElementById('teamBar').style.display='none';return;}
@@ -640,15 +647,20 @@ function renderTeamBar(){
     btn.addEventListener('click',function(){
       var scrollYBefore=window.scrollY;
       var k=this.getAttribute('data-team');
+      var prevTeam=activeTeam;
       activeTeam=k;
       if(showingPlan){showingPlan=false;document.getElementById('planView').classList.remove('active');document.getElementById('mainView').classList.remove('hidden');}
       if(showingMulti){showingMulti=false;document.getElementById('multiView').classList.remove('active');document.getElementById('mainView').classList.remove('hidden');}
       if(showingGestion){showingGestion=false;document.getElementById('gestionView').classList.remove('active');document.getElementById('mainView').classList.remove('hidden');}
-      renderTeamBar();
-      renderAll();
-      // ── FIX: recargar datos del equipo desde Firebase al cambiar de equipo ──
+      // Liberar lock del equipo anterior
+      if(prevTeam&&prevTeam!==k)releaseTeamLock(prevTeam);
+      renderTeamBar();renderAll();
       showSync('saving');
-      loadItemsForSeason(activeSeason,true).then(function(){return loadFechasClave();}).then(function(){showSync('ok');renderAll();loadNotes();window.scrollTo(0,scrollYBefore);}).catch(function(e){showSync('error');renderAll();});
+      loadItemsForSeason(activeSeason,true).then(function(){return loadFechasClave();}).then(function(){
+        showSync('ok');renderAll();loadNotes();
+        acquireTeamLock(k);
+        window.scrollTo(0,scrollYBefore);
+      }).catch(function(e){showSync('error');renderAll();});
     });
   });
 }
@@ -743,6 +755,7 @@ function renderGestionTorneos(){
 }
 
 function updateGestionCell(el,field){
+  if(!canEditCurrentTeam()){showBanner('Solo lectura: otro usuario está editando este equipo',true);return;}
   var tr=el.closest('tr');if(!tr)return;
   var key=tr.getAttribute('data-key'),idx=parseInt(tr.getAttribute('data-idx'));
   if(!itemsCache[key]||!itemsCache[key][idx])return;
@@ -821,12 +834,22 @@ function renderMultiView(){
           if(!catVisible(cat,tkey))return;var k=itemsKey(cat.id,activeSeason);var items=itemsCache[k]||[];
           items.forEach(function(it){
             if(!it||!it.fechaInicio)return;
+            // Rango del evento
             dtDays(it.fechaInicio,it.fechaFin||it.fechaInicio).forEach(function(dd){
               if(dd.y===yr&&dd.m===mi+1&&dd.d===d){
                 var loc=it.ubicacion?LOC_EMOJI[it.ubicacion]||'':'',locTxt=it.ubicacionTexto||'',vd=it.victoriaDerrota==='victoria'?'✅':(it.victoriaDerrota==='derrota'?'❌':''),sc=it.marcador||'';
                 var estLabel={propuesta:'Propuesta',provisional:'Propuesta',ok_equipo:'OK equipo',enviado_mail:'Enviado mail',definitivo:'Definitivo'};
                 var detail=[];if(loc||locTxt)detail.push((loc?loc+' ':'')+locTxt);if(sc)detail.push(sc);if(vd)detail.push(vd);detail.push(estLabel[it.estado||'propuesta']||'Propuesta');
                 evts.push({icon:estadoIcon(it.estado||'propuesta',false,true),name:it.nombre,bg:cat.color,fg:contrast(cat.color),info:it.nombre+'\n'+detail.join(' · '),catTitle:cat.title,locIcon:loc,locTxt:locTxt,marcador:sc,vdIcon:vd,estado:it.estado||'propuesta',estLabel:estLabel[it.estado||'propuesta']||'Propuesta',fechaInicio:it.fechaInicio||'',fechaFin:it.fechaFin||''});
+              }
+            });
+            // Partidos internos
+            getPartidos(it).forEach(function(p){
+              if(p.fecha===iso){
+                var pColor=it.partidosColor||darkenColor(cat.color,18);
+                var sc=p.marcador||'',vd=p.victoriaDerrota==='victoria'?'✅':(p.victoriaDerrota==='derrota'?'❌':'');
+                var info=(it.nombre||'')+'⚽\n'+(p.rival||'Sin rival')+(sc?' '+sc:'')+(vd?' '+vd:'')+(p.obs?' 💬'+p.obs:'');
+                evts.push({icon:null,name:(p.rival||'Partido'),bg:pColor,fg:contrast(pColor),shortName:'⚽',info:info,catTitle:cat.title+'⚽',locIcon:'',locTxt:p.ubicacionTexto||'',marcador:sc,vdIcon:vd,estado:'',estLabel:'',fechaInicio:p.fecha,fechaFin:p.fecha});
               }
             });
           });
@@ -879,7 +902,15 @@ function renderPlanTable(){
           dtDays(it.fechaInicio,it.fechaFin||it.fechaInicio).forEach(function(dd){
             if(dd.y===day.y&&dd.m===day.m&&dd.d===day.d){
               var vd=it.victoriaDerrota==='victoria'?'✅':(it.victoriaDerrota==='derrota'?'❌':''),sc=it.marcador||'',extra=(vd||sc)?' '+(vd+(sc?' '+sc:'')).trim():'',est=it.estado||'propuesta';
-              cell+='<span class="plan-evt-wrap" title="'+estadoIcon(est,true)+' '+esc(it.nombre)+' ('+est.replace('_',' ')+')'+( it.ubicacionTexto?' — '+esc(it.ubicacionTexto):'')+extra+'"><span class="plan-evt-icon" data-est="'+est+'">'+estadoIcon(est,false,true)+'</span><span class="plan-evt-name" style="background:'+cat.color+';color:'+contrast(cat.color)+'">'+esc(it.nombre)+extra+'</span></span>';
+              cell+='<span class="plan-evt-wrap" title="'+esc(it.nombre)+extra+'"><span class="plan-evt-icon" data-est="'+est+'">'+estadoIcon(est,false,true)+'</span><span class="plan-evt-name" style="background:'+cat.color+';color:'+contrast(cat.color)+'">'+esc(it.nombre)+extra+'</span></span>';
+            }
+          });
+          // Partidos internos en plan table
+          getPartidos(it).forEach(function(p){
+            if(p.fecha===day.iso){
+              var pColor=it.partidosColor||darkenColor(cat.color,18);
+              var sc=p.marcador||'',vd=p.victoriaDerrota==='victoria'?'✅':(p.victoriaDerrota==='derrota'?'❌':''),extra=(vd||sc)?' '+(vd+(sc?' '+sc:'')).trim():'';
+              cell+='<span class="plan-evt-wrap" title="⚽ '+esc(it.nombre)+' — '+esc(p.rival||'Partido')+extra+'"><span class="plan-evt-icon" style="background:#f0f0f0">⚽</span><span class="plan-evt-name" style="background:'+pColor+';color:'+contrast(pColor)+'">'+esc(p.rival||'Partido')+extra+'</span></span>';
             }
           });
         });
@@ -908,18 +939,155 @@ function gDIM(m){return new Date(getMY(m),gMI(m)+1,0).getDate();}
 function gFD(m){var d=new Date(getMY(m),gMI(m),1).getDay();return d===0?6:d-1;}
 function contrast(h){if(!h||h.length<7)return'#fff';var r=parseInt(h.substr(1,2),16),g=parseInt(h.substr(3,2),16),b=parseInt(h.substr(5,2),16);return(r*299+g*587+b*114)/1000>200?'#1a1d23':'#fff';}
 
+// ── INICIO CAMBIO PARTIDOS ──
+function darkenColor(hex,pct){
+  if(!hex||hex.length<7)return hex;
+  var r=parseInt(hex.substr(1,2),16),g=parseInt(hex.substr(3,2),16),b=parseInt(hex.substr(5,2),16);
+  var f=1-(pct/100);
+  r=Math.max(0,Math.round(r*f));g=Math.max(0,Math.round(g*f));b=Math.max(0,Math.round(b*f));
+  return '#'+r.toString(16).padStart(2,'0')+g.toString(16).padStart(2,'0')+b.toString(16).padStart(2,'0');
+}
+
+function getPartidos(it){return(it&&Array.isArray(it.partidos))?it.partidos:[];}
+
+function getItemById(catId,itemId){
+  var items=getAllItems(catId);
+  return items.find(function(it){return it._id===itemId;})||null;
+}
+
+function getItemIdxById(catId,itemId){
+  var items=getAllItems(catId);
+  for(var i=0;i<items.length;i++){if(items[i]._id===itemId)return i;}
+  return -1;
+}
+
+// Modal de partido
+var _pCatId=null,_pItemId=null,_pPartidoId=null;
+
+function openPartidoModal(catId,itemId,partidoId){
+  if(!canEditCurrentTeam()){showBanner('Solo lectura: otro usuario está editando este equipo',true);return;}
+  var it=getItemById(catId,itemId);
+  if(!it){showBanner('Evento no encontrado',true);return;}
+  _pCatId=catId;_pItemId=itemId;_pPartidoId=partidoId||null;
+  var partidos=getPartidos(it);
+  var p=partidoId?partidos.find(function(x){return x._id===partidoId;}):null;
+  var cat=categories.find(function(c){return c.id===catId;})||{title:'',color:'#2563eb'};
+
+  document.getElementById('mt').textContent=(p?'Editar partido':'Añadir partido')+' — '+esc(it.nombre);
+
+  var curLoc=p?p.ubicacion||'':'';
+  var locH='<div style="display:flex;align-items:center;gap:4px;margin-top:2px"><label class="loc-chip" style="font-size:9px;padding:2px 6px"><input type="radio" name="pLoc" value="" '+(curLoc===''?'checked':'')+'>—</label><label class="loc-chip" style="font-size:9px;padding:2px 6px"><input type="radio" name="pLoc" value="casa" '+(curLoc==='casa'?'checked':'')+'>Casa</label><label class="loc-chip" style="font-size:9px;padding:2px 6px"><input type="radio" name="pLoc" value="fuera" '+(curLoc==='fuera'?'checked':'')+'>Fuera</label><input id="pLocTxt" value="'+esc(p?p.ubicacionTexto||'':'')+'" placeholder="Lugar" style="flex:1;margin-left:6px;font-size:10px;padding:4px 6px"></div>';
+
+  var curVD=p?p.victoriaDerrota||'':'';
+  var mParts=(p&&p.marcador)?p.marcador.split('-'):['',''];
+  var vdH='<div style="display:flex;align-items:center;gap:5px;margin-top:2px"><input id="pScF" type="number" min="0" style="width:36px;text-align:center;padding:3px 1px;font-size:12px" value="'+esc(mParts[0])+'"><span style="font-weight:700;color:var(--text-mut)">-</span><input id="pScC" type="number" min="0" style="width:36px;text-align:center;padding:3px 1px;font-size:12px" value="'+esc(mParts[1])+'"><span style="width:6px"></span><label class="loc-chip" style="margin:0;font-size:9px;padding:2px 5px"><input type="radio" name="pVD" value="victoria" '+(curVD==='victoria'?'checked':'')+'> ✅</label><label class="loc-chip" style="margin:0;font-size:9px;padding:2px 5px"><input type="radio" name="pVD" value="derrota" '+(curVD==='derrota'?'checked':'')+'> ❌</label><label class="loc-chip" style="margin:0;font-size:9px;padding:2px 5px"><input type="radio" name="pVD" value="" '+(curVD===''?'checked':'')+'> —</label></div>';
+
+  var curRes=p?p.resultado||'':'';
+  var opts=RESULT_OPTIONS.map(function(o){return '<option value="'+o.v+'" '+(curRes===o.v?'selected':'')+'>'+(o.i?o.i+' ':'')+o.v+'</option>';}).join('');
+  var rH='<select id="pRes"><option value="">Pendiente</option>'+opts+'</select>';
+
+  var pColorVal=p?p.color||'':'';
+
+  document.getElementById('mbd').innerHTML=
+    '<label>Fecha (entre '+dtD(it.fechaInicio)+' y '+dtD(it.fechaFin||it.fechaInicio)+')</label>'+
+    '<input id="pFecha" type="date" value="'+(p?p.fecha||'':'')+'" min="'+it.fechaInicio+'" max="'+(it.fechaFin||it.fechaInicio)+'">'+
+    '<label>Hora (opcional)</label>'+
+    '<input id="pHora" type="time" value="'+(p?p.hora||'':'')+'">'+
+    '<label>Rival / Partido</label>'+
+    '<input id="pRival" value="'+esc(p?p.rival||'':'')+'" placeholder="Nombre del rival">'+
+    '<label>Ubicación</label>'+locH+
+    '<label>Marcador</label>'+vdH+
+    '<label>Resultado</label>'+rH+
+    '<label>Observaciones</label>'+
+    '<textarea id="pObs" placeholder="Notas del partido...">'+esc(p?p.obs||'':'')+'</textarea>'+
+    '<label>Color partido (opcional)</label>'+
+    '<input type="hidden" id="pColor" value="'+pColorVal+'">'+
+    cpHTML(pColorVal||darkenColor(it.partidosColor||cat.color,18));
+
+  document.getElementById('mft').innerHTML=
+    (p?'<button class="btn-d" onclick="delPartido()">Borrar</button>':'')+
+    '<button class="btn-s" onclick="closeModal()">Cancelar</button>'+
+    '<button class="btn-p" onclick="savePartido()">Guardar</button>';
+
+  document.getElementById('mo').classList.add('active');
+}
+
+function savePartido(){
+  if(!canEditCurrentTeam()){showBanner('Solo lectura: otro usuario está editando este equipo',true);return;}
+  var it=getItemById(_pCatId,_pItemId);
+  if(!it){showBanner('Evento no encontrado',true);return;}
+  var fecha=(document.getElementById('pFecha')||{}).value||'';
+  if(!fecha){showBanner('La fecha del partido es obligatoria',true);return;}
+  // Validar rango
+  var fi=it.fechaInicio,ff=it.fechaFin||it.fechaInicio;
+  if(fecha<fi||fecha>ff){showBanner('La fecha del partido debe estar entre '+dtD(fi)+' y '+dtD(ff),true);return;}
+  var locEl=document.querySelector('input[name="pLoc"]:checked');
+  var vdEl=document.querySelector('input[name="pVD"]:checked');
+  var sf=(document.getElementById('pScF')||{}).value||'',sc=(document.getElementById('pScC')||{}).value||'';
+  var marcador=(sf!==''||sc!=='')?sf+'-'+sc:'';
+  var pData={
+    _id:_pPartidoId||('p_'+Date.now()+'_'+Math.random().toString(36).slice(2)),
+    fecha:fecha,
+    hora:(document.getElementById('pHora')||{}).value||'',
+    rival:((document.getElementById('pRival')||{}).value||'').trim(),
+    ubicacion:locEl?locEl.value:'',
+    ubicacionTexto:((document.getElementById('pLocTxt')||{}).value||'').trim(),
+    marcador:marcador,
+    victoriaDerrota:vdEl?vdEl.value:'',
+    resultado:(document.getElementById('pRes')||{}).value||'',
+    obs:((document.getElementById('pObs')||{}).value||'').trim(),
+    color:(document.getElementById('pColor')||{}).value||''
+  };
+  if(!Array.isArray(it.partidos))it.partidos=[];
+  if(_pPartidoId){
+    var idx=it.partidos.findIndex(function(x){return x._id===_pPartidoId;});
+    if(idx!==-1)it.partidos[idx]=pData;else it.partidos.push(pData);
+  } else {
+    it.partidos.push(pData);
+  }
+  closeModal();renderAll();saveItemsFB(_pCatId);
+}
+
+function delPartido(){
+  if(!canEditCurrentTeam()){showBanner('Solo lectura: otro usuario está editando este equipo',true);return;}
+  if(!confirm('¿Eliminar este partido?'))return;
+  var it=getItemById(_pCatId,_pItemId);
+  if(!it)return;
+  it.partidos=(it.partidos||[]).filter(function(x){return x._id!==_pPartidoId;});
+  closeModal();renderAll();saveItemsFB(_pCatId);
+}
+// ── FIN CAMBIO PARTIDOS ──
+
 function buildHL(){
   var h={};MESES.forEach(function(m){h[m]={};});var fc=getFechasClave();
-  if(fc.pretemporada){dtDays(fc.pretemporada,fc.pretemporada).forEach(function(d){var mk=m2k[d.m];if(mk&&d.y===getMY(mk)){if(!h[mk][d.d])h[mk][d.d]=[];h[mk][d.d].push({color:fc.pretemporadaColor||'#1a1a1a',name:'Inicio Pretemporada',cat:'Fechas de Inicios',loc:'',locTxt:'',estado:'',marcador:'',vd:''});}});}
-  if(fc.competicion){dtDays(fc.competicion,fc.competicion).forEach(function(d){var mk=m2k[d.m];if(mk&&d.y===getMY(mk)){if(!h[mk][d.d])h[mk][d.d]=[];h[mk][d.d].push({color:fc.competicionColor||'#1a1a1a',name:'Inicio Competición',cat:'Fechas de Inicios',loc:'',locTxt:'',estado:'',marcador:'',vd:''});}});}
+  if(fc.pretemporada){dtDays(fc.pretemporada,fc.pretemporada).forEach(function(d){var mk=m2k[d.m];if(mk&&d.y===getMY(mk)){if(!h[mk][d.d])h[mk][d.d]=[];h[mk][d.d].push({color:fc.pretemporadaColor||'#1a1a1a',name:'Inicio Pretemporada',cat:'Fechas de Inicios',loc:'',locTxt:'',estado:'',marcador:'',vd:'',isPartido:false});}});}
+  if(fc.competicion){dtDays(fc.competicion,fc.competicion).forEach(function(d){var mk=m2k[d.m];if(mk&&d.y===getMY(mk)){if(!h[mk][d.d])h[mk][d.d]=[];h[mk][d.d].push({color:fc.competicionColor||'#1a1a1a',name:'Inicio Competición',cat:'Fechas de Inicios',loc:'',locTxt:'',estado:'',marcador:'',vd:'',isPartido:false});}});}
   categories.forEach(function(cat){
     if(!catVisible(cat,activeTeam))return;
     getAllItems(cat.id).forEach(function(it){
       if(!it||!it.fechaInicio)return;
+      // Rango del evento
       dtDays(it.fechaInicio,it.fechaFin||it.fechaInicio).forEach(function(dd){
         var mk=m2k[dd.m];if(!mk)return;if(dd.y!==getMY(mk))return;
         if(!h[mk][dd.d])h[mk][dd.d]=[];
-        h[mk][dd.d].push({color:cat.color||'#2563eb',name:it.nombre||'',cat:cat.title||'',loc:it.ubicacion||'',locTxt:it.ubicacionTexto||'',estado:it.estado||'propuesta',marcador:it.marcador||'',vd:it.victoriaDerrota||''});
+        h[mk][dd.d].push({color:cat.color||'#2563eb',name:it.nombre||'',cat:cat.title||'',loc:it.ubicacion||'',locTxt:it.ubicacionTexto||'',estado:it.estado||'propuesta',marcador:it.marcador||'',vd:it.victoriaDerrota||'',isPartido:false});
+      });
+      // Partidos internos en calendario
+      var pColor=it.partidosColor||darkenColor(cat.color||'#2563eb',18);
+      getPartidos(it).forEach(function(p){
+        if(!p.fecha)return;
+        var pp=p.fecha.split('-').map(Number);
+        var mk=m2k[pp[1]];if(!mk)return;
+        if(pp[0]!==getMY(mk))return;
+        if(!h[mk][pp[2]])h[mk][pp[2]]=[];
+        h[mk][pp[2]].push({
+          color:p.color||pColor,
+          name:(p.rival||'Partido')+' ('+esc(it.nombre)+')',
+          cat:cat.title+'⚽',
+          loc:p.ubicacion||'',locTxt:p.ubicacionTexto||'',
+          estado:'',marcador:p.marcador||'',vd:p.victoriaDerrota||'',
+          isPartido:true,parentName:it.nombre,obs:p.obs||''
+        });
       });
     });
   });
@@ -936,7 +1104,23 @@ function renderCalendar(){
       var dow=(fd+d-1)%7,we=dow>=5;
       if(h[d]&&h[d].length){
         var first=h[d][0],fg=contrast(first.color);
-        var tt=h[d].map(function(ev){var locIcon=ev.loc?LOC_EMOJI[ev.loc]||'':'';var locInfo=ev.locTxt||'';var estLabel={propuesta:'Propuesta',provisional:'Propuesta',ok_equipo:'OK equipo',enviado_mail:'Enviado mail',definitivo:'Definitivo'};var estTxt=ev.estado?(estLabel[ev.estado]||''):'';var vdIcon=ev.vd==='victoria'?'✅':(ev.vd==='derrota'?'❌':'');var detail=[];if(locIcon||locInfo)detail.push((locIcon?locIcon+' ':'')+locInfo);if(ev.marcador)detail.push(ev.marcador);if(vdIcon)detail.push(vdIcon);if(estTxt)detail.push(estTxt);var detailStr=detail.length?'<div style="font-size:9px;opacity:.6;margin-top:2px">'+detail.join(' · ')+'</div>':'';var iconSvg=ev.estado?estadoIcon(ev.estado,false,false):'<span class="day-tip-dot" style="background:'+ev.color+'"></span>';return '<div class="day-tip-row">'+iconSvg+'<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><span class="day-tip-name">'+esc(ev.name)+'</span><span class="day-tip-cat">'+esc(ev.cat)+'</span></div>'+detailStr+'</div></div>';}).join('');
+        var tt=h[d].map(function(ev){
+          var locIcon=ev.loc?LOC_EMOJI[ev.loc]||'':'';
+          var estLabel={propuesta:'Propuesta',provisional:'Propuesta',ok_equipo:'OK equipo',enviado_mail:'Enviado mail',definitivo:'Definitivo'};
+          var estTxt=ev.estado?(estLabel[ev.estado]||''):'';
+          var vdIcon=ev.vd==='victoria'?'✅':(ev.vd==='derrota'?'❌':'');
+          var detail=[];
+          if(ev.isPartido&&ev.parentName)detail.push('⚽ '+ev.parentName);
+          if(locIcon||ev.locTxt)detail.push((locIcon?locIcon+' ':'')+ev.locTxt);
+          if(ev.marcador)detail.push(ev.marcador);
+          if(vdIcon)detail.push(vdIcon);
+          if(estTxt)detail.push(estTxt);
+          if(ev.obs)detail.push('💬 '+ev.obs);
+          var detailStr=detail.length?'<div style="font-size:9px;opacity:.65;margin-top:2px">'+detail.join(' · ')+'</div>':'';
+          var prefix=ev.isPartido?'⚽ ':'';
+          var iconSvg=(!ev.isPartido&&ev.estado)?estadoIcon(ev.estado,false,false):'<span class="day-tip-dot" style="background:'+ev.color+'"></span>';
+          return '<div class="day-tip-row">'+iconSvg+'<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><span class="day-tip-name">'+prefix+esc(ev.name)+'</span><span class="day-tip-cat">'+esc(ev.cat)+'</span></div>'+detailStr+'</div></div>';
+        }).join('');
         if(h[d].length>=2)ds+='<span class="cal-d has-event" style="background:#fff;color:#dc2626;outline:2.5px solid #dc2626;outline-offset:-1px;box-shadow:0 0 0 1px #dc2626;font-weight:900;z-index:2;position:relative">'+d+'<div class="day-tip">'+tt+'</div></span>';
         else ds+='<span class="cal-d has-event" style="background:'+first.color+';color:'+fg+'">'+d+'<div class="day-tip">'+tt+'</div></span>';
       } else ds+='<span class="cal-d'+(we?' w':'')+'">'+d+'</span>';
@@ -970,6 +1154,7 @@ function loadFechasClave(){
 function saveFechasClave(){var k=fcKey(),data=getFechasClave();showSync('saving');db.collection('planificacion_fechas_clave').doc(k).set(data).then(function(){showSync('ok');}).catch(function(e){showSync('error');showBanner('Firebase: '+e.message,true);});}
 function fcPaletteHTML(fieldId,sel){return '<div class="color-palette">'+COLORS.map(function(c){return '<div class="csw '+(c.h===sel?'sel':'')+'" style="background:'+c.h+'" onclick="pickFC(this,\''+fieldId+'\',\''+c.h+'\')" title="'+c.n+'"><span class="ck">✓</span></div>';}).join('')+'</div>';}
 function openFCModal(){
+  if(!canEditCurrentTeam()){showBanner('Solo lectura: otro usuario está editando este equipo',true);return;}
   eT='__fc';eI=null;var fc=getFechasClave();
   document.getElementById('mt').textContent='Fechas de Inicios — '+activeTeam;
   document.getElementById('mbd').innerHTML='<label>Inicio de Pretemporada</label><input id="fcPre" type="date" value="'+esc(fc.pretemporada)+'"><label>Color</label><input type="hidden" id="fcPreColor" value="'+(fc.pretemporadaColor||'#1a1a1a')+'">'+fcPaletteHTML('fcPreColor',fc.pretemporadaColor||'#1a1a1a')+'<label style="margin-top:14px">Inicio de Competición</label><input id="fcComp" type="date" value="'+esc(fc.competicion)+'"><label>Color</label><input type="hidden" id="fcCompColor" value="'+(fc.competicionColor||'#1a1a1a')+'">'+fcPaletteHTML('fcCompColor',fc.competicionColor||'#1a1a1a');
@@ -996,16 +1181,25 @@ function renderRight(){
   if(fc.pretemporada)fcItems+='<div style="display:flex;align-items:center;gap:8px;padding:5px 0"><span style="width:12px;height:12px;border-radius:50%;background:'+(fc.pretemporadaColor||'#1a1a1a')+';flex-shrink:0;border:1px solid rgba(0,0,0,.1)"></span><span style="font-size:11px;font-weight:600">Inicio Pretemporada</span><span style="font-size:10px;color:var(--text-mut);margin-left:auto">'+dtD(fc.pretemporada)+'</span></div>';
   if(fc.competicion)fcItems+='<div style="display:flex;align-items:center;gap:8px;padding:5px 0"><span style="width:12px;height:12px;border-radius:50%;background:'+(fc.competicionColor||'#1a1a1a')+';flex-shrink:0;border:1px solid rgba(0,0,0,.1)"></span><span style="font-size:11px;font-weight:600">Inicio Competición</span><span style="font-size:10px;color:var(--text-mut);margin-left:auto">'+dtD(fc.competicion)+'</span></div>';
   if(!fcItems)fcItems='<div class="empty-st" style="color:#8b6914">Sin fechas definidas.</div>';
-  fcPanel.innerHTML='<div class="panel-header" style="border-bottom:1px solid #e8d88e" onclick="togglePanel(\''+fcBid+'\')"><div class="panel-title" style="color:#8b6914"><span class="chevron '+(fcCol?'collapsed':'')+'" id="chev_'+fcBid+'" style="color:#c4a82b">▼</span>📅 FECHAS DE INICIOS</div><div class="cat-acts" onclick="event.stopPropagation()"><button class="btn-add" style="background:#c4a82b" onclick="openFCModal()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Editar</button></div></div><div class="panel-body '+(fcCol?'collapsed':'')+'" id="'+fcBid+'">'+fcItems+'</div>';
+  var fcEditBtn=lockedTeam?'':'<div class="cat-acts" onclick="event.stopPropagation()"><button class="btn-add" style="background:#c4a82b" onclick="openFCModal()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Editar</button></div>';
+  fcPanel.innerHTML='<div class="panel-header" style="border-bottom:1px solid #e8d88e" onclick="togglePanel(\''+fcBid+'\')"><div class="panel-title" style="color:#8b6914"><span class="chevron '+(fcCol?'collapsed':'')+'" id="chev_'+fcBid+'" style="color:#c4a82b">▼</span>📅 FECHAS DE INICIOS</div>'+fcEditBtn+'</div><div class="panel-body '+(fcCol?'collapsed':'')+'" id="'+fcBid+'">'+fcItems+'</div>';
   col.appendChild(fcPanel);
   var sorted=categories.slice().sort(function(a,b){return(a.order||0)-(b.order||0);});var visible=sorted.filter(function(cat){return catVisible(cat,activeTeam);});
   visible.forEach(function(cat,vi){
     var items=getAllItems(cat.id),bid='cb_'+cat.id,ic=collapsed[bid];var p=document.createElement('div');p.className='panel';
-    var moveBtns='<button class="btn-mv" onclick="event.stopPropagation();moveCat(\''+cat.id+'\',-1)" title="Subir" '+(vi===0?'disabled':'')+'>▲</button><button class="btn-mv" onclick="event.stopPropagation();moveCat(\''+cat.id+'\',1)" title="Bajar" '+(vi===visible.length-1?'disabled':'')+'>▼</button>';
-    p.innerHTML='<div class="panel-header" onclick="togglePanel(\''+bid+'\')"><div class="panel-title"><span class="chevron '+(ic?'collapsed':'')+'" id="chev_'+bid+'">▼</span><span class="panel-color-dot" style="background:'+cat.color+'"></span>'+esc(cat.title)+' '+scopeBadge(cat)+' <span style="font-size:9px;color:var(--text-mut);font-weight:400;margin-left:2px">('+items.length+')</span></div><div class="cat-acts" onclick="event.stopPropagation()">'+moveBtns+'<button class="btn-cfg" onclick="openCatCfg(\''+cat.id+'\')">'+IC.cfg+'</button><button class="btn-add" onclick="openItemModal(\''+cat.id+'\')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Añadir</button></div></div><div class="panel-body '+(ic?'collapsed':'')+'" id="'+bid+'"><div class="card-list" id="list_'+cat.id+'"></div></div>';
+    var catActs=lockedTeam?'':
+      '<div class="cat-acts" onclick="event.stopPropagation()">'+
+        '<button class="btn-mv" onclick="event.stopPropagation();moveCat(\''+cat.id+'\',-1)" '+(vi===0?'disabled':'')+'>▲</button>'+
+        '<button class="btn-mv" onclick="event.stopPropagation();moveCat(\''+cat.id+'\',1)" '+(vi===visible.length-1?'disabled':'')+'>▼</button>'+
+        '<button class="btn-cfg" onclick="openCatCfg(\''+cat.id+'\')">'+IC.cfg+'</button>'+
+        '<button class="btn-add" onclick="openItemModal(\''+cat.id+'\')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Añadir</button>'+
+      '</div>';
+    p.innerHTML='<div class="panel-header" onclick="togglePanel(\''+bid+'\')"><div class="panel-title"><span class="chevron '+(ic?'collapsed':'')+'" id="chev_'+bid+'">▼</span><span class="panel-color-dot" style="background:'+cat.color+'"></span>'+esc(cat.title)+' '+scopeBadge(cat)+' <span style="font-size:9px;color:var(--text-mut);font-weight:400;margin-left:2px">('+items.length+')</span></div>'+catActs+'</div><div class="panel-body '+(ic?'collapsed':'')+'" id="'+bid+'"><div class="card-list" id="list_'+cat.id+'"></div></div>';
     col.appendChild(p);renderItems(cat);
   });
-  var ad=document.createElement('div');ad.style.padding='2px 0';ad.innerHTML='<button class="btn-new-cat" onclick="openNewCat()">+ Nueva categoría</button>';col.appendChild(ad);
+  if(!lockedTeam){
+    var ad=document.createElement('div');ad.style.padding='2px 0';ad.innerHTML='<button class="btn-new-cat" onclick="openNewCat()">+ Nueva categoría</button>';col.appendChild(ad);
+  }
 }
 
 function renderItems(cat){
@@ -1016,18 +1210,85 @@ function renderItems(cat){
   sorted.forEach(function(it){
     var ri=all.indexOf(it),rc=resColor(it.resultado),cls=rc==='green'?'res-green':rc==='orange'?'res-orange':rc==='red'?'res-red':'';
     var dt=(it.fechaFin&&it.fechaFin!==it.fechaInicio)?dtR(it.fechaInicio,it.fechaFin):dtD(it.fechaInicio);
-    var loc=it.ubicacion?LOC_EMOJI[it.ubicacion]||'':'',locTxt=it.ubicacionTexto?'<span style="font-size:9px;color:var(--text-mut);flex-shrink:0">'+esc(it.ubicacionTexto)+'</span>':'';
+    var loc=it.ubicacion?LOC_EMOJI[it.ubicacion]||'':'';
+    var locTxt=it.ubicacionTexto?'<span style="font-size:9px;color:var(--text-mut);flex-shrink:0">'+esc(it.ubicacionTexto)+'</span>':'';
     var vdIcon=it.victoriaDerrota==='victoria'?'✅':(it.victoriaDerrota==='derrota'?'❌':''),marcTxt=it.marcador||'';
     var matchInfo=(marcTxt||vdIcon)?'<span style="font-size:10px;font-weight:700;color:var(--text);white-space:nowrap;flex-shrink:0">'+(vdIcon?vdIcon:'')+(marcTxt?' '+marcTxt:'')+'</span>':'';
     var itemId=it._id||('idx_'+ri);
     var div=document.createElement('div');div.className='item-card '+cls;
-    div.innerHTML='<div class="item-row"><span class="st-badge '+((it.estado||'propuesta'))+'">'+estadoIcon(it.estado)+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+locTxt+matchInfo+'<span class="item-dt">'+dt+'</span>'+(it.obs?'<span class="obs-dot" data-obs="'+esc(it.obs).replace(/"/g,'&quot;')+'">💬</span>':'')+'<div class="item-acts"><button onclick="openItemById(\''+cat.id+'\',\''+itemId+'\')">'+IC.ed+'</button><button onclick="delItemById(\''+cat.id+'\',\''+itemId+'\')">'+IC.dl+'</button></div></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'');
+
+    var hasRange=it.fechaFin&&it.fechaFin!==it.fechaInicio;
+    var partidos=getPartidos(it);
+    var partidosBtnHtml='';
+    if(hasRange&&!lockedTeam){
+      partidosBtnHtml='<button class="btn-add-partido" onclick="openPartidoModal(\''+cat.id+'\',\''+itemId+'\',null)">⚽ + Partido</button>';
+    }
+
+    if(lockedTeam){
+      // Solo lectura: tooltip rico
+      var estLabel2={propuesta:'Propuesta',provisional:'Propuesta',ok_equipo:'OK equipo/Club',enviado_mail:'Enviado mail',definitivo:'Definitivo'};
+      var tipLines=[it.nombre,dt];
+      if(it.ubicacionTexto)tipLines.push((loc?loc+' ':'')+it.ubicacionTexto);
+      if(marcTxt||vdIcon)tipLines.push((vdIcon?vdIcon+' ':'')+marcTxt);
+      if(it.resultado)tipLines.push(it.resultado);
+      tipLines.push(estLabel2[it.estado||'propuesta']||'Propuesta');
+      if(it.obs)tipLines.push('💬 '+it.obs);
+      div.innerHTML='<div class="item-row"><span class="st-badge '+(it.estado||'propuesta')+'">'+estadoIcon(it.estado)+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+locTxt+matchInfo+'<span class="item-dt">'+dt+'</span></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'');
+      div.setAttribute('data-tip',tipLines.filter(Boolean).join(' · '));
+      div.addEventListener('mouseenter',function(e){var tip=document.getElementById('obsTip');var lines=this.getAttribute('data-tip').split(' · ');tip.innerHTML='<div style="font-weight:700;font-size:12px;margin-bottom:4px">'+esc(lines[0])+'</div>'+lines.slice(1).map(function(l){return '<div style="font-size:11px;opacity:.75;margin-top:2px">'+esc(l)+'</div>';}).join('');tip.style.display='block';var r=this.getBoundingClientRect();var left=Math.max(8,Math.min(r.left,window.innerWidth-tip.offsetWidth-8));tip.style.left=left+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';if(parseInt(tip.style.top)<8)tip.style.top=(r.bottom+8)+'px';});
+      div.addEventListener('mouseleave',function(){document.getElementById('obsTip').style.display='none';});
+    } else {
+      div.innerHTML='<div class="item-row"><span class="st-badge '+((it.estado||'propuesta'))+'">'+estadoIcon(it.estado)+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+locTxt+matchInfo+'<span class="item-dt">'+dt+'</span>'+(it.obs?'<span class="obs-dot" data-obs="'+esc(it.obs).replace(/"/g,'&quot;')+'">💬</span>':'')+'<div class="item-acts"><button onclick="openItemById(\''+cat.id+'\',\''+itemId+'\')">'+IC.ed+'</button><button onclick="delItemById(\''+cat.id+'\',\''+itemId+'\')">'+IC.dl+'</button></div></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'');
+    }
+
+    // Sección de partidos (siempre visible si hay rango, editable o no)
+    if(hasRange){
+      var psec=document.createElement('div');psec.className='partidos-section';
+      var psHtml='<div class="partidos-header"><span class="partidos-title">⚽ Partidos ('+partidos.length+')</span>'+partidosBtnHtml+'</div>';
+      var pSorted=partidos.slice().sort(function(a,b){var x=(a.fecha||'')+(a.hora||'');var y=(b.fecha||'')+(b.hora||'');return x<y?-1:x>y?1:0;});
+      pSorted.forEach(function(p){
+        var pvd=p.victoriaDerrota==='victoria'?'✅':(p.victoriaDerrota==='derrota'?'❌':'');
+        var pColor=p.color||it.partidosColor||darkenColor(cat.color,18);
+        var pDot='<span style="width:8px;height:8px;border-radius:50%;background:'+pColor+';flex-shrink:0;display:inline-block"></span>';
+        psHtml+='<div class="partido-card">'+
+          pDot+
+          '<span class="partido-fecha">'+dtD(p.fecha)+'</span>'+
+          (p.hora?'<span class="partido-hora">'+esc(p.hora)+'</span>':'')+
+          '<span class="partido-rival">'+esc(p.rival||'Partido')+'</span>'+
+          (p.ubicacion?'<span class="partido-loc">'+LOC_EMOJI[p.ubicacion]+'</span>':'')+
+          (p.marcador?'<span class="partido-marcador">'+esc(p.marcador)+'</span>':'')+
+          (pvd?'<span class="partido-vd">'+pvd+'</span>':'')+
+          (p.obs?'<span class="obs-dot" data-obs="'+esc(p.obs).replace(/"/g,'&quot;')+'">💬</span>':'')+
+          (!lockedTeam?'<div class="partido-acts"><button onclick="openPartidoModal(\''+cat.id+'\',\''+itemId+'\',\''+p._id+'\')">'+IC.ed+'</button><button onclick="_quickDelPartido(\''+cat.id+'\',\''+itemId+'\',\''+p._id+'\')">'+IC.dl+'</button></div>':'')+
+        '</div>';
+      });
+      psec.innerHTML=psHtml;
+      div.appendChild(psec);
+      // obs dots en partidos
+      psec.querySelectorAll('.obs-dot').forEach(function(dot){
+        dot.addEventListener('mouseenter',function(e){var tip=document.getElementById('obsTip');tip.textContent=this.getAttribute('data-obs');tip.style.display='block';var r=this.getBoundingClientRect();tip.style.left=Math.min(r.left,window.innerWidth-400)+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';if(parseInt(tip.style.top)<0)tip.style.top=(r.bottom+8)+'px';});
+        dot.addEventListener('mouseleave',function(){document.getElementById('obsTip').style.display='none';});
+      });
+    }
+
     l.appendChild(div);
   });
-  l.querySelectorAll('.obs-dot').forEach(function(dot){
-    dot.addEventListener('mouseenter',function(e){var tip=document.getElementById('obsTip');tip.textContent=this.getAttribute('data-obs');tip.style.display='block';var r=this.getBoundingClientRect();tip.style.left=Math.min(r.left,window.innerWidth-400)+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';if(parseInt(tip.style.top)<0)tip.style.top=(r.bottom+8)+'px';});
-    dot.addEventListener('mouseleave',function(){document.getElementById('obsTip').style.display='none';});
-  });
+
+  if(!lockedTeam){
+    l.querySelectorAll('.obs-dot[data-obs]').forEach(function(dot){
+      if(dot._obsAttached)return;dot._obsAttached=true;
+      dot.addEventListener('mouseenter',function(e){var tip=document.getElementById('obsTip');tip.textContent=this.getAttribute('data-obs');tip.style.display='block';var r=this.getBoundingClientRect();tip.style.left=Math.min(r.left,window.innerWidth-400)+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';if(parseInt(tip.style.top)<0)tip.style.top=(r.bottom+8)+'px';});
+      dot.addEventListener('mouseleave',function(){document.getElementById('obsTip').style.display='none';});
+    });
+  }
+}
+
+function _quickDelPartido(catId,itemId,partidoId){
+  if(!canEditCurrentTeam()){showBanner('Solo lectura: otro usuario está editando este equipo',true);return;}
+  if(!confirm('¿Eliminar este partido?'))return;
+  var it=getItemById(catId,itemId);if(!it)return;
+  it.partidos=(it.partidos||[]).filter(function(x){return x._id!==partidoId;});
+  renderAll();saveItemsFB(catId);
 }
 
 function esc(s){if(s==null)return '';var d=document.createElement('div');d.textContent=String(s);return d.innerHTML;}
@@ -1050,6 +1311,7 @@ var estadoMap={provisional:'propuesta',propuesta:'propuesta',ok:'ok_equipo',ok_e
 function normalizarEstado(est){est=String(est||'propuesta').trim();return estadoMap[est]||'propuesta';}
 
 function openItemModal(cid,idx){
+  if(!canEditCurrentTeam()){showBanner('Solo lectura: otro usuario está editando este equipo',true);return;}
   eT=cid;eI=idx!=null?idx:null;var cat=categories.find(function(c){return c.id===cid;});if(!cat)return;
   var items=getAllItems(cid),it=eI!=null?items[eI]:null;
   document.getElementById('mt').textContent=(it?'Editar':'Añadir')+' — '+cat.title;
@@ -1067,8 +1329,12 @@ function openItemModal(cid,idx){
   var curEstObj=estOpts.find(function(o){return o.v===curEst;})||estOpts[0];
   var estH='<label>Estado</label><input type="hidden" id="mE" value="'+curEst+'"><div class="est-dropdown" id="estDropdown"><div class="est-selected" onclick="toggleEstDD()">'+estadoIcon(curEst)+'<span>'+curEstObj.l+'</span><span class="est-arrow">▾</span></div><div class="est-options" id="estOptions">';
   estOpts.forEach(function(o){estH+='<div class="est-opt'+(o.v===curEst?' active':'')+'" onclick="selectEst(\''+o.v+'\',\''+o.l+'\')">'+estadoIcon(o.v)+'<span>'+o.l+'</span></div>';});estH+='</div></div>';
-  document.getElementById('mbd').innerHTML='<label>Nombre</label><input id="mN" value="'+(it?esc(it.nombre):'')+'" placeholder="Nombre o rival">'+dH+locH+rH+vdH+'<label>Observaciones</label><textarea id="mO" placeholder="Notas...">'+(it?esc(it.obs):'')+'</textarea>'+estH;
+  // Color partidos (solo para eventos con rango de fechas)
+  var curPColor=it?it.partidosColor||'':'';
+  var pColorHtml='<label>Color partidos (si tiene fecha inicio/fin)</label><input type="hidden" id="mPColor" value="'+curPColor+'">'+cpHTML(curPColor);
+  document.getElementById('mbd').innerHTML='<label>Nombre</label><input id="mN" value="'+(it?esc(it.nombre):'')+'" placeholder="Nombre o rival">'+dH+locH+rH+vdH+'<label>Observaciones</label><textarea id="mO" placeholder="Notas...">'+(it?esc(it.obs):'')+'</textarea>'+estH+pColorHtml;
   document.getElementById('mft').innerHTML=(it!=null?'<button class="btn-d" onclick="delItemModal()">Borrar</button>':'')+'<button class="btn-s" onclick="closeModal()">Cancelar</button><button class="btn-p" onclick="saveItem()">Guardar</button>';
+  // Override pickC to also handle pColor palette
   document.getElementById('mo').classList.add('active');
 }
 
@@ -1077,6 +1343,7 @@ function showEndDate(){document.getElementById('mFFRow').style.display='flex';do
 function hideEndDate(){document.getElementById('mFFRow').style.display='none';document.getElementById('mFFToggle').style.display='inline';var ff=document.getElementById('mFF');if(ff)ff.value='';}
 
 function saveItem(){
+  if(!canEditCurrentTeam()){showBanner('Solo lectura: otro usuario está editando este equipo',true);return;}
   try{
     var cat=categories.find(function(c){return c.id===eT;});if(!cat)return;
     var fi=(document.getElementById('mFI')||{}).value||'',ffEl=document.getElementById('mFF'),ff=ffEl&&ffEl.value?ffEl.value:'';if(ff&&ff<fi)ff=fi;
@@ -1085,14 +1352,33 @@ function saveItem(){
     var vdEl=document.querySelector('input[name="mVD"]:checked'),victoriaDerrota=vdEl?vdEl.value:'';
     var sf=(document.getElementById('mScF')||{}).value||'',sc=(document.getElementById('mScC')||{}).value||'',marcador=(sf!==''||sc!=='')?sf+'-'+sc:'';
     var existingId=eI!=null?((getAllItems(eT)[eI]||{})._id||null):null;
-    var d={_id:existingId||('it_'+Date.now()+'_'+Math.random().toString(36).slice(2)),nombre:((document.getElementById('mN')||{}).value||'').trim()||'Sin nombre',fechaInicio:fi,fechaFin:ff||fi,ubicacion:locEl?locEl.value:'',ubicacionTexto:((document.getElementById('mLocTxt')||{}).value||'').trim(),estado:normalizarEstado((document.getElementById('mE')||{}).value),resultado:resultado,victoriaDerrota:victoriaDerrota,marcador:marcador,obs:((document.getElementById('mO')||{}).value||'').trim()};
+    // ── Conservar partidos existentes ──
+    var existingPartidos=(eI!=null&&getAllItems(eT)[eI])?getAllItems(eT)[eI].partidos||[]:[];
+    var pColorEl=document.getElementById('mPColor');
+    var d={
+      _id:existingId||('it_'+Date.now()+'_'+Math.random().toString(36).slice(2)),
+      nombre:((document.getElementById('mN')||{}).value||'').trim()||'Sin nombre',
+      fechaInicio:fi,fechaFin:ff||fi,
+      ubicacion:locEl?locEl.value:'',
+      ubicacionTexto:((document.getElementById('mLocTxt')||{}).value||'').trim(),
+      estado:normalizarEstado((document.getElementById('mE')||{}).value),
+      resultado:resultado,victoriaDerrota:victoriaDerrota,marcador:marcador,
+      obs:((document.getElementById('mO')||{}).value||'').trim(),
+      partidos:existingPartidos,
+      partidosColor:pColorEl?pColorEl.value:''
+    };
     var items=getAllItems(eT),catId=eT;
     if(eI!=null&&eI>=0&&eI<items.length){Object.assign(items[eI],d);}else{items.push(d);}
     closeModal();renderAll();saveItemsFB(catId);
   }catch(e){showBanner('Error: '+e.message,true);}
 }
 
-function delItemModal(){if(!confirm('¿Eliminar?'))return;var items=getAllItems(eT),catId=eT;if(eI!=null&&eI>=0&&eI<items.length)items.splice(eI,1);closeModal();renderAll();saveItemsFB(catId);}
+function delItemModal(){
+  if(!canEditCurrentTeam()){showBanner('Solo lectura: otro usuario está editando este equipo',true);return;}
+  if(!confirm('¿Eliminar?'))return;
+  var items=getAllItems(eT),catId=eT;if(eI!=null&&eI>=0&&eI<items.length)items.splice(eI,1);
+  closeModal();renderAll();saveItemsFB(catId);
+}
 
 function findItemIdx(cid,itemId){
   var items=getAllItems(cid);
@@ -1101,9 +1387,13 @@ function findItemIdx(cid,itemId){
   return -1;
 }
 function openItemById(cid,itemId){var idx=findItemIdx(cid,itemId);if(idx===-1){showBanner('Evento no encontrado. Recarga la página.',true);return;}openItemModal(cid,idx);}
-function delItemById(cid,itemId){if(!confirm('¿Eliminar?'))return;var idx=findItemIdx(cid,itemId);if(idx===-1){showBanner('Evento no encontrado',true);return;}var items=getAllItems(cid);items.splice(idx,1);renderAll();saveItemsFB(cid);}
+function delItemById(cid,itemId){
+  if(!canEditCurrentTeam()){showBanner('Solo lectura: otro usuario está editando este equipo',true);return;}
+  if(!confirm('¿Eliminar?'))return;var idx=findItemIdx(cid,itemId);if(idx===-1){showBanner('Evento no encontrado',true);return;}var items=getAllItems(cid);items.splice(idx,1);renderAll();saveItemsFB(cid);
+}
 
 function openCatCfg(cid){
+  if(!canEditCurrentTeam()){showBanner('Solo lectura: otro usuario está editando este equipo',true);return;}
   var cat=categories.find(function(c){return c.id===cid;});if(!cat)return;eT='__cfg';eI=cid;
   document.getElementById('mt').textContent='Configurar — '+cat.title;
   document.getElementById('mbd').innerHTML='<label>Título</label><input id="mCT" value="'+esc(cat.title)+'">'+scopeUI(cat.scopeMode,cat.teams)+'<label>Color</label><input type="hidden" id="mColor" value="'+cat.color+'">'+cpHTML(cat.color);
@@ -1111,212 +1401,158 @@ function openCatCfg(cid){
   document.getElementById('mo').classList.add('active');
 }
 function saveCatCfg(){
+  if(!canEditCurrentTeam()){showBanner('Solo lectura: otro usuario está editando este equipo',true);return;}
   try{var cat=categories.find(function(c){return c.id===eI;});if(!cat)return;cat.title=((document.getElementById('mCT')||{}).value||'').trim()||cat.title;cat.color=(document.getElementById('mColor')||{}).value||cat.color;var sc=getScope();cat.scopeMode=sc.scopeMode;cat.teams=sc.teams;closeModal();renderAll();showSync('saving');catsRef().doc(cat.id).set(Object.assign({},cat)).then(function(){showSync('ok');}).catch(function(e){showSync('error');showBanner('Firebase: '+e.message,true);});}catch(e){showBanner('Error: '+e.message,true);}
 }
 function delCat(cid){
+  if(!canEditCurrentTeam()){showBanner('Solo lectura: otro usuario está editando este equipo',true);return;}
   if(!confirm('¿Eliminar categoría?'))return;categories=categories.filter(function(c){return c.id!==cid;});closeModal();renderAll();showSync('saving');
   catsRef().doc(cid).delete().then(function(){return itemsRef().where('catId','==',cid).get();}).then(function(snap){if(!snap.empty){var b=db.batch();snap.docs.forEach(function(d){b.delete(d.ref);});return b.commit();}}).then(function(){showSync('ok');}).catch(function(e){showSync('error');showBanner('Firebase: '+e.message,true);});
 }
 function openNewCat(){
+  if(!canEditCurrentTeam()){showBanner('Solo lectura: otro usuario está editando este equipo',true);return;}
   eT='__new';eI=null;document.getElementById('mt').textContent='Nueva categoría';
   document.getElementById('mbd').innerHTML='<label>Título</label><input id="mCT" value="" placeholder="Ej: Selecciones, Porteros...">'+scopeUI('each',[activeTeam])+'<label>Color</label><input type="hidden" id="mColor" value="#2563eb">'+cpHTML('#2563eb');
   document.getElementById('mft').innerHTML='<button class="btn-s" onclick="closeModal()">Cancelar</button><button class="btn-p" onclick="saveNewCat()">Crear</button>';
   document.getElementById('mo').classList.add('active');
 }
 function saveNewCat(){
+  if(!canEditCurrentTeam()){showBanner('Solo lectura: otro usuario está editando este equipo',true);return;}
   try{var t=((document.getElementById('mCT')||{}).value||'').trim();if(!t){showBanner('Escribe un título',true);return;}var id='cat_'+Date.now(),sc=getScope();var cat={id:id,title:t,color:(document.getElementById('mColor')||{}).value||'#2563eb',hasRange:true,hasResultSelect:true,isMatch:true,scopeMode:sc.scopeMode,teams:sc.teams,order:categories.length};categories.push(cat);closeModal();renderAll();showSync('saving');catsRef().doc(id).set(cat).then(function(){showSync('ok');showBanner('Categoría "'+t+'" creada');}).catch(function(e){showSync('error');showBanner('Firebase: '+e.message,true);});}catch(e){showBanner('Error: '+e.message,true);}
 }
 
 function closeModal(){document.getElementById('mo').classList.remove('active');eT=null;eI=null;}
 function renderAll(){if(!activeTeam)return;try{renderCalendar();renderRight();}catch(e){console.error('renderAll',e);}}
 
-// INIT
-function showWelcomeScreen(){
-  document.getElementById('mainView').classList.add('hidden');
-  // Ocultar team bar en welcome
-  document.getElementById('teamBar').style.display='none';
-  var existing=document.getElementById('welcomeScreen');
-  if(existing)existing.remove();
 
-  var rows=[
-    ['CAS','RMC','JA'],
-    ['JB','JC','CA','CB'],
-    ['IA','IB','AA'],
-    ['AB','AC','BA','BB'],
-    ['PA','PB','DB']
-  ];
-  var teamMap={};
-  TEAMS.forEach(function(t){teamMap[t.key]=t.name;});
-
-  var leftBtns=rows.map(function(row){
-    return '<div style="display:flex;gap:8px;margin-bottom:8px">'+
-      row.map(function(key){
-        return '<button class="wlc-btn" onclick="selectTeamFromWelcome(\''+key+'\')">'+
-          '<span class="wlc-key">'+key+'</span>'+
-          '<span class="wlc-name">'+(teamMap[key]||key)+'</span>'+
-        '</button>';
-      }).join('')+
-    '</div>';
-  }).join('');
-
-  var rightBtns=
-    '<button class="wlc-view-btn" onclick="selectTeamFromWelcome(\'__plan\')">'+
-      '<span style="font-size:22px;margin-bottom:6px">📋</span>'+
-      '<span class="wlc-vb-title">Planificación</span>'+
-      '<span class="wlc-vb-sub">Vista general todos los equipos</span>'+
-    '</button>'+
-    '<button class="wlc-view-btn" onclick="selectTeamFromWelcome(\'__multi\')">'+
-      '<span style="font-size:22px;margin-bottom:6px">👥</span>'+
-      '<span class="wlc-vb-title">Varios equipos</span>'+
-      '<span class="wlc-vb-sub">Calendario multi-equipo</span>'+
-    '</button>'+
-    '<button class="wlc-view-btn" onclick="selectTeamFromWelcome(\'__gestion\')">'+
-      '<span style="font-size:22px;margin-bottom:6px">⚙️</span>'+
-      '<span class="wlc-vb-title">Gestión de torneos</span>'+
-      '<span class="wlc-vb-sub">Tabla completa de torneos</span>'+
-    '</button>';
-
-  var div=document.createElement('div');
-  div.id='welcomeScreen';
-  div.innerHTML=
-    '<style>'+
-    '#welcomeScreen{padding:28px 32px 80px;animation:wlcFadeIn .3s ease}'+
-    '@keyframes wlcFadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}'+
-    '.wlc-hero{display:flex;align-items:center;gap:14px;margin-bottom:28px;padding:18px 22px;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--sh-sm)}'+
-    '.wlc-hero-logo{width:48px;height:48px;border-radius:50%;background:var(--rm-blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;padding:4px}'+
-    '.wlc-hero-logo img{width:100%;height:100%;object-fit:contain}'+
-    '.wlc-hero-text h2{font-size:19px;font-weight:700;color:var(--text);margin:0 0 2px;letter-spacing:-.3px}'+
-    '.wlc-hero-text p{font-size:12px;color:var(--text-mut);margin:0}'+
-    '.wlc-season-badge{margin-left:auto;background:var(--rm-blue);color:#fff;font-size:12px;font-weight:700;padding:6px 16px;border-radius:20px;flex-shrink:0}'+
-    '.wlc-layout{display:grid;grid-template-columns:1fr 260px;gap:20px;align-items:start}'+
-    '.wlc-left{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 22px;box-shadow:var(--sh-sm)}'+
-    '.wlc-left-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--text-mut);margin-bottom:14px}'+
-    '.wlc-btn{display:flex;flex-direction:column;align-items:flex-start;padding:10px 14px;min-width:90px;background:var(--surface-alt);border:1.5px solid var(--border);border-radius:9px;cursor:pointer;font-family:var(--font);transition:all .16s}'+
-    '.wlc-btn:hover{border-color:var(--rm-blue);background:var(--rm-blue-bg);transform:translateY(-2px);box-shadow:var(--sh-md)}'+
-    '.wlc-btn:active{transform:translateY(0)}'+
-    '.wlc-key{font-size:14px;font-weight:700;color:var(--text);line-height:1.2}'+
-    '.wlc-btn:hover .wlc-key{color:var(--rm-blue)}'+
-    '.wlc-name{font-size:9px;color:var(--text-mut);margin-top:2px;white-space:nowrap}'+
-    '.wlc-right{display:flex;flex-direction:column;gap:10px}'+
-    '.wlc-right-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--text-mut);margin-bottom:4px}'+
-    '.wlc-view-btn{display:flex;flex-direction:column;align-items:flex-start;padding:16px 18px;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;cursor:pointer;font-family:var(--font);transition:all .16s;box-shadow:var(--sh-sm);text-align:left;width:100%}'+
-    '.wlc-view-btn:hover{border-color:var(--rm-blue);background:var(--rm-blue-bg);transform:translateY(-2px);box-shadow:var(--sh-md)}'+
-    '.wlc-view-btn:active{transform:translateY(0)}'+
-    '.wlc-vb-title{font-size:13px;font-weight:700;color:var(--text);line-height:1.2}'+
-    '.wlc-view-btn:hover .wlc-vb-title{color:var(--rm-blue)}'+
-    '.wlc-vb-sub{font-size:10px;color:var(--text-mut);margin-top:3px}'+
-    '</style>'+
-    '<div class="wlc-hero">'+
-      '<div class="wlc-hero-logo"><img src="https://raw.githubusercontent.com/PabliVM/PLANNING/main/assets/rm.png" alt="RM" onerror="this.src=\'https://raw.githubusercontent.com/PabliVM/Amistosos-y-torneos/main/rm_.png\'"></div>'+
-      '<div class="wlc-hero-text"><h2>Planificación de Temporada</h2><p>Selecciona un equipo o una vista para empezar</p></div>'+
-      '<div class="wlc-season-badge">'+activeSeason+'</div>'+
-    '</div>'+
-    '<div class="wlc-layout">'+
-      '<div class="wlc-left">'+
-        '<div class="wlc-left-title">Equipos</div>'+
-        leftBtns+
-      '</div>'+
-      '<div class="wlc-right">'+
-        '<div class="wlc-right-title">Vistas</div>'+
-        rightBtns+
-      '</div>'+
-    '</div>';
-
-  var tb=document.getElementById('teamBar');
-  tb.parentNode.insertBefore(div,tb.nextSibling);
-}
-
-function selectTeamFromWelcome(k){
-  var welcome=document.getElementById('welcomeScreen');
-  if(welcome)welcome.remove();
-  // Restaurar team bar
-  document.getElementById('teamBar').style.display='';
-  document.getElementById('mainView').classList.remove('hidden');
-
-  if(k==='__plan'){
-    activeTeam='CAS';
-    renderTeamBar();
-    loadAllTeamsData().then(function(){togglePlanView();});
-    return;
-  }
-  if(k==='__multi'){
-    activeTeam='CAS';
-    renderTeamBar();
-    loadAllTeamsData().then(function(){toggleMultiView();});
-    return;
-  }
-  if(k==='__gestion'){
-    activeTeam='CAS';
-    renderTeamBar();
-    loadAllTeamsData().then(function(){toggleGestionTorneos();});
-    return;
-  }
-
-  activeTeam=k;
-  renderTeamBar();
-  showSync('saving');
-  loadItemsForSeason(activeSeason,true).then(function(){return loadFechasClave();}).then(function(){
-    showSync('ok');
-    renderAll();
-    loadNotes();
-  }).catch(function(e){showSync('error');renderAll();});
-}
-
-// ── MODO BLOQUEADO (enlace directo a equipo) ──
+// ── INICIO CAMBIO LOCK EQUIPO ──
 var lockedTeam=null;
+var _lockHeartbeatTimer=null;
+var _lockUnsubscribe=null;
+var _isReadOnly=false;
 
-function applyLockedMode(){
-  if(!lockedTeam)return;
-  // Ocultar barra de equipos completamente
-  document.getElementById('teamBar').style.display='none';
-  // Ocultar selector de temporada y botones de añadir temporada
-  var seasonArea=document.querySelector('.season-area');
-  if(seasonArea)seasonArea.style.display='none';
-  // Añadir badge del equipo en el header
-  var existing=document.getElementById('lockedBadge');
-  if(!existing){
-    var badge=document.createElement('span');
-    badge.id='lockedBadge';
-    badge.style.cssText='background:rgba(255,255,255,.2);color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;margin-left:4px;flex-shrink:0';
-    var t=TEAMS.find(function(x){return x.key===lockedTeam;});
-    badge.textContent=(t?t.name:lockedTeam);
-    var h1=document.querySelector('.header h1');
-    if(h1)h1.parentNode.insertBefore(badge,h1.nextSibling);
+function getSessionId(){
+  try{
+    var sid=sessionStorage.getItem('planif_session_id');
+    if(!sid){sid='sess_'+Date.now()+'_'+Math.random().toString(36).slice(2);sessionStorage.setItem('planif_session_id',sid);}
+    return sid;
+  }catch(e){return 'sess_fallback_'+Math.random().toString(36).slice(2);}
+}
+
+function teamLockRef(teamKey){
+  var lockId=activeSeason.replace('/','-')+'_'+teamKey;
+  return db.collection('planificacion_team_locks').doc(lockId);
+}
+
+function acquireTeamLock(teamKey){
+  if(lockedTeam)return; // modo URL bloqueado
+  var sid=getSessionId();
+  var now=Date.now();
+  var ref=teamLockRef(teamKey);
+  // Obtener nombre de sesión legible
+  var holderLabel='Usuario ('+sid.slice(-6)+')';
+  return db.runTransaction(function(tx){
+    return tx.get(ref).then(function(doc){
+      if(!doc.exists||doc.data().expiresAt<now||doc.data().holderId===sid){
+        tx.set(ref,{
+          season:activeSeason,team:teamKey,
+          holderId:sid,holderLabel:holderLabel,
+          enteredAt:now,lastSeenAt:now,expiresAt:now+45000
+        });
+        return true; // adquirido
+      }
+      return false; // otro usuario lo tiene
+    });
+  }).then(function(acquired){
+    if(acquired){
+      setReadOnlyMode(false,'');
+      startLockHeartbeat(teamKey);
+    } else {
+      // Leer quién lo tiene para mostrar en banner
+      ref.get().then(function(doc){
+        if(doc.exists){setReadOnlyMode(true,doc.data().holderLabel||'otro usuario');}
+      });
+    }
+    listenTeamLock(teamKey);
+  }).catch(function(e){console.warn('acquireTeamLock error:',e);listenTeamLock(teamKey);});
+}
+
+function releaseTeamLock(teamKey){
+  if(lockedTeam)return;
+  var sid=getSessionId();
+  var ref=teamLockRef(teamKey);
+  ref.get().then(function(doc){
+    if(doc.exists&&doc.data().holderId===sid){ref.delete().catch(function(){});}
+  }).catch(function(){});
+  stopLockHeartbeat();
+  if(_lockUnsubscribe){_lockUnsubscribe();_lockUnsubscribe=null;}
+}
+
+function startLockHeartbeat(teamKey){
+  stopLockHeartbeat();
+  _lockHeartbeatTimer=setInterval(function(){
+    var sid=getSessionId();
+    var ref=teamLockRef(teamKey);
+    var now=Date.now();
+    ref.get().then(function(doc){
+      if(doc.exists&&doc.data().holderId===sid){
+        ref.update({lastSeenAt:now,expiresAt:now+45000}).catch(function(){});
+      }
+    }).catch(function(){});
+  },15000);
+}
+
+function stopLockHeartbeat(){
+  if(_lockHeartbeatTimer){clearInterval(_lockHeartbeatTimer);_lockHeartbeatTimer=null;}
+}
+
+function listenTeamLock(teamKey){
+  if(_lockUnsubscribe){_lockUnsubscribe();_lockUnsubscribe=null;}
+  var sid=getSessionId();
+  var ref=teamLockRef(teamKey);
+  _lockUnsubscribe=ref.onSnapshot(function(doc){
+    var now=Date.now();
+    if(!doc.exists||doc.data().expiresAt<now){
+      // Lock libre o caducado — intentar adquirir
+      if(_isReadOnly){
+        acquireTeamLock(teamKey);
+      }
+    } else {
+      var data=doc.data();
+      if(data.holderId===sid){
+        setReadOnlyMode(false,'');
+      } else {
+        setReadOnlyMode(true,data.holderLabel||'otro usuario');
+      }
+    }
+  },function(e){console.warn('listenTeamLock error:',e);});
+}
+
+function setReadOnlyMode(isReadOnly,holderLabel){
+  _isReadOnly=isReadOnly;
+  var banner=document.getElementById('readonlyBanner');
+  var holder=document.getElementById('readonlyHolder');
+  if(isReadOnly){
+    document.body.classList.add('readonly');
+    if(banner){banner.classList.add('show');}
+    if(holder)holder.textContent=holderLabel;
+  } else {
+    document.body.classList.remove('readonly');
+    if(banner){banner.classList.remove('show');}
+    if(holder)holder.textContent='';
   }
 }
 
-renderSeasons();renderTeamBar();
-showSync('saving');
-loadSeasons().then(function(){
-  renderSeasons();
-  return loadCategories();
-}).then(function(){
-  showSync('ok');
-  // ── Detectar ?equipo=CAS en la URL ──
-  var urlParams=new URLSearchParams(window.location.search);
-  var equipoParam=(urlParams.get('equipo')||'').toUpperCase().trim();
-  var validKeys=TEAMS.map(function(t){return t.key;});
-  if(equipoParam&&validKeys.indexOf(equipoParam)!==-1){
-    // Modo bloqueado: solo este equipo
-    lockedTeam=equipoParam;
-    activeTeam=equipoParam;
-    applyLockedMode();
-    renderTeamBar();
-    return loadItemsForSeason(activeSeason,true).then(function(){return loadFechasClave();}).then(function(){
-      renderAll();
-      loadNotes();
-    });
-  } else {
-    showWelcomeScreen();
-  }
-}).catch(function(e){
-  console.error(e);
-  showBanner('Error Firebase: '+(e.message||e),true);
-  showSync('error');
-});
+function canEditCurrentTeam(){
+  if(lockedTeam)return false; // modo URL solo lectura
+  return !_isReadOnly;
+}
 
-function seleccionarTodosGestion(){document.querySelectorAll('#gestionEquipoFilter input').forEach(function(cb){cb.checked=true;});document.querySelectorAll('#gestionEquipoFilter label').forEach(function(l){l.classList.add('sel');});renderGestionTorneos();}
-function deseleccionarTodosGestion(){document.querySelectorAll('#gestionEquipoFilter input').forEach(function(cb){cb.checked=false;});document.querySelectorAll('#gestionEquipoFilter label').forEach(function(l){l.classList.remove('sel');});renderGestionTorneos();}
+// Liberar lock al cerrar la pestaña
+window.addEventListener('beforeunload',function(){
+  if(activeTeam&&!lockedTeam)releaseTeamLock(activeTeam);
+});
+// ── FIN CAMBIO LOCK EQUIPO ──
 
 // ── NOTAS ──
 var notesCache={};
@@ -1347,12 +1583,14 @@ function renderNotesPanel(){
 }
 
 function onNotesInput(){
+  if(!canEditCurrentTeam()){showBanner('Solo lectura: otro usuario está editando este equipo',true);return;}
   setNotesStatus('Escribiendo...');
   clearTimeout(_notesTimer);
   _notesTimer=setTimeout(function(){saveNotes();},1500);
 }
 
 function saveNotes(){
+  if(!canEditCurrentTeam()){return;}
   clearTimeout(_notesTimer);
   var k=notesKey();
   var ta=document.getElementById('notesTextarea');
@@ -1363,10 +1601,7 @@ function saveNotes(){
   db.collection('planificacion_notas').doc(k).set({texto:texto,equipo:activeTeam,season:activeSeason,updatedAt:Date.now()}).then(function(){
     setNotesStatus('Guardado ✓','saved');
     setTimeout(function(){setNotesStatus('');},2000);
-  }).catch(function(e){
-    setNotesStatus('Error al guardar','error');
-    showBanner('Error guardando notas: '+e.message,true);
-  });
+  }).catch(function(e){setNotesStatus('Error al guardar','error');showBanner('Error guardando notas: '+e.message,true);});
 }
 
 function setNotesStatus(msg,cls){
@@ -1375,6 +1610,133 @@ function setNotesStatus(msg,cls){
   el.textContent=msg;
   el.className='notes-status'+(cls?' '+cls:'');
 }
+
+// ── WELCOME + LOCKED TEAM ──
+var _lockedTeamFromURL=null;
+
+function applyLockedMode(){
+  if(!lockedTeam)return;
+  document.getElementById('teamBar').style.display='none';
+  var seasonArea=document.querySelector('.season-area');
+  if(seasonArea)seasonArea.style.display='none';
+  var existing=document.getElementById('lockedBadge');
+  if(!existing){
+    var badge=document.createElement('span');
+    badge.id='lockedBadge';
+    badge.style.cssText='background:rgba(255,255,255,.2);color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;margin-left:4px;flex-shrink:0';
+    var t=TEAMS.find(function(x){return x.key===lockedTeam;});
+    badge.textContent=(t?t.name:lockedTeam);
+    var h1=document.querySelector('.header h1');
+    if(h1)h1.parentNode.insertBefore(badge,h1.nextSibling);
+  }
+  setReadOnlyMode(true,'');
+  document.getElementById('readonlyBanner').style.display='none'; // ocultar banner en modo lockedTeam
+}
+
+function showWelcomeScreen(){
+  document.getElementById('mainView').classList.add('hidden');
+  document.getElementById('teamBar').style.display='none';
+  var existing=document.getElementById('welcomeScreen');
+  if(existing)existing.remove();
+
+  var rows=[['CAS','RMC','JA'],['JB','JC','CA','CB'],['IA','IB','AA'],['AB','AC','BA','BB'],['PA','PB','DB']];
+  var teamMap={};TEAMS.forEach(function(t){teamMap[t.key]=t.name;});
+
+  var leftBtns=rows.map(function(row){
+    return '<div style="display:flex;gap:8px;margin-bottom:8px">'+
+      row.map(function(key){
+        return '<button class="wlc-btn" onclick="selectTeamFromWelcome(\''+key+'\')">'+
+          '<span class="wlc-key">'+key+'</span>'+
+          '<span class="wlc-name">'+(teamMap[key]||key)+'</span>'+
+        '</button>';
+      }).join('')+'</div>';
+  }).join('');
+
+  var rightBtns=
+    '<button class="wlc-view-btn" onclick="selectTeamFromWelcome(\'__plan\')"><span style="font-size:22px;margin-bottom:6px">📋</span><span class="wlc-vb-title">Planificación</span><span class="wlc-vb-sub">Vista general todos los equipos</span></button>'+
+    '<button class="wlc-view-btn" onclick="selectTeamFromWelcome(\'__multi\')"><span style="font-size:22px;margin-bottom:6px">👥</span><span class="wlc-vb-title">Varios equipos</span><span class="wlc-vb-sub">Calendario multi-equipo</span></button>'+
+    '<button class="wlc-view-btn" onclick="selectTeamFromWelcome(\'__gestion\')"><span style="font-size:22px;margin-bottom:6px">⚙️</span><span class="wlc-vb-title">Gestión de torneos</span><span class="wlc-vb-sub">Tabla completa de torneos</span></button>';
+
+  var div=document.createElement('div');
+  div.id='welcomeScreen';
+  div.innerHTML=
+    '<style>'+
+    '#welcomeScreen{padding:20px 24px 80px;animation:wlcFadeIn .3s ease}'+
+    '@keyframes wlcFadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}'+
+    '.wlc-layout{display:grid;grid-template-columns:1fr 260px;gap:20px;align-items:start}'+
+    '.wlc-left{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 22px;box-shadow:var(--sh-sm)}'+
+    '.wlc-left-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--text-mut);margin-bottom:14px}'+
+    '.wlc-btn{display:flex;flex-direction:column;align-items:flex-start;padding:10px 14px;min-width:90px;background:var(--surface-alt);border:1.5px solid var(--border);border-radius:9px;cursor:pointer;font-family:var(--font);transition:all .16s}'+
+    '.wlc-btn:hover{border-color:var(--rm-blue);background:var(--rm-blue-bg);transform:translateY(-2px);box-shadow:var(--sh-md)}'+
+    '.wlc-btn:active{transform:translateY(0)}'+
+    '.wlc-key{font-size:14px;font-weight:700;color:var(--text);line-height:1.2}'+
+    '.wlc-btn:hover .wlc-key{color:var(--rm-blue)}'+
+    '.wlc-name{font-size:9px;color:var(--text-mut);margin-top:2px;white-space:nowrap}'+
+    '.wlc-right{display:flex;flex-direction:column;gap:10px}'+
+    '.wlc-right-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--text-mut);margin-bottom:4px}'+
+    '.wlc-view-btn{display:flex;flex-direction:column;align-items:flex-start;padding:16px 18px;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;cursor:pointer;font-family:var(--font);transition:all .16s;box-shadow:var(--sh-sm);text-align:left;width:100%}'+
+    '.wlc-view-btn:hover{border-color:var(--rm-blue);background:var(--rm-blue-bg);transform:translateY(-2px);box-shadow:var(--sh-md)}'+
+    '.wlc-vb-title{font-size:13px;font-weight:700;color:var(--text);line-height:1.2}'+
+    '.wlc-view-btn:hover .wlc-vb-title{color:var(--rm-blue)}'+
+    '.wlc-vb-sub{font-size:10px;color:var(--text-mut);margin-top:3px}'+
+    '</style>'+
+    '<div class="wlc-layout">'+
+      '<div class="wlc-left"><div class="wlc-left-title">Equipos</div>'+leftBtns+'</div>'+
+      '<div class="wlc-right"><div class="wlc-right-title">Vistas</div>'+rightBtns+'</div>'+
+    '</div>';
+
+  var mainV=document.getElementById('mainView');
+  mainV.parentNode.insertBefore(div,mainV);
+  div.style.display='block';
+}
+
+function selectTeamFromWelcome(k){
+  var welcome=document.getElementById('welcomeScreen');
+  if(welcome)welcome.remove();
+  document.getElementById('teamBar').style.display='';
+  document.getElementById('mainView').classList.remove('hidden');
+
+  if(k==='__plan'){activeTeam='CAS';renderTeamBar();loadAllTeamsData().then(function(){togglePlanView();});return;}
+  if(k==='__multi'){activeTeam='CAS';renderTeamBar();loadAllTeamsData().then(function(){toggleMultiView();});return;}
+  if(k==='__gestion'){activeTeam='CAS';renderTeamBar();loadAllTeamsData().then(function(){toggleGestionTorneos();});return;}
+
+  activeTeam=k;
+  renderTeamBar();
+  showSync('saving');
+  loadItemsForSeason(activeSeason,true).then(function(){return loadFechasClave();}).then(function(){
+    showSync('ok');renderAll();loadNotes();
+    acquireTeamLock(k);
+  }).catch(function(e){showSync('error');renderAll();});
+}
+
+function seleccionarTodosGestion(){document.querySelectorAll('#gestionEquipoFilter input').forEach(function(cb){cb.checked=true;});document.querySelectorAll('#gestionEquipoFilter label').forEach(function(l){l.classList.add('sel');});renderGestionTorneos();}
+function deseleccionarTodosGestion(){document.querySelectorAll('#gestionEquipoFilter input').forEach(function(cb){cb.checked=false;});document.querySelectorAll('#gestionEquipoFilter label').forEach(function(l){l.classList.remove('sel');});renderGestionTorneos();}
+
+// ── INIT ──
+renderSeasons();renderTeamBar();
+showSync('saving');
+loadSeasons().then(function(){
+  renderSeasons();
+  return loadCategories();
+}).then(function(){
+  showSync('ok');
+  var urlParams=new URLSearchParams(window.location.search);
+  var equipoParam=(urlParams.get('equipo')||'').toUpperCase().trim();
+  var validKeys=TEAMS.map(function(t){return t.key;});
+  if(equipoParam&&validKeys.indexOf(equipoParam)!==-1){
+    lockedTeam=equipoParam;
+    activeTeam=equipoParam;
+    applyLockedMode();
+    renderTeamBar();
+    return loadItemsForSeason(activeSeason,true).then(function(){return loadFechasClave();}).then(function(){renderAll();loadNotes();});
+  } else {
+    showWelcomeScreen();
+  }
+}).catch(function(e){
+  console.error(e);
+  showBanner('Error Firebase: '+(e.message||e),true);
+  showSync('error');
+});
 </script>
 </body>
 </html>
