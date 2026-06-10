@@ -1103,7 +1103,11 @@ function renderCalendar(){
     for(var d=1;d<=dc;d++){
       var dow=(fd+d-1)%7,we=dow>=5;
       if(h[d]&&h[d].length){
-        var first=h[d][0],fg=contrast(first.color);
+        // Si hay partido + su torneo padre en el mismo día, el partido (color más oscuro) va primero visualmente
+        var eventsToShow=h[d].slice();
+        var hasPartidoConPadre=eventsToShow.some(function(ev){return ev.isPartido;})&&eventsToShow.some(function(ev){return !ev.isPartido;});
+        if(hasPartidoConPadre){eventsToShow.sort(function(a,b){return (a.isPartido?0:1)-(b.isPartido?0:1);});}
+        var first=eventsToShow[0],fg=contrast(first.color);
         var tt=h[d].map(function(ev){
           var locIcon=ev.loc?LOC_EMOJI[ev.loc]||'':'';
           var estLabel={propuesta:'Propuesta',provisional:'Propuesta',ok_equipo:'OK equipo',enviado_mail:'Enviado mail',definitivo:'Definitivo'};
@@ -1121,7 +1125,21 @@ function renderCalendar(){
           var iconSvg=(!ev.isPartido&&ev.estado)?estadoIcon(ev.estado,false,false):'<span class="day-tip-dot" style="background:'+ev.color+'"></span>';
           return '<div class="day-tip-row">'+iconSvg+'<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><span class="day-tip-name">'+prefix+esc(ev.name)+'</span><span class="day-tip-cat">'+esc(ev.cat)+'</span></div>'+detailStr+'</div></div>';
         }).join('');
-        if(h[d].length>=2)ds+='<span class="cal-d has-event" style="background:#fff;color:#dc2626;outline:2.5px solid #dc2626;outline-offset:-1px;box-shadow:0 0 0 1px #dc2626;font-weight:900;z-index:2;position:relative">'+d+'<div class="day-tip">'+tt+'</div></span>';
+        // Conflicto real solo si hay eventos de distinto origen (no partido del mismo torneo)
+        var isRealConflict=false;
+        if(h[d].length>=2){
+          var nonPartido=h[d].filter(function(ev){return !ev.isPartido;});
+          var soloPartidos=h[d].filter(function(ev){return ev.isPartido;});
+          if(nonPartido.length>=2){isRealConflict=true;}
+          else if(soloPartidos.length>0&&nonPartido.length>0){
+            var parentNames=nonPartido.map(function(ev){return ev.name;});
+            soloPartidos.forEach(function(p){if(parentNames.indexOf(p.parentName)===-1)isRealConflict=true;});
+          } else if(soloPartidos.length>=2){
+            var fp=soloPartidos[0].parentName;
+            soloPartidos.forEach(function(p){if(p.parentName!==fp)isRealConflict=true;});
+          }
+        }
+        if(isRealConflict)ds+='<span class="cal-d has-event" style="background:#fff;color:#dc2626;outline:2.5px solid #dc2626;outline-offset:-1px;box-shadow:0 0 0 1px #dc2626;font-weight:900;z-index:2;position:relative">'+d+'<div class="day-tip">'+tt+'</div></span>';
         else ds+='<span class="cal-d has-event" style="background:'+first.color+';color:'+fg+'">'+d+'<div class="day-tip">'+tt+'</div></span>';
       } else ds+='<span class="cal-d'+(we?' w':'')+'">'+d+'</span>';
     }
