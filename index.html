@@ -1,4 +1,4 @@
-<!DOCTYPE html><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -277,8 +277,9 @@ body.readonly .notes-textarea{pointer-events:none;opacity:.7;background:var(--su
 @page{size:landscape;margin:10mm}
 @media print{
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}
-  body{background:#fff!important;padding:0!important;font-size:8px!important}
+  body{background:#fff!important;padding:0!important;font-size:8px!important;padding-bottom:0!important}
   .header,.team-bar,.banner,.readonly-banner,#obsTip,.btn-season,.sync-dot,.btn-dark,.season-area,footer,.modal-overlay,.btn-plan,.btn-multi,.btn-gestion,#notesPanel,.cat-acts,.item-acts,.btn-new-cat,.partidos-section{display:none!important}
+  footer{display:none!important;position:static!important;height:0!important;padding:0!important;margin:0!important;visibility:hidden!important}
   #multiControlsPanel{display:none!important}
   /* Vista multi */
   .multi-view{display:block!important;padding:0!important}
