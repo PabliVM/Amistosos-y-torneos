@@ -277,48 +277,53 @@ body.readonly .notes-textarea{pointer-events:none;opacity:.7;background:var(--su
 @page{size:landscape;margin:10mm}
 @media print{
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}
-  body{background:#fff!important;padding:0!important;font-size:8px!important;padding-bottom:0!important}
-  .header,.team-bar,.banner,.readonly-banner,#obsTip,.btn-season,.sync-dot,.btn-dark,.season-area,footer,.modal-overlay,.btn-plan,.btn-multi,.btn-gestion,#notesPanel,.cat-acts,.item-acts,.btn-new-cat{display:none!important}
-  footer{display:none!important;position:static!important;height:0!important;padding:0!important;margin:0!important;visibility:hidden!important}
-  /* Partidos: mostrar en print pero sin botones */
-  body.printing-team .partidos-section{display:block!important}
-  body.printing-team .partidos-header .btn-add-partido{display:none!important}
-  body.printing-team .partido-acts{display:none!important}
-  body.printing-team [id^="ps_"]{display:block!important}
-  body.printing-team .partido-card{padding:2px 6px!important;font-size:9px!important}
-  body.printing-team .partidos-title{font-size:8px!important}
-  #multiControlsPanel{display:none!important}
-  /* Vista multi */
-  .multi-view{display:block!important;padding:0!important}
-  .multi-view .multi-cal{max-height:none!important;overflow:visible!important}
-  .multi-months{gap:6px!important;flex-wrap:wrap!important}
-  .multi-month{min-width:0!important;break-inside:avoid;flex:1 1 30%!important}
-  .multi-month-head{padding:5px 8px!important;font-size:11px!important;}
-  .multi-cell{min-height:40px!important}
-  .multi-cell-evt-bar{height:10px!important}
-  .multi-cell-evt-icon svg{width:8px!important;height:8px!important}
-  .multi-cell-team{font-size:6px!important}
-  .multi-cell-num{font-size:9px!important}
-  .multi-dh span{font-size:8px!important}
-  .print-header{display:flex!important;align-items:center;gap:12px;padding:10px 16px;background:#2563eb!important;color:#fff!important;margin-bottom:8px;border-radius:6px}
-  .plan-fc,.multi-cell-fc{-webkit-print-color-adjust:exact!important}
-  /* Vista equipo individual */
-  body.printing-team .main{display:grid!important;grid-template-columns:1fr 1fr;gap:12px;padding:8px}
-  body.printing-team .panel-body.collapsed{max-height:none!important;padding:10px 12px!important;overflow:visible!important}
-  body.printing-team .panel{box-shadow:none!important;border:1px solid #dfe1e6!important}
-  body.printing-team .panel-header{padding:6px 10px!important}
-  body.printing-team .item-card{padding:4px 8px!important;margin-bottom:2px}
-  body.printing-team .cal-grid{gap:4px!important}
-  body.printing-team .cal-month-head{padding:3px 6px!important;font-size:9px!important}
-  body.printing-team .cal-dh span{font-size:6px!important}
-  body.printing-team .cal-ds{gap:0!important}
-  body.printing-team .cal-d{font-size:7px!important;padding:1px!important}
-  body.printing-team .item-nm{font-size:10px!important}
-  body.printing-team .item-dt{font-size:8px!important}
-  body.printing-team .print-team-header{display:flex!important}
+  html,body{height:auto!important;overflow:visible!important;padding:0!important;margin:0!important;background:#fff!important;font-size:8px!important}
+  /* Ocultar TODO por defecto en modo equipo */
+  body.printing-team > *{display:none!important}
+  /* Mostrar solo header de impresión y mainView */
+  body.printing-team #printTeamHeader{display:flex!important;align-items:center;gap:12px;padding:10px 16px;background:#2563eb!important;color:#fff!important;margin-bottom:8px}
+  body.printing-team #mainView{display:grid!important;grid-template-columns:1fr 1fr;gap:12px;padding:8px;max-width:none!important;margin:0!important}
+  /* Paneles */
+  body.printing-team .panel{display:block!important;box-shadow:none!important;border:1px solid #dfe1e6!important;break-inside:avoid}
+  body.printing-team .panel-header{display:flex!important;padding:5px 10px!important}
+  body.printing-team .panel-title{display:flex!important}
+  body.printing-team .panel-color-dot{display:block!important}
+  body.printing-team .panel-body{display:block!important;padding:6px 10px!important;max-height:none!important;overflow:visible!important}
+  body.printing-team .panel-body.collapsed{display:block!important;max-height:none!important;overflow:visible!important}
   /* Ocultar categorías que NO son torneos/amistosos */
-  body.printing-team .panel[data-cat-id]:not([data-cat-id="torneos"]):not([data-cat-id="amistosos"]){display:none!important}
+  body.printing-team .right-col .panel:not([data-cat-id="torneos"]):not([data-cat-id="amistosos"]){display:none!important}
   body.printing-team #cb_fechasclave{display:none!important}
+  /* Calendario */
+  body.printing-team .cal-grid{display:grid!important;grid-template-columns:repeat(4,1fr);gap:4px!important}
+  body.printing-team .cal-month{display:block!important}
+  body.printing-team .cal-month-head{display:flex!important;padding:3px 6px!important;font-size:9px!important;background:#2563eb!important;color:#fff!important}
+  body.printing-team .cal-dh{display:grid!important;grid-template-columns:repeat(7,1fr)}
+  body.printing-team .cal-dh span{display:block!important;font-size:6px!important}
+  body.printing-team .cal-ds{display:grid!important;grid-template-columns:repeat(7,1fr);gap:0!important}
+  body.printing-team .cal-d{display:block!important;font-size:7px!important;padding:1px!important}
+  body.printing-team .cal-d.e{visibility:hidden!important}
+  /* Tarjetas */
+  body.printing-team .card-list{display:flex!important;flex-direction:column;gap:3px}
+  body.printing-team .item-card{display:block!important;padding:4px 8px!important}
+  body.printing-team .item-row{display:flex!important;align-items:center;gap:4px}
+  body.printing-team .item-nm{display:block!important;font-size:10px!important;white-space:normal!important}
+  body.printing-team .item-dt{display:block!important;font-size:9px!important}
+  body.printing-team .item-loc{display:block!important}
+  body.printing-team .st-badge{display:inline-flex!important}
+  body.printing-team .st-badge svg{display:block!important;width:14px!important;height:14px!important}
+  body.printing-team .res-tag{display:inline-block!important}
+  body.printing-team .item-sub{display:flex!important}
+  body.printing-team .empty-st{display:block!important}
+  body.printing-team .right-col{display:flex!important;flex-direction:column;gap:8px}
+  /* Ocultar botones */
+  body.printing-team .item-acts,body.printing-team .cat-acts,body.printing-team .btn-new-cat,body.printing-team .btn-add-partido,body.printing-team .partido-acts{display:none!important}
+  /* Partidos */
+  body.printing-team .partidos-section{display:block!important}
+  body.printing-team .partidos-header{display:flex!important}
+  body.printing-team .partidos-title{display:inline!important;font-size:8px!important}
+  body.printing-team [id^="ps_"]{display:block!important}
+  body.printing-team .partido-card{display:flex!important;padding:2px 6px!important;font-size:9px!important}
+  body.printing-team .partido-fecha,body.printing-team .partido-rival,body.printing-team .partido-marcador,body.printing-team .partido-vd,body.printing-team .partido-loc{display:inline-block!important}
 }
 .print-header{display:none}
 .gestion-view{display:none;padding:0 12px 20px}
