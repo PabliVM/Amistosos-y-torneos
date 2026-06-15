@@ -1787,14 +1787,22 @@ function printTeamView(){
   var sub=document.getElementById('printTeamSub');
   if(title)title.textContent=(t?t.name+' ('+activeTeam+')':'Equipo');
   if(sub)sub.textContent='Temporada '+activeSeason+' — Torneos y Amistosos';
-  // Expandir paneles de torneos y amistosos para impresión
   ['torneos','amistosos'].forEach(function(id){
     var b=document.getElementById('cb_'+id);
     if(b){b.classList.remove('collapsed');var c=document.getElementById('chev_cb_'+id);if(c)c.classList.remove('collapsed');}
   });
+  // Ocultar footer via JS para que no salga en print
+  var footer=document.querySelector('footer');
+  var oldFooterDisplay='',oldFooterPosition='';
+  if(footer){oldFooterDisplay=footer.style.display;oldFooterPosition=footer.style.position;footer.style.display='none';footer.style.position='static';}
+  // Ocultar banner readonly si existe
+  var rb=document.getElementById('readonlyBanner');
+  var oldRb='';if(rb){oldRb=rb.style.display;rb.style.display='none';}
   document.body.classList.add('printing-team');
   window.print();
   document.body.classList.remove('printing-team');
+  if(footer){footer.style.display=oldFooterDisplay;footer.style.position=oldFooterPosition;}
+  if(rb)rb.style.display=oldRb;
 }
 
 function seleccionarTodosGestion(){document.querySelectorAll('#gestionEquipoFilter input').forEach(function(cb){cb.checked=true;});document.querySelectorAll('#gestionEquipoFilter label').forEach(function(l){l.classList.add('sel');});renderGestionTorneos();}
