@@ -284,8 +284,9 @@ body.readonly .notes-textarea{pointer-events:none;opacity:.7;background:var(--su
   body.printing-team #printTeamHeader{display:none!important}
   body.printing-team #notesPanel{display:block!important}
   body.printing-team #notesPanel .panel-header{display:flex!important}
-  body.printing-team #notesPanel .panel-body{display:block!important;max-height:none!important}
-  body.printing-team .notes-textarea{display:block!important;width:100%!important;min-height:auto!important;resize:none!important;border:1px solid #dfe1e6!important;font-size:9px!important;padding:6px!important;white-space:pre-wrap!important}
+  body.printing-team #notesPanel .panel-body{display:block!important;max-height:none!important;overflow:visible!important}
+  body.printing-team .notes-textarea{display:none!important}
+  body.printing-team #notesPrintText{display:block!important;white-space:pre-wrap;font-size:9px;font-family:var(--font);line-height:1.5;padding:6px;border:1px solid #dfe1e6;border-radius:4px;width:100%;word-break:break-word}
   body.printing-team #mainView{display:grid!important;grid-template-columns:1fr 1fr;gap:12px;padding:8px;max-width:none!important;margin:0!important}
   /* Paneles */
   body.printing-team .panel{display:block!important;box-shadow:none!important;border:1px solid #dfe1e6!important;break-inside:avoid}
@@ -431,6 +432,7 @@ body.dark .notes-textarea{background:var(--surface-alt);color:var(--text);border
       <div class="panel-body" id="notesBody">
         <div class="notes-body">
           <textarea class="notes-textarea" id="notesTextarea" placeholder="Escribe aquí las notas del equipo..." oninput="onNotesInput()"></textarea>
+          <div id="notesPrintText" style="display:none"></div>
           <div class="notes-footer"><span class="notes-status" id="notesStatus"></span></div>
         </div>
       </div>
@@ -1803,17 +1805,23 @@ function printTeamView(){
   var sub=document.getElementById('printTeamSub');
   if(title)title.textContent=(t?t.name+' ('+activeTeam+')':'Equipo');
   if(sub)sub.textContent='Temporada '+activeSeason+' — Torneos y Amistosos';
+  // Volcar texto de notas en div para impresión completa
+  var ta=document.getElementById('notesTextarea');
+  var pt=document.getElementById('notesPrintText');
+  if(ta&&pt)pt.textContent=ta.value;
+  // Expandir paneles torneos y amistosos
   ['torneos','amistosos'].forEach(function(id){
     var b=document.getElementById('cb_'+id);
     if(b){b.classList.remove('collapsed');var c=document.getElementById('chev_cb_'+id);if(c)c.classList.remove('collapsed');}
   });
-  // Expandir todos los subapartados de partidos
+  // Expandir notas si colapsadas
+  var nb=document.getElementById('notesBody');
+  if(nb)nb.classList.remove('collapsed');
+  // Expandir partidos
   document.querySelectorAll('[id^="ps_"]').forEach(function(el){el.style.display='';});
-  // Ocultar footer via JS para que no salga en print
   var footer=document.querySelector('footer');
   var oldFooterDisplay='',oldFooterPosition='';
   if(footer){oldFooterDisplay=footer.style.display;oldFooterPosition=footer.style.position;footer.style.display='none';footer.style.position='static';}
-  // Ocultar banner readonly si existe
   var rb=document.getElementById('readonlyBanner');
   var oldRb='';if(rb){oldRb=rb.style.display;rb.style.display='none';}
   document.body.classList.add('printing-team');
