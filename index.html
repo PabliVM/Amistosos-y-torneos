@@ -280,8 +280,12 @@ body.readonly .notes-textarea{pointer-events:none;opacity:.7;background:var(--su
   html,body{height:auto!important;overflow:visible!important;padding:0!important;margin:0!important;background:#fff!important;font-size:8px!important}
   /* Ocultar TODO por defecto en modo equipo */
   body.printing-team > *{display:none!important}
-  /* Mostrar solo header de impresión y mainView */
-  body.printing-team #printTeamHeader{display:flex!important;align-items:center;gap:12px;padding:10px 16px;background:#2563eb!important;color:#fff!important;margin-bottom:8px}
+  /* Mostrar solo mainView — sin header de impresión */
+  body.printing-team #printTeamHeader{display:none!important}
+  body.printing-team #notesPanel{display:block!important}
+  body.printing-team #notesPanel .panel-header{display:flex!important}
+  body.printing-team #notesPanel .panel-body{display:block!important;max-height:none!important}
+  body.printing-team .notes-textarea{display:block!important;width:100%!important;min-height:auto!important;resize:none!important;border:1px solid #dfe1e6!important;font-size:9px!important;padding:6px!important;white-space:pre-wrap!important}
   body.printing-team #mainView{display:grid!important;grid-template-columns:1fr 1fr;gap:12px;padding:8px;max-width:none!important;margin:0!important}
   /* Paneles */
   body.printing-team .panel{display:block!important;box-shadow:none!important;border:1px solid #dfe1e6!important;break-inside:avoid}
