@@ -1325,8 +1325,7 @@ function renderItems(cat){
         var pDot='<span style="width:8px;height:8px;border-radius:50%;background:'+pColor+';flex-shrink:0;display:inline-block"></span>';
         psHtml+='<div class="partido-card">'+
           pDot+
-          '<span class="partido-fecha">'+dtD(p.fecha)+'</span>'+
-          (p.hora?'<span class="partido-hora">'+esc(p.hora)+'</span>':'')+
+          '<span class="partido-fecha">'+dtD(p.fecha)+(p.hora?' '+p.hora:'')+'</span>'+
           '<span class="partido-rival">'+esc(p.rival||'Partido')+'</span>'+
           (p.ubicacion?'<span class="partido-loc">'+LOC_EMOJI[p.ubicacion]+'</span>':'')+
           (p.marcador?'<span class="partido-marcador">'+esc(p.marcador)+'</span>':'')+
