@@ -1900,11 +1900,8 @@ function printTeamView(){
 function seleccionarTodosGestion(){document.querySelectorAll('#gestionEquipoFilter input').forEach(function(cb){cb.checked=true;});document.querySelectorAll('#gestionEquipoFilter label').forEach(function(l){l.classList.add('sel');});renderGestionTorneos();}
 function deseleccionarTodosGestion(){document.querySelectorAll('#gestionEquipoFilter input').forEach(function(cb){cb.checked=false;});document.querySelectorAll('#gestionEquipoFilter label').forEach(function(l){l.classList.remove('sel');});renderGestionTorneos();}
 
-// ── INIT ──
-} // fin bootApp
-
-renderSeasons();renderTeamBar();
 function bootApp(){
+renderSeasons();renderTeamBar();
 showSync('saving');
 loadSeasons().then(function(){
   renderSeasons();
