@@ -1253,10 +1253,9 @@ function renderCalendar(){
         }
         if(isRealConflict)ds+='<span class="cal-d has-event" style="background:#fff;color:#dc2626;outline:2.5px solid #dc2626;outline-offset:-1px;box-shadow:0 0 0 1px #dc2626;font-weight:900;z-index:2;position:relative">'+d+'<div class="day-tip">'+tt+'</div></span>';
         else{
-          var dayLabel=d;
           var allViaje=eventsToShow.every(function(ev){return ev.isViaje;});
-          if(allViaje)dayLabel=(eventsToShow[0].viajeType==='vuelta'?'🔙':'✈️');
-          ds+='<span class="cal-d has-event" style="background:'+first.color+';color:'+fg+';font-size:'+(allViaje?'10px':'9px')+'">'+dayLabel+'<div class="day-tip">'+tt+'</div></span>';
+          var viajeStyle=allViaje?'outline:2px solid #1a1d23;outline-offset:-1px;':'';
+          ds+='<span class="cal-d has-event" style="background:'+first.color+';color:'+fg+';'+viajeStyle+'">'+d+'<div class="day-tip">'+tt+'</div></span>';
         }
       } else ds+='<span class="cal-d'+(we?' w':'')+'">'+d+'</span>';
     }
@@ -1351,7 +1350,7 @@ function renderItems(cat){
       var vLines=[];
       if(it.viajeDia)vLines.push('✈️ '+dtD(it.viajeDia)+(it.viajeIda?' '+it.viajeIda:''));
       if(it.viajeDiaVuelta)vLines.push('🔙 '+dtD(it.viajeDiaVuelta)+(it.viajeVuelta?' '+it.viajeVuelta:''));
-      viajeStr='<span style="font-size:9px;color:#0891b2;flex-shrink:0;white-space:nowrap;border-left:2px solid #0891b2;padding-left:5px;margin-left:3px">'+vLines.join(' · ')+'</span>';
+      viajeStr='<span style="font-size:9px;color:#0891b2;flex-shrink:0;white-space:nowrap;border-left:2px solid #eab308;padding-left:5px;margin-left:3px">'+vLines.join(' · ')+'</span>';
     }
     var loc=it.ubicacion?LOC_EMOJI[it.ubicacion]||'':'';
     var locTxt=it.ubicacionTexto?'<span style="font-size:9px;color:var(--text-mut);flex-shrink:0">'+esc(it.ubicacionTexto)+'</span>':'';
