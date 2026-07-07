@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<html lang="es"><!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -1168,24 +1167,22 @@ function buildHL(){
         if(!h[mk][dd.d])h[mk][dd.d]=[];
         h[mk][dd.d].push({color:cat.color||'#2563eb',name:it.nombre||'',cat:cat.title||'',loc:it.ubicacion||'',locTxt:it.ubicacionTexto||'',estado:it.estado||'propuesta',marcador:it.marcador||'',vd:it.victoriaDerrota||'',isPartido:false});
       });
-      // Día de viaje ✈️ — usa el color del evento, no cian fijo
+      // Día viaje ida ✈️
       if(it.viajeDia){
         var vp=it.viajeDia.split('-').map(Number);
         var vmk=m2k[vp[1]];
         if(vmk&&vp[0]===getMY(vmk)){
           if(!h[vmk][vp[2]])h[vmk][vp[2]]=[];
-          var vLabel='✈️ Ida — '+esc(it.nombre)+(it.viajeIda?' '+it.viajeIda:'');
-          h[vmk][vp[2]].push({color:cat.color||'#0891b2',name:vLabel,cat:'Viaje ida',loc:'',locTxt:'',estado:'',marcador:'',vd:'',isPartido:false,isViaje:true});
+          h[vmk][vp[2]].push({color:cat.color||'#0891b2',name:'✈️ Ida — '+esc(it.nombre)+(it.viajeIda?' '+it.viajeIda:''),cat:'Viaje ida',loc:'',locTxt:'',estado:'',marcador:'',vd:'',isPartido:false,isViaje:true,viajeType:'ida'});
         }
       }
-      // Día de vuelta ✈️
+      // Día viaje vuelta 🔙
       if(it.viajeDiaVuelta){
         var vvp=it.viajeDiaVuelta.split('-').map(Number);
         var vvmk=m2k[vvp[1]];
         if(vvmk&&vvp[0]===getMY(vvmk)){
           if(!h[vvmk][vvp[2]])h[vvmk][vvp[2]]=[];
-          var vvLabel='✈️ Vuelta — '+esc(it.nombre)+(it.viajeVuelta?' '+it.viajeVuelta:'');
-          h[vvmk][vvp[2]].push({color:cat.color||'#0891b2',name:vvLabel,cat:'Viaje vuelta',loc:'',locTxt:'',estado:'',marcador:'',vd:'',isPartido:false,isViaje:true});
+          h[vvmk][vvp[2]].push({color:cat.color||'#0891b2',name:'🔙 Vuelta — '+esc(it.nombre)+(it.viajeVuelta?' '+it.viajeVuelta:''),cat:'Viaje vuelta',loc:'',locTxt:'',estado:'',marcador:'',vd:'',isPartido:false,isViaje:true,viajeType:'vuelta'});
         }
       }
       // Partidos internos en calendario
@@ -1237,8 +1234,7 @@ function renderCalendar(){
           if(estTxt)detail.push(estTxt);
           if(ev.obs)detail.push('💬 '+ev.obs);
           var detailStr=detail.length?'<div style="font-size:9px;opacity:.65;margin-top:2px">'+detail.join(' · ')+'</div>':'';
-          var prefix=ev.isPartido?'⚽ ':ev.isViaje?'✈️ ':'';
-          var iconSvg=(!ev.isPartido&&ev.estado)?estadoIcon(ev.estado,false,false):'<span class="day-tip-dot" style="background:'+ev.color+'"></span>';
+        var prefix=ev.isPartido?'⚽ ':ev.isViaje?(ev.viajeType==='vuelta'?'🔙 ':'✈️ '):'';          var iconSvg=(!ev.isPartido&&ev.estado)?estadoIcon(ev.estado,false,false):'<span class="day-tip-dot" style="background:'+ev.color+'"></span>';
           return '<div class="day-tip-row">'+iconSvg+'<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><span class="day-tip-name">'+prefix+esc(ev.name)+'</span><span class="day-tip-cat">'+esc(ev.cat)+'</span></div>'+detailStr+'</div></div>';
         }).join('');
         // Conflicto real solo si hay eventos de distinto origen (no partido del mismo torneo)
@@ -1256,7 +1252,12 @@ function renderCalendar(){
           }
         }
         if(isRealConflict)ds+='<span class="cal-d has-event" style="background:#fff;color:#dc2626;outline:2.5px solid #dc2626;outline-offset:-1px;box-shadow:0 0 0 1px #dc2626;font-weight:900;z-index:2;position:relative">'+d+'<div class="day-tip">'+tt+'</div></span>';
-        else ds+='<span class="cal-d has-event" style="background:'+first.color+';color:'+fg+'">'+d+'<div class="day-tip">'+tt+'</div></span>';
+        else{
+          var dayLabel=d;
+          var allViaje=eventsToShow.every(function(ev){return ev.isViaje;});
+          if(allViaje)dayLabel=(eventsToShow[0].viajeType==='vuelta'?'🔙':'✈️');
+          ds+='<span class="cal-d has-event" style="background:'+first.color+';color:'+fg+';font-size:'+(allViaje?'10px':'9px')+'">'+dayLabel+'<div class="day-tip">'+tt+'</div></span>';
+        }
       } else ds+='<span class="cal-d'+(we?' w':'')+'">'+d+'</span>';
     }
     var div=document.createElement('div');div.className='cal-month';
@@ -1346,10 +1347,11 @@ function renderItems(cat){
     var dt=(it.fechaFin&&it.fechaFin!==it.fechaInicio)?dtR(it.fechaInicio,it.fechaFin):dtD(it.fechaInicio);
     var dtStr=(it.hora?it.hora+' · ':'')+dt;
     var viajeStr='';
-    if(it.viajeDia){
-      var vIda='✈️ '+dtD(it.viajeDia)+(it.viajeIda?' '+it.viajeIda:'');
-      var vVuelta=it.viajeDiaVuelta?(' → '+dtD(it.viajeDiaVuelta)+(it.viajeVuelta?' '+it.viajeVuelta:'')):(it.viajeVuelta?' →'+it.viajeVuelta:'');
-      viajeStr='<span style="font-size:9px;color:#0891b2;flex-shrink:0;white-space:nowrap">'+vIda+vVuelta+'</span>';
+    if(it.viajeDia||it.viajeDiaVuelta){
+      var vLines=[];
+      if(it.viajeDia)vLines.push('✈️ '+dtD(it.viajeDia)+(it.viajeIda?' '+it.viajeIda:''));
+      if(it.viajeDiaVuelta)vLines.push('🔙 '+dtD(it.viajeDiaVuelta)+(it.viajeVuelta?' '+it.viajeVuelta:''));
+      viajeStr='<span style="font-size:9px;color:#0891b2;flex-shrink:0;white-space:nowrap;border-left:2px solid #0891b2;padding-left:5px;margin-left:3px">'+vLines.join(' · ')+'</span>';
     }
     var loc=it.ubicacion?LOC_EMOJI[it.ubicacion]||'':'';
     var locTxt=it.ubicacionTexto?'<span style="font-size:9px;color:var(--text-mut);flex-shrink:0">'+esc(it.ubicacionTexto)+'</span>':'';
