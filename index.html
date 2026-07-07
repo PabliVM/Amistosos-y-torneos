@@ -1903,6 +1903,8 @@ function seleccionarTodosGestion(){document.querySelectorAll('#gestionEquipoFilt
 function deseleccionarTodosGestion(){document.querySelectorAll('#gestionEquipoFilter input').forEach(function(cb){cb.checked=false;});document.querySelectorAll('#gestionEquipoFilter label').forEach(function(l){l.classList.remove('sel');});renderGestionTorneos();}
 
 // ── INIT ──
+} // fin bootApp
+
 renderSeasons();renderTeamBar();
 showSync('saving');
 loadSeasons().then(function(){
@@ -1927,8 +1929,6 @@ loadSeasons().then(function(){
   showBanner('Error Firebase: '+(e.message||e),true);
   showSync('error');
 });
-} // fin bootApp
-
 checkAuth();
 </script>
 <!-- LOGIN MODAL -->
