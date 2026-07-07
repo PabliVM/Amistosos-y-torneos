@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<html lang="es"><!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -1167,14 +1168,24 @@ function buildHL(){
         if(!h[mk][dd.d])h[mk][dd.d]=[];
         h[mk][dd.d].push({color:cat.color||'#2563eb',name:it.nombre||'',cat:cat.title||'',loc:it.ubicacion||'',locTxt:it.ubicacionTexto||'',estado:it.estado||'propuesta',marcador:it.marcador||'',vd:it.victoriaDerrota||'',isPartido:false});
       });
-      // Día de viaje ✈️
+      // Día de viaje ✈️ — usa el color del evento, no cian fijo
       if(it.viajeDia){
         var vp=it.viajeDia.split('-').map(Number);
         var vmk=m2k[vp[1]];
         if(vmk&&vp[0]===getMY(vmk)){
           if(!h[vmk][vp[2]])h[vmk][vp[2]]=[];
-          var vLabel='✈️ '+esc(it.nombre)+(it.viajeIda?' '+it.viajeIda:'')+(it.viajeVuelta?' → '+it.viajeVuelta:'');
-          h[vmk][vp[2]].push({color:'#0891b2',name:vLabel,cat:'Viaje',loc:'',locTxt:'',estado:'',marcador:'',vd:'',isPartido:false,isViaje:true});
+          var vLabel='✈️ Ida — '+esc(it.nombre)+(it.viajeIda?' '+it.viajeIda:'');
+          h[vmk][vp[2]].push({color:cat.color||'#0891b2',name:vLabel,cat:'Viaje ida',loc:'',locTxt:'',estado:'',marcador:'',vd:'',isPartido:false,isViaje:true});
+        }
+      }
+      // Día de vuelta ✈️
+      if(it.viajeDiaVuelta){
+        var vvp=it.viajeDiaVuelta.split('-').map(Number);
+        var vvmk=m2k[vvp[1]];
+        if(vvmk&&vvp[0]===getMY(vvmk)){
+          if(!h[vvmk][vvp[2]])h[vvmk][vvp[2]]=[];
+          var vvLabel='✈️ Vuelta — '+esc(it.nombre)+(it.viajeVuelta?' '+it.viajeVuelta:'');
+          h[vvmk][vvp[2]].push({color:cat.color||'#0891b2',name:vvLabel,cat:'Viaje vuelta',loc:'',locTxt:'',estado:'',marcador:'',vd:'',isPartido:false,isViaje:true});
         }
       }
       // Partidos internos en calendario
@@ -1334,7 +1345,12 @@ function renderItems(cat){
     var ri=all.indexOf(it),rc=resColor(it.resultado),cls=rc==='green'?'res-green':rc==='orange'?'res-orange':rc==='red'?'res-red':'';
     var dt=(it.fechaFin&&it.fechaFin!==it.fechaInicio)?dtR(it.fechaInicio,it.fechaFin):dtD(it.fechaInicio);
     var dtStr=(it.hora?it.hora+' · ':'')+dt;
-    var viajeStr=it.viajeDia?'<span style="font-size:9px;color:#0891b2;flex-shrink:0;white-space:nowrap">✈️ '+dtD(it.viajeDia)+(it.viajeIda?' '+it.viajeIda:'')+(it.viajeVuelta?'→'+it.viajeVuelta:'')+'</span>':'';
+    var viajeStr='';
+    if(it.viajeDia){
+      var vIda='✈️ '+dtD(it.viajeDia)+(it.viajeIda?' '+it.viajeIda:'');
+      var vVuelta=it.viajeDiaVuelta?(' → '+dtD(it.viajeDiaVuelta)+(it.viajeVuelta?' '+it.viajeVuelta:'')):(it.viajeVuelta?' →'+it.viajeVuelta:'');
+      viajeStr='<span style="font-size:9px;color:#0891b2;flex-shrink:0;white-space:nowrap">'+vIda+vVuelta+'</span>';
+    }
     var loc=it.ubicacion?LOC_EMOJI[it.ubicacion]||'':'';
     var locTxt=it.ubicacionTexto?'<span style="font-size:9px;color:var(--text-mut);flex-shrink:0">'+esc(it.ubicacionTexto)+'</span>':'';
     var vdIcon=it.victoriaDerrota==='victoria'?'✅':(it.victoriaDerrota==='derrota'?'❌':''),marcTxt=it.marcador||'';
@@ -1460,8 +1476,10 @@ function openItemModal(cid,idx){
   var items=getAllItems(cid),it=eI!=null?items[eI]:null;
   document.getElementById('mt').textContent=(it?'Editar':'Añadir')+' — '+cat.title;
   var hasEnd=it&&it.fechaFin&&it.fechaFin!==it.fechaInicio;
-  var curViajeIda=it?it.viajeIda||'':'',curViajeVuelta=it?it.viajeVuelta||'':'',curViajeDia=it?it.viajeDia||'':'';
-  var viajeH='<label>✈️ Viaje (opcional)</label><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:9px;color:var(--text-mut)">Día salida</span><input id="mViajeDia" type="date" value="'+curViajeDia+'" style="width:130px"></div><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:9px;color:var(--text-mut)">Hora ida</span><input id="mViajeIda" type="time" value="'+curViajeIda+'" style="width:110px"></div><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:9px;color:var(--text-mut)">Hora vuelta</span><input id="mViajeVuelta" type="time" value="'+curViajeVuelta+'" style="width:110px"></div></div>';
+  var curViajeIda=it?it.viajeIda||'':'',curViajeVuelta=it?it.viajeVuelta||'':'',curViajeDia=it?it.viajeDia||'':'',curViajeDiaVuelta=it?it.viajeDiaVuelta||'':'';
+  var viajeH='<label>✈️ Viaje (opcional)</label>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px"><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:9px;color:var(--text-mut)">Día salida</span><input id="mViajeDia" type="date" value="'+curViajeDia+'" style="width:130px"></div><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:9px;color:var(--text-mut)">Hora ida</span><input id="mViajeIda" type="time" value="'+curViajeIda+'" style="width:110px"></div></div>'+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap"><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:9px;color:var(--text-mut)">Día vuelta</span><input id="mViajeDiaVuelta" type="date" value="'+curViajeDiaVuelta+'" style="width:130px"></div><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:9px;color:var(--text-mut)">Hora vuelta</span><input id="mViajeVuelta" type="time" value="'+curViajeVuelta+'" style="width:110px"></div></div>';
   var curHora=it?it.hora||'':'';
   var dH='<label>Fecha</label><div style="display:flex;align-items:center;gap:6px"><input id="mFI" type="date" value="'+(it?it.fechaInicio||'':'')+'" onchange="syncDateMin()" style="flex:1"><span id="mFFToggle" style="font-size:10px;color:var(--rm-blue);cursor:pointer;white-space:nowrap;'+(hasEnd?'display:none':'')+'" onclick="showEndDate()">+ fecha fin</span></div><div id="mFFRow" style="display:'+(hasEnd?'flex':'none')+';align-items:center;gap:6px;margin-top:4px"><span style="font-size:10px;color:var(--text-mut)">hasta</span><input id="mFF" type="date" value="'+(it&&hasEnd?it.fechaFin:'')+'" min="'+(it&&it.fechaInicio?it.fechaInicio:'')+'" style="flex:1"><span style="font-size:10px;color:var(--red);cursor:pointer" onclick="hideEndDate()">✕</span></div>';
   var curLoc=it?it.ubicacion||'':'',curLocTxt=it?it.ubicacionTexto||'':'';
@@ -1514,6 +1532,7 @@ function saveItem(){
       hora:((document.getElementById('mHora')||{}).value||''),
       viajeDia:((document.getElementById('mViajeDia')||{}).value||''),
       viajeIda:((document.getElementById('mViajeIda')||{}).value||''),
+      viajeDiaVuelta:((document.getElementById('mViajeDiaVuelta')||{}).value||''),
       viajeVuelta:((document.getElementById('mViajeVuelta')||{}).value||''),
       partidos:existingPartidos,
       partidosColor:pColorEl?pColorEl.value:''
