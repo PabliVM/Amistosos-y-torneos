@@ -1350,7 +1350,7 @@ function renderItems(cat){
       var vLines=[];
       if(it.viajeDia)vLines.push('✈️ '+dtD(it.viajeDia)+(it.viajeIda?' '+it.viajeIda:''));
       if(it.viajeDiaVuelta)vLines.push('🔙 '+dtD(it.viajeDiaVuelta)+(it.viajeVuelta?' '+it.viajeVuelta:''));
-      viajeStr='<span style="font-size:9px;color:#0891b2;flex-shrink:0;white-space:nowrap;border-left:2px solid #eab308;padding-left:5px;margin-left:3px">'+vLines.join(' · ')+'</span>';
+      viajeStr='<span style="font-size:9px;color:#0891b2;flex-shrink:0;white-space:nowrap;border:1.5px solid #eab308;border-radius:4px;padding:1px 6px;margin-left:4px">'+vLines.join(' · ')+'</span>';
     }
     var loc=it.ubicacion?LOC_EMOJI[it.ubicacion]||'':'';
     var locTxt=it.ubicacionTexto?'<span style="font-size:9px;color:var(--text-mut);flex-shrink:0">'+esc(it.ubicacionTexto)+'</span>':'';
