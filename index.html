@@ -6,6 +6,7 @@
 <title>Planificación de Temporada</title>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <style>
 /* ── BASE STYLES (unchanged) ── */
 .gestion-estado select{text-align:left;padding-left:10px;}
@@ -494,6 +495,55 @@ body.dark .notes-textarea{background:var(--surface-alt);color:var(--text);border
 <script>
 firebase.initializeApp({apiKey:"AIzaSyAyPmMciYVe1RHaRYMww4kEg2nSAEc_dfw",authDomain:"amistosos-y-torneos.firebaseapp.com",projectId:"amistosos-y-torneos",storageBucket:"amistosos-y-torneos.firebasestorage.app",messagingSenderId:"7038951639",appId:"1:7038951639:web:8daf47f203ca91f00a5092"});
 var db=firebase.firestore();
+var auth=firebase.auth();
+
+// ── AUTH ──
+var AUTH_ENABLED=false; // ← CAMBIAR A true PARA ACTIVAR LOGIN
+var currentUser=null;
+
+function checkAuth(){
+  if(!AUTH_ENABLED){bootApp();return;}
+  auth.onAuthStateChanged(function(user){
+    if(user){currentUser=user;hideLoginOverlay();bootApp();}
+    else{showLoginOverlay();}
+  });
+}
+
+function showLoginOverlay(){
+  var o=document.getElementById('loginOverlay');
+  if(o)o.style.display='flex';
+}
+function hideLoginOverlay(){
+  var o=document.getElementById('loginOverlay');
+  if(o)o.style.display='none';
+}
+
+function doLogin(){
+  var email=(document.getElementById('loginEmail')||{}).value||'';
+  var pass=(document.getElementById('loginPassword')||{}).value||'';
+  var err=document.getElementById('loginError');
+  var loading=document.getElementById('loginLoading');
+  if(!email||!pass){if(err){err.textContent='Introduce email y contraseña.';err.style.display='block';}return;}
+  if(err)err.style.display='none';
+  if(loading)loading.style.display='block';
+  auth.signInWithEmailAndPassword(email,pass).then(function(cred){
+    currentUser=cred.user;
+    hideLoginOverlay();
+    bootApp();
+  }).catch(function(e){
+    if(loading)loading.style.display='none';
+    if(err){err.textContent='Email o contraseña incorrectos.';err.style.display='block';}
+  });
+}
+
+function doLogout(){
+  auth.signOut().then(function(){
+    currentUser=null;
+    if(AUTH_ENABLED)showLoginOverlay();
+  });
+}
+
+function bootApp(){
 
 var _moonSVG='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
 var _sunSVG='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
@@ -1118,6 +1168,16 @@ function buildHL(){
         if(!h[mk][dd.d])h[mk][dd.d]=[];
         h[mk][dd.d].push({color:cat.color||'#2563eb',name:it.nombre||'',cat:cat.title||'',loc:it.ubicacion||'',locTxt:it.ubicacionTexto||'',estado:it.estado||'propuesta',marcador:it.marcador||'',vd:it.victoriaDerrota||'',isPartido:false});
       });
+      // Día de viaje ✈️
+      if(it.viajeDia){
+        var vp=it.viajeDia.split('-').map(Number);
+        var vmk=m2k[vp[1]];
+        if(vmk&&vp[0]===getMY(vmk)){
+          if(!h[vmk][vp[2]])h[vmk][vp[2]]=[];
+          var vLabel='✈️ '+esc(it.nombre)+(it.viajeIda?' '+it.viajeIda:'')+(it.viajeVuelta?' → '+it.viajeVuelta:'');
+          h[vmk][vp[2]].push({color:'#0891b2',name:vLabel,cat:'Viaje',loc:'',locTxt:'',estado:'',marcador:'',vd:'',isPartido:false,isViaje:true});
+        }
+      }
       // Partidos internos en calendario
       var pColor=it.partidosColor||darkenColor(cat.color||'#2563eb',18);
       getPartidos(it).forEach(function(p){
@@ -1167,7 +1227,7 @@ function renderCalendar(){
           if(estTxt)detail.push(estTxt);
           if(ev.obs)detail.push('💬 '+ev.obs);
           var detailStr=detail.length?'<div style="font-size:9px;opacity:.65;margin-top:2px">'+detail.join(' · ')+'</div>':'';
-          var prefix=ev.isPartido?'⚽ ':'';
+          var prefix=ev.isPartido?'⚽ ':ev.isViaje?'✈️ ':'';
           var iconSvg=(!ev.isPartido&&ev.estado)?estadoIcon(ev.estado,false,false):'<span class="day-tip-dot" style="background:'+ev.color+'"></span>';
           return '<div class="day-tip-row">'+iconSvg+'<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><span class="day-tip-name">'+prefix+esc(ev.name)+'</span><span class="day-tip-cat">'+esc(ev.cat)+'</span></div>'+detailStr+'</div></div>';
         }).join('');
@@ -1275,6 +1335,7 @@ function renderItems(cat){
     var ri=all.indexOf(it),rc=resColor(it.resultado),cls=rc==='green'?'res-green':rc==='orange'?'res-orange':rc==='red'?'res-red':'';
     var dt=(it.fechaFin&&it.fechaFin!==it.fechaInicio)?dtR(it.fechaInicio,it.fechaFin):dtD(it.fechaInicio);
     var dtStr=(it.hora?it.hora+' · ':'')+dt;
+    var viajeStr=it.viajeDia?'<span style="font-size:9px;color:#0891b2;flex-shrink:0;white-space:nowrap">✈️ '+dtD(it.viajeDia)+(it.viajeIda?' '+it.viajeIda:'')+(it.viajeVuelta?'→'+it.viajeVuelta:'')+'</span>':'';
     var loc=it.ubicacion?LOC_EMOJI[it.ubicacion]||'':'';
     var locTxt=it.ubicacionTexto?'<span style="font-size:9px;color:var(--text-mut);flex-shrink:0">'+esc(it.ubicacionTexto)+'</span>':'';
     var vdIcon=it.victoriaDerrota==='victoria'?'✅':(it.victoriaDerrota==='derrota'?'❌':''),marcTxt=it.marcador||'';
@@ -1298,12 +1359,12 @@ function renderItems(cat){
       if(it.resultado)tipLines.push(it.resultado);
       tipLines.push(estLabel2[it.estado||'propuesta']||'Propuesta');
       if(it.obs)tipLines.push('💬 '+it.obs);
-      div.innerHTML='<div class="item-row"><span class="st-badge '+(it.estado||'propuesta')+'">'+estadoIcon(it.estado)+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+locTxt+matchInfo+'<span class="item-dt">'+dtStr+'</span></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'');
+      div.innerHTML='<div class="item-row"><span class="st-badge '+(it.estado||'propuesta')+'">'+estadoIcon(it.estado)+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+locTxt+matchInfo+viajeStr+'<span class="item-dt">'+dtStr+'</span></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'');
       div.setAttribute('data-tip',tipLines.filter(Boolean).join(' · '));
       div.addEventListener('mouseenter',function(e){var tip=document.getElementById('obsTip');var lines=this.getAttribute('data-tip').split(' · ');tip.innerHTML='<div style="font-weight:700;font-size:12px;margin-bottom:4px">'+esc(lines[0])+'</div>'+lines.slice(1).map(function(l){return '<div style="font-size:11px;opacity:.75;margin-top:2px">'+esc(l)+'</div>';}).join('');tip.style.display='block';var r=this.getBoundingClientRect();var left=Math.max(8,Math.min(r.left,window.innerWidth-tip.offsetWidth-8));tip.style.left=left+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';if(parseInt(tip.style.top)<8)tip.style.top=(r.bottom+8)+'px';});
       div.addEventListener('mouseleave',function(){document.getElementById('obsTip').style.display='none';});
     } else {
-      div.innerHTML='<div class="item-row"><span class="st-badge '+((it.estado||'propuesta'))+'">'+estadoIcon(it.estado)+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+locTxt+matchInfo+'<span class="item-dt">'+dtStr+'</span>'+(it.obs?'<span class="obs-dot" data-obs="'+esc(it.obs).replace(/"/g,'&quot;')+'">💬</span>':'')+'<div class="item-acts"><button onclick="openItemById(\''+cat.id+'\',\''+itemId+'\')">'+IC.ed+'</button><button onclick="delItemById(\''+cat.id+'\',\''+itemId+'\')">'+IC.dl+'</button></div></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'');
+      div.innerHTML='<div class="item-row"><span class="st-badge '+((it.estado||'propuesta'))+'">'+estadoIcon(it.estado)+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+locTxt+matchInfo+viajeStr+'<span class="item-dt">'+dtStr+'</span>'+(it.obs?'<span class="obs-dot" data-obs="'+esc(it.obs).replace(/"/g,'&quot;')+'">💬</span>':'')+'<div class="item-acts"><button onclick="openItemById(\''+cat.id+'\',\''+itemId+'\')">'+IC.ed+'</button><button onclick="delItemById(\''+cat.id+'\',\''+itemId+'\')">'+IC.dl+'</button></div></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'');
     }
 
     // Sección de partidos (siempre visible si hay rango, editable o no)
@@ -1400,6 +1461,8 @@ function openItemModal(cid,idx){
   var items=getAllItems(cid),it=eI!=null?items[eI]:null;
   document.getElementById('mt').textContent=(it?'Editar':'Añadir')+' — '+cat.title;
   var hasEnd=it&&it.fechaFin&&it.fechaFin!==it.fechaInicio;
+  var curViajeIda=it?it.viajeIda||'':'',curViajeVuelta=it?it.viajeVuelta||'':'',curViajeDia=it?it.viajeDia||'':'';
+  var viajeH='<label>✈️ Viaje (opcional)</label><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:9px;color:var(--text-mut)">Día salida</span><input id="mViajeDia" type="date" value="'+curViajeDia+'" style="width:130px"></div><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:9px;color:var(--text-mut)">Hora ida</span><input id="mViajeIda" type="time" value="'+curViajeIda+'" style="width:110px"></div><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:9px;color:var(--text-mut)">Hora vuelta</span><input id="mViajeVuelta" type="time" value="'+curViajeVuelta+'" style="width:110px"></div></div>';
   var curHora=it?it.hora||'':'';
   var dH='<label>Fecha</label><div style="display:flex;align-items:center;gap:6px"><input id="mFI" type="date" value="'+(it?it.fechaInicio||'':'')+'" onchange="syncDateMin()" style="flex:1"><span id="mFFToggle" style="font-size:10px;color:var(--rm-blue);cursor:pointer;white-space:nowrap;'+(hasEnd?'display:none':'')+'" onclick="showEndDate()">+ fecha fin</span></div><div id="mFFRow" style="display:'+(hasEnd?'flex':'none')+';align-items:center;gap:6px;margin-top:4px"><span style="font-size:10px;color:var(--text-mut)">hasta</span><input id="mFF" type="date" value="'+(it&&hasEnd?it.fechaFin:'')+'" min="'+(it&&it.fechaInicio?it.fechaInicio:'')+'" style="flex:1"><span style="font-size:10px;color:var(--red);cursor:pointer" onclick="hideEndDate()">✕</span></div>';
   var curLoc=it?it.ubicacion||'':'',curLocTxt=it?it.ubicacionTexto||'':'';
@@ -1417,7 +1480,7 @@ function openItemModal(cid,idx){
   // Color partidos (solo para eventos con rango de fechas)
   var curPColor=it?it.partidosColor||'':'';
   var pColorHtml='<label>Color partidos (si tiene fecha inicio/fin)</label><input type="hidden" id="mPColor" value="'+curPColor+'">'+cpHTML(curPColor);
-  document.getElementById('mbd').innerHTML='<label>Nombre</label><input id="mN" value="'+(it?esc(it.nombre):'')+'" placeholder="Nombre o rival">'+dH+'<label>Hora (opcional)</label><input id="mHora" type="time" value="'+curHora+'" style="width:130px">'+locH+rH+vdH+'<label>Observaciones</label><textarea id="mO" placeholder="Notas...">'+(it?esc(it.obs):'')+'</textarea>'+estH+pColorHtml;
+  document.getElementById('mbd').innerHTML='<label>Nombre</label><input id="mN" value="'+(it?esc(it.nombre):'')+'" placeholder="Nombre o rival">'+dH+'<label>Hora (opcional)</label><input id="mHora" type="time" value="'+curHora+'" style="width:130px">'+viajeH+locH+rH+vdH+'<label>Observaciones</label><textarea id="mO" placeholder="Notas...">'+(it?esc(it.obs):'')+'</textarea>'+estH+pColorHtml;
   document.getElementById('mft').innerHTML=(it!=null?'<button class="btn-d" onclick="delItemModal()">Borrar</button>':'')+'<button class="btn-s" onclick="closeModal()">Cancelar</button><button class="btn-p" onclick="saveItem()">Guardar</button>';
   // Override pickC to also handle pColor palette
   document.getElementById('mo').classList.add('active');
@@ -1450,6 +1513,9 @@ function saveItem(){
       resultado:resultado,victoriaDerrota:victoriaDerrota,marcador:marcador,
       obs:((document.getElementById('mO')||{}).value||'').trim(),
       hora:((document.getElementById('mHora')||{}).value||''),
+      viajeDia:((document.getElementById('mViajeDia')||{}).value||''),
+      viajeIda:((document.getElementById('mViajeIda')||{}).value||''),
+      viajeVuelta:((document.getElementById('mViajeVuelta')||{}).value||''),
       partidos:existingPartidos,
       partidosColor:pColorEl?pColorEl.value:''
     };
@@ -1861,6 +1927,22 @@ loadSeasons().then(function(){
   showBanner('Error Firebase: '+(e.message||e),true);
   showSync('error');
 });
+} // fin bootApp
+
+checkAuth();
 </script>
+<!-- LOGIN MODAL -->
+<div id="loginOverlay" style="display:none;position:fixed;inset:0;background:var(--rm-blue);z-index:9999;flex-direction:column;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:16px;padding:32px 36px;width:100%;max-width:360px;box-shadow:0 8px 32px rgba(0,0,0,.25);text-align:center">
+    <img src="https://raw.githubusercontent.com/PabliVM/PLANNING/main/assets/rm.png" alt="RM" style="width:56px;height:56px;margin-bottom:12px;border-radius:50%">
+    <h2 style="font-size:16px;font-weight:700;color:#1a1d23;margin-bottom:4px">Planificación de Temporada</h2>
+    <p style="font-size:12px;color:#8b919e;margin-bottom:20px">Real Madrid CF — Cantera</p>
+    <div id="loginError" style="display:none;background:#fce8e8;color:#dc2626;font-size:11px;padding:8px 12px;border-radius:6px;margin-bottom:12px"></div>
+    <input id="loginEmail" type="email" placeholder="Email" style="width:100%;padding:10px 12px;border:1px solid #dfe1e6;border-radius:8px;font-size:13px;font-family:inherit;margin-bottom:8px;box-sizing:border-box">
+    <input id="loginPassword" type="password" placeholder="Contraseña" style="width:100%;padding:10px 12px;border:1px solid #dfe1e6;border-radius:8px;font-size:13px;font-family:inherit;margin-bottom:16px;box-sizing:border-box" onkeydown="if(event.key==='Enter')doLogin()">
+    <button onclick="doLogin()" style="width:100%;padding:11px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Entrar</button>
+    <div id="loginLoading" style="display:none;margin-top:12px;font-size:11px;color:#8b919e">Iniciando sesión...</div>
+  </div>
+</div>
 </body>
 </html>
