@@ -1165,7 +1165,7 @@ function buildHL(){
       dtDays(it.fechaInicio,it.fechaFin||it.fechaInicio).forEach(function(dd){
         var mk=m2k[dd.m];if(!mk)return;if(dd.y!==getMY(mk))return;
         if(!h[mk][dd.d])h[mk][dd.d]=[];
-        h[mk][dd.d].push({color:cat.color||'#2563eb',name:it.nombre||'',cat:cat.title||'',loc:it.ubicacion||'',locTxt:it.ubicacionTexto||'',estado:it.estado||'propuesta',marcador:it.marcador||'',vd:it.victoriaDerrota||'',isPartido:false});
+        h[mk][dd.d].push({color:cat.color||'#2563eb',name:it.nombre||'',cat:cat.title||'',loc:it.ubicacion||'',locTxt:it.ubicacionTexto||'',estado:it.estado||'propuesta',marcador:it.marcador||'',vd:it.victoriaDerrota||'',isPartido:false,parentId:it._id});
       });
       // Día viaje ida ✈️
       if(it.viajeDia){
@@ -1173,7 +1173,7 @@ function buildHL(){
         var vmk=m2k[vp[1]];
         if(vmk&&vp[0]===getMY(vmk)){
           if(!h[vmk][vp[2]])h[vmk][vp[2]]=[];
-          h[vmk][vp[2]].push({color:cat.color||'#0891b2',name:'✈️ Ida — '+esc(it.nombre)+(it.viajeIda?' '+it.viajeIda:''),cat:'Viaje ida',loc:'',locTxt:'',estado:'',marcador:'',vd:'',isPartido:false,isViaje:true,viajeType:'ida'});
+          h[vmk][vp[2]].push({color:cat.color||'#0891b2',name:'✈️ Ida — '+esc(it.nombre)+(it.viajeIda?' '+it.viajeIda:''),cat:'Viaje ida',loc:'',locTxt:'',estado:'',marcador:'',vd:'',isPartido:false,isViaje:true,viajeType:'ida',parentName:it.nombre,parentId:it._id});
         }
       }
       // Día viaje vuelta 🔙
@@ -1182,7 +1182,7 @@ function buildHL(){
         var vvmk=m2k[vvp[1]];
         if(vvmk&&vvp[0]===getMY(vvmk)){
           if(!h[vvmk][vvp[2]])h[vvmk][vvp[2]]=[];
-          h[vvmk][vvp[2]].push({color:cat.color||'#0891b2',name:'🔙 Vuelta — '+esc(it.nombre)+(it.viajeVuelta?' '+it.viajeVuelta:''),cat:'Viaje vuelta',loc:'',locTxt:'',estado:'',marcador:'',vd:'',isPartido:false,isViaje:true,viajeType:'vuelta'});
+          h[vvmk][vvp[2]].push({color:cat.color||'#0891b2',name:'🔙 Vuelta — '+esc(it.nombre)+(it.viajeVuelta?' '+it.viajeVuelta:''),cat:'Viaje vuelta',loc:'',locTxt:'',estado:'',marcador:'',vd:'',isPartido:false,isViaje:true,viajeType:'vuelta',parentName:it.nombre,parentId:it._id});
         }
       }
       // Partidos internos en calendario
@@ -1237,18 +1237,48 @@ function renderCalendar(){
         var prefix=ev.isPartido?'⚽ ':ev.isViaje?(ev.viajeType==='vuelta'?'🔙 ':'✈️ '):'';          var iconSvg=(!ev.isPartido&&ev.estado)?estadoIcon(ev.estado,false,false):'<span class="day-tip-dot" style="background:'+ev.color+'"></span>';
           return '<div class="day-tip-row">'+iconSvg+'<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px"><span class="day-tip-name">'+prefix+esc(ev.name)+'</span><span class="day-tip-cat">'+esc(ev.cat)+'</span></div>'+detailStr+'</div></div>';
         }).join('');
-        // Conflicto real solo si hay eventos de distinto origen (no partido del mismo torneo)
+        // Conflicto real: solo si hay eventos de distinto padre
         var isRealConflict=false;
         if(h[d].length>=2){
-          var nonPartido=h[d].filter(function(ev){return !ev.isPartido;});
-          var soloPartidos=h[d].filter(function(ev){return ev.isPartido;});
-          if(nonPartido.length>=2){isRealConflict=true;}
-          else if(soloPartidos.length>0&&nonPartido.length>0){
-            var parentNames=nonPartido.map(function(ev){return ev.name;});
-            soloPartidos.forEach(function(p){if(parentNames.indexOf(p.parentName)===-1)isRealConflict=true;});
-          } else if(soloPartidos.length>=2){
-            var fp=soloPartidos[0].parentName;
-            soloPartidos.forEach(function(p){if(p.parentName!==fp)isRealConflict=true;});
+          // Agrupar por parentId — viaje + días del mismo torneo no son conflicto
+          var getParent=function(ev){
+            if(ev.isViaje)return ev.parentId||ev.parentName||null;
+            if(ev.isPartido)return ev.parentName||null;
+            return ev.parentId||ev.name||null;
+          };
+          var nonViaje=h[d].filter(function(ev){return !ev.isViaje;});
+          var soloViajes=h[d].filter(function(ev){return ev.isViaje;});
+          var nonPartido=nonViaje.filter(function(ev){return !ev.isPartido;});
+          var soloPartidos=nonViaje.filter(function(ev){return ev.isPartido;});
+
+          // Caso 1: viaje coincide con días de su propio torneo → NO conflicto
+          if(soloViajes.length>0&&nonViaje.length>0){
+            var viajeParents=soloViajes.map(function(ev){return ev.parentId;});
+            nonViaje.forEach(function(ev){
+              if(viajeParents.indexOf(ev.parentId)===-1)isRealConflict=true;
+            });
+            // si solo hay viajes del mismo padre que el evento, no es conflicto
+            if(!isRealConflict&&nonViaje.length>1){
+              // múltiples eventos distintos además del viaje
+              var parentIds=nonViaje.map(function(ev){return ev.parentId;});
+              var unique=[...new Set(parentIds)];
+              if(unique.length>1)isRealConflict=true;
+            }
+          } else if(soloViajes.length===0){
+            // sin viajes: lógica original
+            if(nonPartido.length>=2){isRealConflict=true;}
+            else if(soloPartidos.length>0&&nonPartido.length>0){
+              var parentNames=nonPartido.map(function(ev){return ev.name;});
+              soloPartidos.forEach(function(p){if(parentNames.indexOf(p.parentName)===-1)isRealConflict=true;});
+            } else if(soloPartidos.length>=2){
+              var fp=soloPartidos[0].parentName;
+              soloPartidos.forEach(function(p){if(p.parentName!==fp)isRealConflict=true;});
+            }
+          }
+          // Caso especial: solo viajes de distinto padre
+          if(soloViajes.length>=2&&nonViaje.length===0){
+            var vp0=soloViajes[0].parentId;
+            soloViajes.forEach(function(v){if(v.parentId!==vp0)isRealConflict=true;});
           }
         }
         if(isRealConflict)ds+='<span class="cal-d has-event" style="background:#fff;color:#dc2626;outline:2.5px solid #dc2626;outline-offset:-1px;box-shadow:0 0 0 1px #dc2626;font-weight:900;z-index:2;position:relative">'+d+'<div class="day-tip">'+tt+'</div></span>';
