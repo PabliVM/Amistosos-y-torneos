@@ -2051,11 +2051,7 @@ function printTeamView(){
     // iOS Safari: window.open debe llamarse SINCRÓNICAMENTE desde el gesto del usuario
     var newWin=window.open('','_blank');
     if(!newWin){showBanner('Activa las ventanas emergentes en Safari para imprimir',true);return;}
-    // Añadir instrucción de girar el móvil al HTML
-    var rotateMsg='<div style="background:#2563eb;color:#fff;padding:8px 14px;font-size:11px;font-weight:600;text-align:center;margin-bottom:8px;border-radius:6px">📱 Gira el móvil en horizontal antes de pulsar Imprimir</div>';
-    var htmlConMsg=html.replace('<div class="top-bar">','<div>'+rotateMsg+'</div><div class="top-bar">');
-    newWin.document.write(htmlConMsg);
-    newWin.document.close();
+
 
   } else {
     // Desktop: window.print() normal
