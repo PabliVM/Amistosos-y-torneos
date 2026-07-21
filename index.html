@@ -1949,14 +1949,14 @@ function printTeamView(){
     var MESES_PRINT=['julio','agosto','septiembre','octubre','noviembre','diciembre','enero','febrero','marzo','abril','mayo','junio'];
     var ML_PRINT={julio:'Julio',agosto:'Agosto',septiembre:'Septiembre',octubre:'Octubre',noviembre:'Noviembre',diciembre:'Diciembre',enero:'Enero',febrero:'Febrero',marzo:'Marzo',abril:'Abril',mayo:'Mayo',junio:'Junio'};
     var hl=buildHL();
-    var calHtml='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">';
+    var calHtml='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px">';
     MESES_PRINT.forEach(function(m){
       var yr=getMY(m),dc=gDIM(m),fd=gFD(m),h=hl[m]||{};
-      calHtml+='<div style="border:1px solid #dfe1e6;border-radius:5px;overflow:hidden;font-size:8px">';
-      calHtml+='<div style="background:#2563eb;color:#fff;padding:3px 6px;font-size:9px;font-weight:700;text-transform:uppercase;display:flex;justify-content:space-between"><span>'+ML_PRINT[m]+'</span><span style="opacity:.6">'+yr+'</span></div>';
-      calHtml+='<div style="display:grid;grid-template-columns:repeat(7,1fr);padding:2px 3px 1px">';
-      ['L','M','X','J','V','S','D'].forEach(function(d){calHtml+='<span style="text-align:center;font-size:6px;font-weight:700;color:#8b919e">'+d+'</span>';});
-      calHtml+='</div><div style="display:grid;grid-template-columns:repeat(7,1fr);padding:1px 3px 3px;gap:1px">';
+      calHtml+='<div style="border:1px solid #dfe1e6;border-radius:4px;overflow:hidden">';
+      calHtml+='<div style="background:#2563eb;color:#fff;padding:3px 5px;font-size:8px;font-weight:700;text-transform:uppercase;display:flex;justify-content:space-between"><span>'+ML_PRINT[m]+'</span><span style="opacity:.6">'+yr+'</span></div>';
+      calHtml+='<div style="display:grid;grid-template-columns:repeat(7,1fr);padding:2px 3px 0">';
+      ['L','M','X','J','V','S','D'].forEach(function(d){calHtml+='<span style="text-align:center;font-size:6px;font-weight:700;color:#8b919e;padding:1px 0">'+d+'</span>';});
+      calHtml+='</div><div style="display:grid;grid-template-columns:repeat(7,1fr);padding:1px 3px 4px">';
       for(var i=0;i<fd;i++)calHtml+='<span></span>';
       for(var d=1;d<=dc;d++){
         var dow=(fd+d-1)%7,we=dow>=5;
@@ -1964,10 +1964,10 @@ function printTeamView(){
           var colorEv=h[d].find(function(ev){return !ev.isViaje;})||h[d][0];
           var anyViaje=h[d].some(function(ev){return ev.isViaje;});
           var fg2=contrast(colorEv.color);
-          var border=anyViaje?'outline:1.5px solid #000;':'';
-          calHtml+='<span style="text-align:center;font-size:7px;padding:1px;border-radius:2px;background:'+colorEv.color+';color:'+fg2+';'+border+'">'+d+'</span>';
+          var border=anyViaje?'outline:1.5px solid #000;outline-offset:-1px;':'';
+          calHtml+='<span style="text-align:center;font-size:7px;padding:2px 1px;border-radius:2px;background:'+colorEv.color+';color:'+fg2+';display:block;'+border+'">'+d+'</span>';
         } else {
-          calHtml+='<span style="text-align:center;font-size:7px;padding:1px;color:'+(we?'#b4b9c4':'#5a6170')+'">'+d+'</span>';
+          calHtml+='<span style="text-align:center;font-size:7px;padding:2px 1px;display:block;color:'+(we?'#b4b9c4':'#5a6170')+'">'+d+'</span>';
         }
       }
       calHtml+='</div></div>';
@@ -2042,10 +2042,11 @@ function printTeamView(){
     '</div>'+
     '</body></html>';
 
-    var blob=new Blob([html],{type:'text/html;charset=utf-8'});
-    var url=URL.createObjectURL(blob);
-    window.open(url,'_blank');
-    setTimeout(function(){URL.revokeObjectURL(url);},15000);
+    // iOS Safari: window.open debe llamarse SINCRÓNICAMENTE desde el gesto del usuario
+    var newWin=window.open('','_blank');
+    if(!newWin){showBanner('Activa las ventanas emergentes en Safari para imprimir',true);return;}
+    newWin.document.write(html);
+    newWin.document.close();
 
   } else {
     // Desktop: window.print() normal
