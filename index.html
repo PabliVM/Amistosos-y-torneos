@@ -1964,13 +1964,22 @@ function printTeamView(){
         if(it.viajeDia)viaje+=' ✈️ '+dtD(it.viajeDia)+(it.viajeIda?' '+it.viajeIda:'');
         if(it.viajeDiaVuelta)viaje+=' 🔙 '+dtD(it.viajeDiaVuelta)+(it.viajeVuelta?' '+it.viajeVuelta:'');
         var estLabel={propuesta:'Propuesta',ok_equipo:'OK equipo',enviado_mail:'Enviado mail',definitivo:'Definitivo'};
-        catHtml+='<div style="border:1px solid #dfe1e6;border-radius:5px;padding:6px 10px;margin-bottom:4px;font-size:11px">';
-        catHtml+='<div style="display:flex;justify-content:space-between;align-items:center">';
-        catHtml+='<strong>'+esc(it.nombre)+'</strong>';
-        catHtml+='<span style="color:#5a6170;font-size:10px">'+hora+' '+loc+locTxt+' '+dt+'</span>';
+        catHtml+='<div style="border:1px solid #dfe1e6;border-radius:5px;padding:8px 10px;margin-bottom:6px;font-size:12px">';
+        // Fila 1: nombre + fecha
+        catHtml+='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:3px">';
+        catHtml+='<strong style="font-size:13px">'+esc(it.nombre)+'</strong>';
+        catHtml+='<span style="color:#5a6170;font-size:11px;white-space:nowrap;flex-shrink:0">'+dt+'</span>';
         catHtml+='</div>';
-        if(viaje)catHtml+='<div style="font-size:10px;color:#0891b2;margin-top:2px;border:1px solid #eab308;border-radius:3px;padding:1px 5px;display:inline-block">'+viaje+'</div>';
-        if(it.obs)catHtml+='<div style="font-size:10px;color:#5a6170;margin-top:2px">💬 '+esc(it.obs)+'</div>';
+        // Fila 2: hora + ubicación (si hay)
+        var meta=[];
+        if(it.hora)meta.push('🕐 '+it.hora);
+        if(it.ubicacion&&LOC_EMOJI[it.ubicacion])meta.push(LOC_EMOJI[it.ubicacion]);
+        if(it.ubicacionTexto)meta.push(esc(it.ubicacionTexto));
+        if(meta.length)catHtml+='<div style="color:#5a6170;font-size:11px;margin-bottom:3px">'+meta.join(' ')+'</div>';
+        // Fila 3: viaje
+        if(viaje)catHtml+='<div style="font-size:10px;color:#0891b2;margin-bottom:3px;border:1px solid #eab308;border-radius:3px;padding:2px 6px;display:inline-block">'+viaje+'</div>';
+        // Fila 4: observaciones
+        if(it.obs)catHtml+='<div style="font-size:11px;color:#5a6170;margin-bottom:2px">💬 '+esc(it.obs)+'</div>';
         // Partidos
         var partidos=getPartidos(it);
         if(partidos.length){
