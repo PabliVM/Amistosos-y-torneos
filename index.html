@@ -1942,77 +1942,114 @@ function printTeamView(){
   var isSafari=/^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
   if(isIOS||isSafari){
-    // iOS Safari: abrir nueva pestaña con HTML limpio imprimible
     var teamName=t?t.name+' ('+t.key+')':'Equipo';
     var notasTexto=ta?ta.value:'';
 
-    // Construir HTML de torneos y amistosos
-    var catHtml='';
+    // ── Generar calendario HTML ──
+    var MESES_PRINT=['julio','agosto','septiembre','octubre','noviembre','diciembre','enero','febrero','marzo','abril','mayo','junio'];
+    var ML_PRINT={julio:'Julio',agosto:'Agosto',septiembre:'Septiembre',octubre:'Octubre',noviembre:'Noviembre',diciembre:'Diciembre',enero:'Enero',febrero:'Febrero',marzo:'Marzo',abril:'Abril',mayo:'Mayo',junio:'Junio'};
+    var hl=buildHL();
+    var calHtml='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">';
+    MESES_PRINT.forEach(function(m){
+      var yr=getMY(m),dc=gDIM(m),fd=gFD(m),h=hl[m]||{};
+      calHtml+='<div style="border:1px solid #dfe1e6;border-radius:5px;overflow:hidden;font-size:8px">';
+      calHtml+='<div style="background:#2563eb;color:#fff;padding:3px 6px;font-size:9px;font-weight:700;text-transform:uppercase;display:flex;justify-content:space-between"><span>'+ML_PRINT[m]+'</span><span style="opacity:.6">'+yr+'</span></div>';
+      calHtml+='<div style="display:grid;grid-template-columns:repeat(7,1fr);padding:2px 3px 1px">';
+      ['L','M','X','J','V','S','D'].forEach(function(d){calHtml+='<span style="text-align:center;font-size:6px;font-weight:700;color:#8b919e">'+d+'</span>';});
+      calHtml+='</div><div style="display:grid;grid-template-columns:repeat(7,1fr);padding:1px 3px 3px;gap:1px">';
+      for(var i=0;i<fd;i++)calHtml+='<span></span>';
+      for(var d=1;d<=dc;d++){
+        var dow=(fd+d-1)%7,we=dow>=5;
+        if(h[d]&&h[d].length){
+          var colorEv=h[d].find(function(ev){return !ev.isViaje;})||h[d][0];
+          var anyViaje=h[d].some(function(ev){return ev.isViaje;});
+          var fg2=contrast(colorEv.color);
+          var border=anyViaje?'outline:1.5px solid #000;':'';
+          calHtml+='<span style="text-align:center;font-size:7px;padding:1px;border-radius:2px;background:'+colorEv.color+';color:'+fg2+';'+border+'">'+d+'</span>';
+        } else {
+          calHtml+='<span style="text-align:center;font-size:7px;padding:1px;color:'+(we?'#b4b9c4':'#5a6170')+'">'+d+'</span>';
+        }
+      }
+      calHtml+='</div></div>';
+    });
+    calHtml+='</div>';
+
+    // ── Generar eventos HTML ──
+    var evHtml='';
     ['torneos','amistosos'].forEach(function(catId){
       var cat=categories.find(function(c){return c.id===catId;});
       if(!cat||!catVisible(cat,activeTeam))return;
       var items=getAllItems(catId);
       if(!items.length)return;
       var sorted=items.slice().sort(function(a,b){return (a.fechaInicio||'').localeCompare(b.fechaInicio||'');});
-      catHtml+='<div style="margin-bottom:16px"><div style="background:'+cat.color+';color:'+(contrast(cat.color))+';padding:5px 10px;border-radius:4px;font-size:11px;font-weight:700;text-transform:uppercase;margin-bottom:6px">'+esc(cat.title)+' ('+items.length+')</div>';
+      evHtml+='<div style="margin-bottom:10px">';
+      evHtml+='<div style="background:'+cat.color+';color:'+contrast(cat.color)+';padding:4px 8px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase;margin-bottom:5px">'+esc(cat.title)+' ('+items.length+')</div>';
       sorted.forEach(function(it){
         var dt=(it.fechaFin&&it.fechaFin!==it.fechaInicio)?dtR(it.fechaInicio,it.fechaFin):dtD(it.fechaInicio);
-        var loc=it.ubicacion?LOC_EMOJI[it.ubicacion]+' ':'';
-        var locTxt=it.ubicacionTexto?' '+esc(it.ubicacionTexto):'';
-        var hora=it.hora?' '+it.hora:'';
+        var locIcon=it.ubicacion?LOC_EMOJI[it.ubicacion]||'':'';
+        var locTxt=it.ubicacionTexto?esc(it.ubicacionTexto):'';
         var viaje='';
-        if(it.viajeDia)viaje+=' ✈️ '+dtD(it.viajeDia)+(it.viajeIda?' '+it.viajeIda:'');
-        if(it.viajeDiaVuelta)viaje+=' 🔙 '+dtD(it.viajeDiaVuelta)+(it.viajeVuelta?' '+it.viajeVuelta:'');
-        var estLabel={propuesta:'Propuesta',ok_equipo:'OK equipo',enviado_mail:'Enviado mail',definitivo:'Definitivo'};
-        catHtml+='<div style="border:1px solid #dfe1e6;border-radius:5px;padding:8px 10px;margin-bottom:6px;font-size:12px">';
-        // Fila 1: nombre + fecha
-        catHtml+='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:3px">';
-        catHtml+='<strong style="font-size:13px">'+esc(it.nombre)+'</strong>';
-        catHtml+='<span style="color:#5a6170;font-size:11px;white-space:nowrap;flex-shrink:0">'+dt+'</span>';
-        catHtml+='</div>';
-        // Fila 2: hora + ubicación (si hay)
-        var meta=[];
-        if(it.hora)meta.push('🕐 '+it.hora);
-        if(it.ubicacion&&LOC_EMOJI[it.ubicacion])meta.push(LOC_EMOJI[it.ubicacion]);
-        if(it.ubicacionTexto)meta.push(esc(it.ubicacionTexto));
-        if(meta.length)catHtml+='<div style="color:#5a6170;font-size:11px;margin-bottom:3px">'+meta.join(' ')+'</div>';
-        // Fila 3: viaje
-        if(viaje)catHtml+='<div style="font-size:10px;color:#0891b2;margin-bottom:3px;border:1px solid #eab308;border-radius:3px;padding:2px 6px;display:inline-block">'+viaje+'</div>';
-        // Fila 4: observaciones
-        if(it.obs)catHtml+='<div style="font-size:11px;color:#5a6170;margin-bottom:2px">💬 '+esc(it.obs)+'</div>';
-        // Partidos
+        if(it.viajeDia)viaje+='✈️ '+dtD(it.viajeDia)+(it.viajeIda?' '+it.viajeIda:'');
+        if(it.viajeDiaVuelta)viaje+=(viaje?' · ':'')+'🔙 '+dtD(it.viajeDiaVuelta)+(it.viajeVuelta?' '+it.viajeVuelta:'');
         var partidos=getPartidos(it);
+        evHtml+='<div style="border:1px solid #dfe1e6;border-radius:4px;padding:5px 8px;margin-bottom:4px">';
+        // Fila nombre + fecha
+        evHtml+='<div style="display:flex;justify-content:space-between;gap:6px;margin-bottom:2px">';
+        evHtml+='<strong style="font-size:11px">'+esc(it.nombre)+'</strong>';
+        evHtml+='<span style="color:#5a6170;font-size:10px;white-space:nowrap;flex-shrink:0">';
+        if(it.hora)evHtml+=it.hora+' ';
+        if(locIcon)evHtml+=locIcon+' ';
+        if(locTxt)evHtml+=locTxt+' ';
+        evHtml+=dt+'</span></div>';
+        // Viaje
+        if(viaje)evHtml+='<div style="font-size:9px;color:#0891b2;border:1px solid #eab308;border-radius:3px;padding:1px 5px;display:inline-block;margin-bottom:2px">'+viaje+'</div>';
+        // Observaciones
+        if(it.obs)evHtml+='<div style="font-size:9px;color:#5a6170">💬 '+esc(it.obs)+'</div>';
+        // Partidos
         if(partidos.length){
-          catHtml+='<div style="margin-top:4px;padding-top:4px;border-top:1px dashed #eaecf0">';
+          evHtml+='<div style="margin-top:3px;padding-top:3px;border-top:1px dashed #eaecf0">';
           partidos.slice().sort(function(a,b){return (a.fecha||'').localeCompare(b.fecha||'');}).forEach(function(p){
             var pvd=p.victoriaDerrota==='victoria'?'✅':(p.victoriaDerrota==='derrota'?'❌':'');
-            catHtml+='<div style="font-size:10px;color:#5a6170;padding:1px 0">⚽ '+dtD(p.fecha)+(p.hora?' '+p.hora:'')+' — '+esc(p.rival||'Partido')+(p.marcador?' '+p.marcador:'')+(pvd?' '+pvd:'')+'</div>';
+            evHtml+='<div style="font-size:9px;color:#5a6170">⚽ '+dtD(p.fecha)+(p.hora?' '+p.hora:'')+' — '+esc(p.rival||'Partido')+(p.marcador?' '+p.marcador:'')+(pvd?' '+pvd:'')+'</div>';
           });
-          catHtml+='</div>';
+          evHtml+='</div>';
         }
-        catHtml+='</div>';
+        evHtml+='</div>';
       });
-      catHtml+='</div>';
+      evHtml+='</div>';
     });
 
-    var html='<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+teamName+' — '+activeSeason+'</title>'+
-    '<style>body{font-family:-apple-system,Segoe UI,sans-serif;padding:16px;color:#1a1d23;font-size:12px;max-width:900px;margin:0 auto}'+
-    'h1{font-size:16px;font-weight:700;margin:0 0 2px}p{font-size:11px;color:#8b919e;margin:0 0 14px}'+
-    '.header{background:#2563eb;color:#fff;padding:12px 16px;border-radius:8px;margin-bottom:16px;display:flex;align-items:center;gap:10px}'+
-    '.notes{border:1px solid #dfe1e6;border-radius:5px;padding:10px;font-size:11px;white-space:pre-wrap;color:#1a1d23;margin-top:14px;line-height:1.5}'+
-    '.notes-title{font-size:10px;font-weight:700;text-transform:uppercase;color:#5a6170;margin-bottom:6px}'+
-    '@media print{button{display:none!important}}'+
+    // Notas
+    var notasHtml=notasTexto?'<div style="margin-top:10px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#5a6170;margin-bottom:4px">📝 Notas</div><div style="border:1px solid #dfe1e6;border-radius:4px;padding:8px;font-size:10px;white-space:pre-wrap;line-height:1.5">'+esc(notasTexto)+'</div></div>':'';
+
+    var html='<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">'+
+    '<meta name="viewport" content="width=device-width,initial-scale=1">'+
+    '<title>'+teamName+' — '+activeSeason+'</title>'+
+    '<style>'+
+    '*{box-sizing:border-box;margin:0;padding:0}'+
+    'body{font-family:-apple-system,Segoe UI,sans-serif;padding:12px;color:#1a1d23;background:#fff}'+
+    '.top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:10px}'+
+    '.title-block h1{font-size:14px;font-weight:700;margin:0 0 1px}'+
+    '.title-block p{font-size:10px;color:#8b919e;margin:0}'+
+    '.print-btn{background:#2563eb;color:#fff;border:none;padding:7px 16px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}'+
+    '.layout{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}'+
+    '@media print{.print-btn{display:none!important}body{padding:6px}h1{font-size:12px}}'+
+    '@page{size:landscape;margin:8mm}'+
     '</style></head><body>'+
-    '<button onclick="window.print()" style="background:#2563eb;color:#fff;border:none;padding:8px 18px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:14px;width:100%">🖨️ Imprimir / Guardar PDF</button>'+
-    '<div class="header"><div><h1>'+teamName+'</h1><p>Temporada '+activeSeason+' — Torneos y Amistosos</p></div></div>'+
-    catHtml+
-    (notasTexto?'<div class="notes-title">📝 Notas</div><div class="notes">'+esc(notasTexto)+'</div>':'')+
+    '<div class="top-bar">'+
+      '<div class="title-block"><h1>'+teamName+'</h1><p>Temporada '+activeSeason+' — Torneos y Amistosos</p></div>'+
+      '<button class="print-btn" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>'+
+    '</div>'+
+    '<div class="layout">'+
+      '<div>'+calHtml+'</div>'+
+      '<div>'+evHtml+notasHtml+'</div>'+
+    '</div>'+
     '</body></html>';
 
     var blob=new Blob([html],{type:'text/html;charset=utf-8'});
     var url=URL.createObjectURL(blob);
     window.open(url,'_blank');
-    setTimeout(function(){URL.revokeObjectURL(url);},10000);
+    setTimeout(function(){URL.revokeObjectURL(url);},15000);
 
   } else {
     // Desktop: window.print() normal
