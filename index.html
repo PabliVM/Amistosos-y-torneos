@@ -1983,7 +1983,7 @@ function printTeamView(){
       if(!items.length)return;
       var sorted=items.slice().sort(function(a,b){return (a.fechaInicio||'').localeCompare(b.fechaInicio||'');});
       evHtml+='<div style="margin-bottom:10px">';
-      evHtml+='<div style="background:'+cat.color+';color:'+contrast(cat.color)+';padding:4px 8px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase;margin-bottom:5px">'+esc(cat.title)+' ('+items.length+')</div>';
+      evHtml+='<div style="background:'+cat.color+';color:'+contrast(cat.color)+';padding:4px 8px;border-radius:4px;font-size:9px;font-weight:700;text-transform:uppercase;margin-bottom:5px">'+esc(cat.title)+' ('+items.length+')</div>';
       sorted.forEach(function(it){
         var dt=(it.fechaFin&&it.fechaFin!==it.fechaInicio)?dtR(it.fechaInicio,it.fechaFin):dtD(it.fechaInicio);
         var locIcon=it.ubicacion?LOC_EMOJI[it.ubicacion]||'':'';
@@ -1992,25 +1992,21 @@ function printTeamView(){
         if(it.viajeDia)viaje+='✈️ '+dtD(it.viajeDia)+(it.viajeIda?' '+it.viajeIda:'');
         if(it.viajeDiaVuelta)viaje+=(viaje?' · ':'')+'🔙 '+dtD(it.viajeDiaVuelta)+(it.viajeVuelta?' '+it.viajeVuelta:'');
         var partidos=getPartidos(it);
-        evHtml+='<div style="border:1px solid #dfe1e6;border-radius:4px;padding:5px 8px;margin-bottom:4px">';
-        // Fila nombre + fecha
-        evHtml+='<div style="display:flex;justify-content:space-between;gap:6px;margin-bottom:2px">';
-        evHtml+='<strong style="font-size:11px">'+esc(it.nombre)+'</strong>';
-        evHtml+='<span style="color:#5a6170;font-size:10px;white-space:nowrap;flex-shrink:0">';
+        evHtml+='<div style="border:1px solid #dfe1e6;border-radius:4px;padding:4px 7px;margin-bottom:4px">';
+        evHtml+='<div style="display:flex;justify-content:space-between;gap:6px;margin-bottom:1px">';
+        evHtml+='<strong style="font-size:8px">'+esc(it.nombre)+'</strong>';
+        evHtml+='<span style="color:#5a6170;font-size:7px;white-space:nowrap;flex-shrink:0">';
         if(it.hora)evHtml+=it.hora+' ';
         if(locIcon)evHtml+=locIcon+' ';
         if(locTxt)evHtml+=locTxt+' ';
         evHtml+=dt+'</span></div>';
-        // Viaje
-        if(viaje)evHtml+='<div style="font-size:9px;color:#0891b2;border:1px solid #eab308;border-radius:3px;padding:1px 5px;display:inline-block;margin-bottom:2px">'+viaje+'</div>';
-        // Observaciones
-        if(it.obs)evHtml+='<div style="font-size:9px;color:#5a6170">💬 '+esc(it.obs)+'</div>';
-        // Partidos
+        if(viaje)evHtml+='<div style="font-size:7px;color:#0891b2;border:1px solid #eab308;border-radius:3px;padding:1px 4px;display:inline-block;margin-bottom:1px">'+viaje+'</div>';
+        if(it.obs)evHtml+='<div style="font-size:7px;color:#5a6170">💬 '+esc(it.obs)+'</div>';
         if(partidos.length){
-          evHtml+='<div style="margin-top:3px;padding-top:3px;border-top:1px dashed #eaecf0">';
+          evHtml+='<div style="margin-top:2px;padding-top:2px;border-top:1px dashed #eaecf0">';
           partidos.slice().sort(function(a,b){return (a.fecha||'').localeCompare(b.fecha||'');}).forEach(function(p){
             var pvd=p.victoriaDerrota==='victoria'?'✅':(p.victoriaDerrota==='derrota'?'❌':'');
-            evHtml+='<div style="font-size:9px;color:#5a6170">⚽ '+dtD(p.fecha)+(p.hora?' '+p.hora:'')+' — '+esc(p.rival||'Partido')+(p.marcador?' '+p.marcador:'')+(pvd?' '+pvd:'')+'</div>';
+            evHtml+='<div style="font-size:7px;color:#5a6170">⚽ '+dtD(p.fecha)+(p.hora?' '+p.hora:'')+' — '+esc(p.rival||'Partido')+(p.marcador?' '+p.marcador:'')+(pvd?' '+pvd:'')+'</div>';
           });
           evHtml+='</div>';
         }
@@ -2020,7 +2016,7 @@ function printTeamView(){
     });
 
     // Notas
-    var notasHtml=notasTexto?'<div style="margin-top:10px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#5a6170;margin-bottom:4px">📝 Notas</div><div style="border:1px solid #dfe1e6;border-radius:4px;padding:8px;font-size:10px;white-space:pre-wrap;line-height:1.5">'+esc(notasTexto)+'</div></div>':'';
+    var notasHtml=notasTexto?'<div style="margin-top:10px"><div style="font-size:8px;font-weight:700;text-transform:uppercase;color:#5a6170;margin-bottom:4px">📝 Notas</div><div style="border:1px solid #dfe1e6;border-radius:4px;padding:6px;font-size:7px;white-space:pre-wrap;line-height:1.5">'+esc(notasTexto)+'</div></div>':'';
 
     var html='<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">'+
     '<meta name="viewport" content="width=device-width,initial-scale=0.6,maximum-scale=0.6">'+
