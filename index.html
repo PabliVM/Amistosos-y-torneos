@@ -1965,7 +1965,7 @@ function printTeamView(){
           var anyViaje=h[d].some(function(ev){return ev.isViaje;});
           var fg2=contrast(colorEv.color);
           var border=anyViaje?'outline:1.5px solid #000;outline-offset:-1px;':'';
-          calHtml+='<span style="text-align:center;font-size:7px;padding:2px 1px;border-radius:2px;background:'+colorEv.color+';color:'+fg2+';display:block;'+border+'">'+d+'</span>';
+          calHtml+='<span style="text-align:center;font-size:7px;padding:2px 1px;border-radius:2px;background:'+colorEv.color+';color:'+fg2+';display:block;-webkit-print-color-adjust:exact;print-color-adjust:exact;'+border+'">'+d+'</span>';
         } else {
           calHtml+='<span style="text-align:center;font-size:7px;padding:2px 1px;display:block;color:'+(we?'#b4b9c4':'#5a6170')+'">'+d+'</span>';
         }
@@ -2019,18 +2019,21 @@ function printTeamView(){
     var notasHtml=notasTexto?'<div style="margin-top:10px"><div style="font-size:8px;font-weight:700;text-transform:uppercase;color:#5a6170;margin-bottom:4px">📝 Notas</div><div style="border:1px solid #dfe1e6;border-radius:4px;padding:6px;font-size:7px;white-space:pre-wrap;line-height:1.5">'+esc(notasTexto)+'</div></div>':'';
 
     var html='<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">'+
-    '<meta name="viewport" content="width=device-width,initial-scale=0.6,maximum-scale=0.6">'+
+    '<meta name="viewport" content="width=device-width,initial-scale=0.55,maximum-scale=0.55">'+
     '<title>'+teamName+' — '+activeSeason+'</title>'+
     '<style>'+
-    '*{box-sizing:border-box;margin:0;padding:0}'+
-    'body{font-family:-apple-system,Segoe UI,sans-serif;padding:10px;color:#1a1d23;background:#fff;min-width:900px}'+
-    '.top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:10px}'+
-    '.title-block h1{font-size:14px;font-weight:700;margin:0 0 1px}'+
-    '.title-block p{font-size:10px;color:#8b919e;margin:0}'+
-    '.print-btn{background:#2563eb;color:#fff;border:none;padding:7px 16px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}'+
-    '.layout{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}'+
-    '@media print{.print-btn{display:none!important}body{padding:4px;min-width:0}}'+
-    '@page{size:A4 landscape;margin:8mm}'+
+    '*{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}'+
+    'body{font-family:-apple-system,Segoe UI,sans-serif;padding:10px;color:#1a1d23;background:#fff;min-width:1050px}'+
+    '.top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:10px}'+
+    '.title-block h1{font-size:13px;font-weight:700;margin:0 0 1px}'+
+    '.title-block p{font-size:9px;color:#8b919e;margin:0}'+
+    '.print-btn{background:#2563eb;color:#fff;border:none;padding:6px 14px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}'+
+    '.layout{display:grid;grid-template-columns:460px 1fr;gap:14px;align-items:start}'+
+    '@media print{'+
+    '.print-btn{display:none!important}'+
+    'body{padding:0;min-width:0}'+
+    '}'+
+    '@page{size:A4 landscape;margin:6mm}'+
     '</style></head><body>'+
     '<div class="top-bar">'+
       '<div class="title-block"><h1>'+teamName+'</h1><p>Temporada '+activeSeason+' — Torneos y Amistosos</p></div>'+
