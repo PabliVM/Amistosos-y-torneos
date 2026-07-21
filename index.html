@@ -7,6 +7,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 /* ── BASE STYLES (unchanged) ── */
 .gestion-estado select{text-align:left;padding-left:10px;}
@@ -1216,14 +1218,13 @@ function renderCalendar(){
     for(var d=1;d<=dc;d++){
       var dow=(fd+d-1)%7,we=dow>=5;
       if(h[d]&&h[d].length){
-        // Si hay viaje + evento del mismo padre en el mismo día, el viaje va primero (para mostrar borde)
+        // Color: usar el evento no-viaje si existe, el viaje solo aporta el borde
         var eventsToShow=h[d].slice();
         var hasPartidoConPadre=eventsToShow.some(function(ev){return ev.isPartido;})&&eventsToShow.some(function(ev){return !ev.isPartido;});
         if(hasPartidoConPadre){eventsToShow.sort(function(a,b){return (a.isPartido?0:1)-(b.isPartido?0:1);});}
-        // Viajes del mismo padre: ponerlos primero para que muestren borde negro
-        var hasViajeMismoPadre=eventsToShow.some(function(ev){return ev.isViaje;})&&eventsToShow.some(function(ev){return !ev.isViaje&&ev.parentId===ev.parentId;});
-        if(hasViajeMismoPadre){eventsToShow.sort(function(a,b){return (a.isViaje?0:1)-(b.isViaje?0:1);});}
-        var first=eventsToShow[0],fg=contrast(first.color);
+        // Para el color, priorizar evento no-viaje
+        var colorSource=eventsToShow.find(function(ev){return !ev.isViaje;})||eventsToShow[0];
+        var first=colorSource,fg=contrast(first.color);
         var tt=h[d].map(function(ev){
           var locIcon=ev.loc?LOC_EMOJI[ev.loc]||'':'';
           var estLabel={propuesta:'Propuesta',provisional:'Propuesta',ok_equipo:'OK equipo',enviado_mail:'Enviado mail',definitivo:'Definitivo'};
@@ -1922,34 +1923,94 @@ function selectTeamFromWelcome(k){
 
 function printTeamView(){
   var t=TEAMS.find(function(x){return x.key===activeTeam;});
-  var title=document.getElementById('printTeamTitle');
-  var sub=document.getElementById('printTeamSub');
-  if(title)title.textContent=(t?t.name+' ('+activeTeam+')':'Equipo');
-  if(sub)sub.textContent='Temporada '+activeSeason+' — Torneos y Amistosos';
-  // Volcar texto de notas en div para impresión completa
-  var ta=document.getElementById('notesTextarea');
-  var pt=document.getElementById('notesPrintText');
-  if(ta&&pt)pt.textContent=ta.value;
   // Expandir paneles torneos y amistosos
   ['torneos','amistosos'].forEach(function(id){
     var b=document.getElementById('cb_'+id);
     if(b){b.classList.remove('collapsed');var c=document.getElementById('chev_cb_'+id);if(c)c.classList.remove('collapsed');}
   });
-  // Expandir notas si colapsadas
-  var nb=document.getElementById('notesBody');
-  if(nb)nb.classList.remove('collapsed');
+  // Expandir notas
+  var nb=document.getElementById('notesBody');if(nb)nb.classList.remove('collapsed');
   // Expandir partidos
   document.querySelectorAll('[id^="ps_"]').forEach(function(el){el.style.display='';});
-  var footer=document.querySelector('footer');
-  var oldFooterDisplay='',oldFooterPosition='';
-  if(footer){oldFooterDisplay=footer.style.display;oldFooterPosition=footer.style.position;footer.style.display='none';footer.style.position='static';}
-  var rb=document.getElementById('readonlyBanner');
-  var oldRb='';if(rb){oldRb=rb.style.display;rb.style.display='none';}
-  document.body.classList.add('printing-team');
-  window.print();
-  document.body.classList.remove('printing-team');
-  if(footer){footer.style.display=oldFooterDisplay;footer.style.position=oldFooterPosition;}
-  if(rb)rb.style.display=oldRb;
+  // Volcar notas en div para impresión
+  var ta=document.getElementById('notesTextarea');
+  var pt=document.getElementById('notesPrintText');
+  if(ta&&pt)pt.textContent=ta.value;
+
+  // Detectar iOS Safari
+  var isIOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(/Macintosh/.test(navigator.userAgent)&&'ontouchend' in document);
+  var isSafari=/^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+  if(isIOS||isSafari){
+    // Generar PDF con jsPDF + html2canvas
+    var btn=document.getElementById('btnPrintTeam');
+    if(btn){btn.innerHTML='⏳';btn.disabled=true;}
+    // Mostrar clase printing-team para filtrar contenido
+    document.body.classList.add('printing-team');
+    var mainV=document.getElementById('mainView');
+    var notesP=document.getElementById('notesPanel');
+    // Capturar mainView + notesPanel juntos
+    var captureTarget=mainV.parentElement||document.body;
+    setTimeout(function(){
+      html2canvas(captureTarget,{
+        scale:1.5,
+        useCORS:true,
+        allowTaint:true,
+        backgroundColor:'#ffffff',
+        ignoreElements:function(el){
+          // Ignorar elementos que no deben salir
+          if(el.id==='teamBar'||el.id==='readonlyBanner'||el.classList.contains('banner'))return true;
+          if(el.tagName==='FOOTER')return true;
+          if(el.classList.contains('modal-overlay'))return true;
+          return false;
+        }
+      }).then(function(canvas){
+        document.body.classList.remove('printing-team');
+        var imgData=canvas.toDataURL('image/jpeg',0.92);
+        var jsPDF=window.jspdf.jsPDF;
+        var pdf=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+        var pdfW=pdf.internal.pageSize.getWidth();
+        var pdfH=pdf.internal.pageSize.getHeight();
+        var canvasW=canvas.width,canvasH=canvas.height;
+        var ratio=Math.min(pdfW/canvasW,pdfH/canvasH)*96/25.4*0.8;
+        var imgW=canvasW*ratio,imgH=canvasH*ratio;
+        // Si el contenido es más alto que una página, paginar
+        if(imgH<=pdfH){
+          pdf.addImage(imgData,'JPEG',0,0,imgW,imgH);
+        } else {
+          var pages=Math.ceil(imgH/pdfH);
+          for(var pg=0;pg<pages;pg++){
+            if(pg>0)pdf.addPage();
+            pdf.addImage(imgData,'JPEG',0,-(pdfH*pg),imgW,imgH);
+          }
+        }
+        var filename='Planificacion_'+(t?t.key:'equipo')+'_'+activeSeason.replace('/','_')+'.pdf';
+        pdf.save(filename);
+        if(btn){btn.innerHTML='🖨️';btn.disabled=false;}
+      }).catch(function(e){
+        document.body.classList.remove('printing-team');
+        if(btn){btn.innerHTML='🖨️';btn.disabled=false;}
+        showBanner('Error generando PDF: '+e.message,true);
+      });
+    },100);
+  } else {
+    // Desktop: window.print() normal
+    var title=document.getElementById('printTeamTitle');
+    var sub=document.getElementById('printTeamSub');
+    if(title)title.textContent=(t?t.name+' ('+t.key+')':'Equipo');
+    if(sub)sub.textContent='Temporada '+activeSeason+' — Torneos y Amistosos';
+    if(ta&&pt)pt.textContent=ta?ta.value:'';
+    var footer=document.querySelector('footer');
+    var oldFD='',oldFP='';
+    if(footer){oldFD=footer.style.display;oldFP=footer.style.position;footer.style.display='none';footer.style.position='static';}
+    var rb=document.getElementById('readonlyBanner');
+    var oldRb='';if(rb){oldRb=rb.style.display;rb.style.display='none';}
+    document.body.classList.add('printing-team');
+    window.print();
+    document.body.classList.remove('printing-team');
+    if(footer){footer.style.display=oldFD;footer.style.position=oldFP;}
+    if(rb)rb.style.display=oldRb;
+  }
 }
 
 function seleccionarTodosGestion(){document.querySelectorAll('#gestionEquipoFilter input').forEach(function(cb){cb.checked=true;});document.querySelectorAll('#gestionEquipoFilter label').forEach(function(l){l.classList.add('sel');});renderGestionTorneos();}
