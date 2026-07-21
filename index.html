@@ -1963,9 +1963,12 @@ function printTeamView(){
         if(h[d]&&h[d].length){
           var colorEv=h[d].find(function(ev){return !ev.isViaje;})||h[d][0];
           var anyViaje=h[d].some(function(ev){return ev.isViaje;});
+          var anyPartido=h[d].some(function(ev){return ev.isPartido;});
           var fg2=contrast(colorEv.color);
           var border=anyViaje?'outline:1.5px solid #000;outline-offset:-1px;':'';
-          calHtml+='<span style="text-align:center;font-size:7px;padding:2px 1px;border-radius:2px;background:'+colorEv.color+';color:'+fg2+';display:block;-webkit-print-color-adjust:exact;print-color-adjust:exact;'+border+'">'+d+'</span>';
+          // Partidos: color más oscuro
+          var bgColor=anyPartido?darkenColor(colorEv.color,18):colorEv.color;
+          calHtml+='<span style="text-align:center;font-size:7px;padding:2px 1px;border-radius:2px;background:'+bgColor+';color:'+contrast(bgColor)+';display:block;-webkit-print-color-adjust:exact;print-color-adjust:exact;'+border+'">'+d+'</span>';
         } else {
           calHtml+='<span style="text-align:center;font-size:7px;padding:2px 1px;display:block;color:'+(we?'#b4b9c4':'#5a6170')+'">'+d+'</span>';
         }
@@ -2048,7 +2051,10 @@ function printTeamView(){
     // iOS Safari: window.open debe llamarse SINCRÓNICAMENTE desde el gesto del usuario
     var newWin=window.open('','_blank');
     if(!newWin){showBanner('Activa las ventanas emergentes en Safari para imprimir',true);return;}
-    newWin.document.write(html);
+    // Añadir instrucción de girar el móvil al HTML
+    var rotateMsg='<div style="background:#2563eb;color:#fff;padding:8px 14px;font-size:11px;font-weight:600;text-align:center;margin-bottom:8px;border-radius:6px">📱 Gira el móvil en horizontal antes de pulsar Imprimir</div>';
+    var htmlConMsg=html.replace('<div class="top-bar">','<div>'+rotateMsg+'</div><div class="top-bar">');
+    newWin.document.write(htmlConMsg);
     newWin.document.close();
 
   } else {
