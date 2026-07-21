@@ -2048,9 +2048,16 @@ function printTeamView(){
     '</div>'+
     '</body></html>';
 
-    // iOS Safari: window.open debe llamarse SINCRÓNICAMENTE desde el gesto del usuario
-    var newWin=window.open('','_blank');
-    if(!newWin){showBanner('Activa las ventanas emergentes en Safari para imprimir',true);return;}
+// iOS Safari: window.open debe llamarse SINCRÓNICAMENTE desde el gesto del usuario
+var newWin = window.open('', '_blank');
+
+if (!newWin) {
+    showBanner('Activa las ventanas emergentes en Safari para imprimir', true);
+    return;
+}
+
+newWin.document.write(html);
+newWin.document.close();
 
 
   } else {
