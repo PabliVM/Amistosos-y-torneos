@@ -118,7 +118,7 @@ body.readonly .notes-textarea{pointer-events:none;opacity:.7;background:var(--su
 .item-card.res-green{border-left:3px solid var(--green);background:linear-gradient(135deg,var(--green-bg) 0%,var(--surface) 50%)}
 .item-card.res-orange{border-left:3px solid var(--orange)}
 .item-card.res-red{border-left:3px solid var(--red)}
-.item-row{display:grid;grid-template-columns:1fr 0.8fr 0.9fr;align-items:center;gap:4px}
+.item-row{display:grid;grid-template-columns:0.7fr 0.7fr 1.6fr;align-items:center;gap:4px}
 .item-col-rival{display:flex;align-items:center;gap:5px;min-width:0}
 .item-col-contact{display:flex;align-items:flex-start;min-width:0;overflow:hidden}
 .item-col-right{display:flex;align-items:center;justify-content:flex-end;gap:4px;min-width:0;flex-shrink:0}
@@ -1405,7 +1405,7 @@ function renderItems(cat){
       '</span>';
     }
     var col3Html='<div style="display:flex;flex-direction:column;align-items:flex-end;gap:1px;text-align:right;min-width:0">'+
-      (it.ubicacionTexto?'<span style="font-size:9px;color:var(--text-mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%">'+esc(it.ubicacionTexto)+'</span>':'')+
+      (it.ubicacionTexto?'<span style="font-size:9px;color:var(--text-mut);white-space:nowrap">'+esc(it.ubicacionTexto)+'</span>':'')+
       '<span style="display:flex;align-items:center;justify-content:flex-end;gap:3px;white-space:nowrap">'+viajeStr+'<span class="item-dt">'+dtStr+'</span></span>'+
     '</div>';
     var itemId=it._id||('idx_'+ri);
