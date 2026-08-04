@@ -1379,7 +1379,14 @@ function renderItems(cat){
   sorted.forEach(function(it){
     var ri=all.indexOf(it),rc=resColor(it.resultado),cls=rc==='green'?'res-green':rc==='orange'?'res-orange':rc==='red'?'res-red':'';
     var dt=(it.fechaFin&&it.fechaFin!==it.fechaInicio)?dtR(it.fechaInicio,it.fechaFin):dtD(it.fechaInicio);
-    var dtStr=(it.hora?it.hora+' · ':'')+dt;
+    var contactoHtml='';
+    if(it.contactoNombre||it.contactoTel||it.contactoMail){
+      contactoHtml='<div style="margin-top:4px;padding-top:4px;border-top:1px solid var(--border-light);display:flex;flex-direction:column;gap:1px">';
+      if(it.contactoNombre)contactoHtml+='<span style="font-size:10px;color:var(--text-sec)">'+esc(it.contactoNombre)+'</span>';
+      if(it.contactoTel)contactoHtml+='<span style="font-size:10px;color:var(--text-sec)">'+esc(it.contactoTel)+'</span>';
+      if(it.contactoMail)contactoHtml+='<span style="font-size:10px;color:var(--text-sec)">'+esc(it.contactoMail)+'</span>';
+      contactoHtml+='</div>';
+    }
     var viajeStr='';
     if(it.viajeDia||it.viajeDiaVuelta){
       var vLines=[];
@@ -1410,12 +1417,11 @@ function renderItems(cat){
       if(it.resultado)tipLines.push(it.resultado);
       tipLines.push(estLabel2[it.estado||'propuesta']||'Propuesta');
       if(it.obs)tipLines.push('💬 '+it.obs);
-      div.innerHTML='<div class="item-row"><span class="st-badge '+(it.estado||'propuesta')+'">'+estadoIcon(it.estado)+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+locTxt+matchInfo+viajeStr+'<span class="item-dt">'+dtStr+'</span></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'');
-      div.setAttribute('data-tip',tipLines.filter(Boolean).join(' · '));
+      div.innerHTML='<div class="item-row"><span class="st-badge '+(it.estado||'propuesta')+'">'+estadoIcon(it.estado)+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+locTxt+matchInfo+viajeStr+'<span class="item-dt">'+dtStr+'</span></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'')+contactoHtml;
       div.addEventListener('mouseenter',function(e){var tip=document.getElementById('obsTip');var lines=this.getAttribute('data-tip').split(' · ');tip.innerHTML='<div style="font-weight:700;font-size:12px;margin-bottom:4px">'+esc(lines[0])+'</div>'+lines.slice(1).map(function(l){return '<div style="font-size:11px;opacity:.75;margin-top:2px">'+esc(l)+'</div>';}).join('');tip.style.display='block';var r=this.getBoundingClientRect();var left=Math.max(8,Math.min(r.left,window.innerWidth-tip.offsetWidth-8));tip.style.left=left+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';if(parseInt(tip.style.top)<8)tip.style.top=(r.bottom+8)+'px';});
       div.addEventListener('mouseleave',function(){document.getElementById('obsTip').style.display='none';});
     } else {
-      div.innerHTML='<div class="item-row"><span class="st-badge '+((it.estado||'propuesta'))+'">'+estadoIcon(it.estado)+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+locTxt+matchInfo+viajeStr+'<span class="item-dt">'+dtStr+'</span>'+(it.obs?'<span class="obs-dot" data-obs="'+esc(it.obs).replace(/"/g,'&quot;')+'">💬</span>':'')+'<div class="item-acts"><button onclick="openItemById(\''+cat.id+'\',\''+itemId+'\')">'+IC.ed+'</button><button onclick="delItemById(\''+cat.id+'\',\''+itemId+'\')">'+IC.dl+'</button></div></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'');
+      div.innerHTML='<div class="item-row"><span class="st-badge '+((it.estado||'propuesta'))+'">'+estadoIcon(it.estado)+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+locTxt+matchInfo+viajeStr+'<span class="item-dt">'+dtStr+'</span>'+(it.obs?'<span class="obs-dot" data-obs="'+esc(it.obs).replace(/"/g,'&quot;')+'">💬</span>':'')+'<div class="item-acts"><button onclick="openItemById(\''+cat.id+'\',\''+itemId+'\')">'+IC.ed+'</button><button onclick="delItemById(\''+cat.id+'\',\''+itemId+'\')">'+IC.dl+'</button></div></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'')+contactoHtml;
     }
 
     // Sección de partidos (siempre visible si hay rango, editable o no)
@@ -1516,6 +1522,11 @@ function openItemModal(cid,idx){
   var viajeH='<label>✈️ Viaje (opcional)</label>'+
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px"><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:9px;color:var(--text-mut)">Día salida</span><input id="mViajeDia" type="date" value="'+curViajeDia+'" style="width:130px"></div><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:9px;color:var(--text-mut)">Hora ida</span><input id="mViajeIda" type="time" value="'+curViajeIda+'" style="width:110px"></div></div>'+
     '<div style="display:flex;gap:8px;flex-wrap:wrap"><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:9px;color:var(--text-mut)">Día vuelta</span><input id="mViajeDiaVuelta" type="date" value="'+curViajeDiaVuelta+'" style="width:130px"></div><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:9px;color:var(--text-mut)">Hora vuelta</span><input id="mViajeVuelta" type="time" value="'+curViajeVuelta+'" style="width:110px"></div></div>';
+  var curContacto=it?it.contactoNombre||'':'',curTel=it?it.contactoTel||'':'',curMail=it?it.contactoMail||'':'';
+  var contactoH='<label>Contacto (opcional)</label>'+
+    '<input id="mContacto" value="'+esc(curContacto)+'" placeholder="Nombre contacto">'+
+    '<input id="mContactoTel" type="tel" value="'+esc(curTel)+'" placeholder="Teléfono" style="margin-top:4px">'+
+    '<input id="mContactoMail" type="email" value="'+esc(curMail)+'" placeholder="Email" style="margin-top:4px">';
   var curHora=it?it.hora||'':'';
   var dH='<label>Fecha</label><div style="display:flex;align-items:center;gap:6px"><input id="mFI" type="date" value="'+(it?it.fechaInicio||'':'')+'" onchange="syncDateMin()" style="flex:1"><span id="mFFToggle" style="font-size:10px;color:var(--rm-blue);cursor:pointer;white-space:nowrap;'+(hasEnd?'display:none':'')+'" onclick="showEndDate()">+ fecha fin</span></div><div id="mFFRow" style="display:'+(hasEnd?'flex':'none')+';align-items:center;gap:6px;margin-top:4px"><span style="font-size:10px;color:var(--text-mut)">hasta</span><input id="mFF" type="date" value="'+(it&&hasEnd?it.fechaFin:'')+'" min="'+(it&&it.fechaInicio?it.fechaInicio:'')+'" style="flex:1"><span style="font-size:10px;color:var(--red);cursor:pointer" onclick="hideEndDate()">✕</span></div>';
   var curLoc=it?it.ubicacion||'':'',curLocTxt=it?it.ubicacionTexto||'':'';
@@ -1533,7 +1544,7 @@ function openItemModal(cid,idx){
   // Color partidos (solo para eventos con rango de fechas)
   var curPColor=it?it.partidosColor||'':'';
   var pColorHtml='<label>Color partidos (si tiene fecha inicio/fin)</label><input type="hidden" id="mPColor" value="'+curPColor+'">'+cpHTML(curPColor);
-  document.getElementById('mbd').innerHTML='<label>Nombre</label><input id="mN" value="'+(it?esc(it.nombre):'')+'" placeholder="Nombre o rival">'+dH+'<label>Hora (opcional)</label><input id="mHora" type="time" value="'+curHora+'" style="width:130px">'+viajeH+locH+rH+vdH+'<label>Observaciones</label><textarea id="mO" placeholder="Notas...">'+(it?esc(it.obs):'')+'</textarea>'+estH+pColorHtml;
+  document.getElementById('mbd').innerHTML='<label>Nombre</label><input id="mN" value="'+(it?esc(it.nombre):'')+'" placeholder="Nombre o rival">'+dH+'<label>Hora (opcional)</label><input id="mHora" type="time" value="'+curHora+'" style="width:130px">'+viajeH+locH+rH+vdH+'<label>Observaciones</label><textarea id="mO" placeholder="Notas...">'+(it?esc(it.obs):'')+'</textarea>'+estH+contactoH+pColorHtml;
   document.getElementById('mft').innerHTML=(it!=null?'<button class="btn-d" onclick="delItemModal()">Borrar</button>':'')+'<button class="btn-s" onclick="closeModal()">Cancelar</button><button class="btn-p" onclick="saveItem()">Guardar</button>';
   // Override pickC to also handle pColor palette
   document.getElementById('mo').classList.add('active');
@@ -1566,6 +1577,9 @@ function saveItem(){
       resultado:resultado,victoriaDerrota:victoriaDerrota,marcador:marcador,
       obs:((document.getElementById('mO')||{}).value||'').trim(),
       hora:((document.getElementById('mHora')||{}).value||''),
+      contactoNombre:((document.getElementById('mContacto')||{}).value||'').trim(),
+      contactoTel:((document.getElementById('mContactoTel')||{}).value||'').trim(),
+      contactoMail:((document.getElementById('mContactoMail')||{}).value||'').trim(),
       viajeDia:((document.getElementById('mViajeDia')||{}).value||''),
       viajeIda:((document.getElementById('mViajeIda')||{}).value||''),
       viajeDiaVuelta:((document.getElementById('mViajeDiaVuelta')||{}).value||''),
@@ -2048,17 +2062,10 @@ function printTeamView(){
     '</div>'+
     '</body></html>';
 
-// iOS Safari: window.open debe llamarse SINCRÓNICAMENTE desde el gesto del usuario
-var newWin = window.open('', '_blank');
-
-if (!newWin) {
-    showBanner('Activa las ventanas emergentes en Safari para imprimir', true);
-    return;
-}
-
-newWin.document.write(html);
-newWin.document.close();
-
+    var newWin=window.open('','_blank');
+    if(!newWin){showBanner('Activa las ventanas emergentes en Safari para imprimir',true);return;}
+    newWin.document.write(html);
+    newWin.document.close();
 
   } else {
     // Desktop: window.print() normal
