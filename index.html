@@ -118,9 +118,9 @@ body.readonly .notes-textarea{pointer-events:none;opacity:.7;background:var(--su
 .item-card.res-green{border-left:3px solid var(--green);background:linear-gradient(135deg,var(--green-bg) 0%,var(--surface) 50%)}
 .item-card.res-orange{border-left:3px solid var(--orange)}
 .item-card.res-red{border-left:3px solid var(--red)}
-.item-row{display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;gap:6px}
+.item-row{display:grid;grid-template-columns:1.2fr 0.9fr 1.2fr;align-items:center;gap:6px}
 .item-col-rival{display:flex;align-items:center;gap:5px;min-width:0}
-.item-col-contact{display:flex;align-items:center;min-width:0;overflow:hidden}
+.item-col-contact{display:flex;align-items:flex-start;min-width:0;overflow:hidden}
 .item-col-right{display:flex;align-items:center;justify-content:flex-end;gap:4px;min-width:0;flex-shrink:0}
 .st-badge{padding:0;border-radius:0;font-weight:600;flex-shrink:0;line-height:1;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:none}
 .st-badge svg{display:block;flex-shrink:0}
@@ -1385,11 +1385,13 @@ function renderItems(cat){
     var dtStr=(it.hora?it.hora+' · ':'')+dt;
     var contactoInline='';
     if(it.contactoNombre||it.contactoTel||it.contactoMail){
-      var cParts=[];
-      if(it.contactoNombre)cParts.push(esc(it.contactoNombre));
-      if(it.contactoTel)cParts.push(esc(it.contactoTel));
-      if(it.contactoMail)cParts.push(esc(it.contactoMail));
-      contactoInline='<span style="font-size:9px;color:var(--text-mut);flex-shrink:0;white-space:nowrap;margin-left:4px">'+cParts.join(' - ')+'</span>';
+      var linea1=[];
+      if(it.contactoNombre)linea1.push(esc(it.contactoNombre));
+      if(it.contactoTel)linea1.push(esc(it.contactoTel));
+      contactoInline='<span style="font-size:9px;color:var(--text-mut);min-width:0;overflow:hidden;display:flex;flex-direction:column;gap:1px">'+
+        (linea1.length?'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+linea1.join(' - ')+'</span>':'')+
+        (it.contactoMail?'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(it.contactoMail)+'</span>':'')+
+      '</span>';
     }
     var viajeStr='';
     if(it.viajeDia||it.viajeDiaVuelta){
