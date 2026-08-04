@@ -2128,7 +2128,7 @@ function copyPartidoText(catId,itemId){
   var rivalNombre=(it.nombre||'').toUpperCase();
   var enfrentamiento=it.ubicacion==='fuera'?rivalNombre+' - '+rmNombre:rmNombre+' - '+rivalNombre;
   var titulo='PARTIDO '+teamName;
-  var raya='‾'.repeat(titulo.length);
+  var raya='▔'.repeat(Math.round(titulo.length*1.5));
   var lines=[
     titulo,
     raya,
