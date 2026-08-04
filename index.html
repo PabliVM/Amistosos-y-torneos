@@ -2129,21 +2129,22 @@ function copyPartidoText(catId,itemId){
   var enfrentamiento=it.ubicacion==='fuera'?rivalNombre+' - '+rmNombre:rmNombre+' - '+rivalNombre;
   var lines=[
     'PARTIDO '+teamName,
-    fechaStr,
-    enfrentamiento,
-    it.ubicacionTexto?it.ubicacionTexto.toUpperCase():'',
     '',
-    it.contactoNombre||'',
-    it.contactoMail||'',
-    it.contactoTel||''
+    fechaStr,
+    '',
+    enfrentamiento,
+    '',
+    it.ubicacionTexto?it.ubicacionTexto.toUpperCase():'',
   ];
+  if(it.contactoNombre||it.contactoMail||it.contactoTel){
+    lines.push('');
+    if(it.contactoNombre)lines.push(it.contactoNombre);
+    if(it.contactoMail)lines.push(it.contactoMail);
+    if(it.contactoTel)lines.push(it.contactoTel);
+  }
   // Limpiar líneas vacías al final
-  while(lines.length&&!lines[lines.length-1])lines.pop();
-  var texto=lines.filter(function(l,i){
-    // Mantener la línea vacía de separación solo si hay contacto
-    if(l===''&&i===4&&(it.contactoNombre||it.contactoMail||it.contactoTel))return true;
-    return l!=='';
-  }).join('\n');
+  while(lines.length&&lines[lines.length-1]==='')lines.pop();
+  var texto=lines.join('\n');
   // Copiar al portapapeles
   if(navigator.clipboard&&navigator.clipboard.writeText){
     navigator.clipboard.writeText(texto).then(function(){showBanner('✅ Copiado al portapapeles');}).catch(function(){fallbackCopy(texto);});
