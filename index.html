@@ -2124,11 +2124,13 @@ function copyPartidoText(catId,itemId){
     var horaStr=it.hora?it.hora.replace(':','.')+'H':'';
     fechaStr=diaSemana+' '+dia+' DE '+mes+' DE '+anyo+(horaStr?' A LAS '+horaStr:'');
   }
-  var loc=(it.ubicacion?LOC_EMOJI[it.ubicacion]+' ':'')+( it.ubicacionTexto||'');
+  var rmNombre='REAL MADRID '+teamName;
+  var rivalNombre=(it.nombre||'').toUpperCase();
+  var enfrentamiento=it.ubicacion==='fuera'?rivalNombre+' - '+rmNombre:rmNombre+' - '+rivalNombre;
   var lines=[
     'PARTIDO '+teamName,
     fechaStr,
-    'REAL MADRID '+teamName+' - '+(it.nombre||'').toUpperCase(),
+    enfrentamiento,
     it.ubicacionTexto?it.ubicacionTexto.toUpperCase():'',
     '',
     it.contactoNombre||'',
