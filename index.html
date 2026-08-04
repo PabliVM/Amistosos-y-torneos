@@ -1380,13 +1380,13 @@ function renderItems(cat){
     var ri=all.indexOf(it),rc=resColor(it.resultado),cls=rc==='green'?'res-green':rc==='orange'?'res-orange':rc==='red'?'res-red':'';
     var dt=(it.fechaFin&&it.fechaFin!==it.fechaInicio)?dtR(it.fechaInicio,it.fechaFin):dtD(it.fechaInicio);
     var dtStr=(it.hora?it.hora+' · ':'')+dt;
-    var contactoHtml='';
+    var contactoInline='';
     if(it.contactoNombre||it.contactoTel||it.contactoMail){
-      contactoHtml='<div style="margin-top:4px;padding-top:4px;border-top:1px solid var(--border-light);display:flex;flex-direction:column;gap:1px">';
-      if(it.contactoNombre)contactoHtml+='<span style="font-size:10px;color:var(--text-sec)">'+esc(it.contactoNombre)+'</span>';
-      if(it.contactoTel)contactoHtml+='<span style="font-size:10px;color:var(--text-sec)">'+esc(it.contactoTel)+'</span>';
-      if(it.contactoMail)contactoHtml+='<span style="font-size:10px;color:var(--text-sec)">'+esc(it.contactoMail)+'</span>';
-      contactoHtml+='</div>';
+      var cLines=[];
+      if(it.contactoNombre)cLines.push(esc(it.contactoNombre));
+      if(it.contactoTel)cLines.push(esc(it.contactoTel));
+      if(it.contactoMail)cLines.push(esc(it.contactoMail));
+      contactoInline='<span style="font-size:9px;color:var(--text-mut);flex-shrink:0;white-space:nowrap;border-left:1.5px solid var(--border);padding-left:6px;margin-left:2px;line-height:1.4;display:flex;flex-direction:column;gap:0">'+cLines.map(function(l){return '<span>'+l+'</span>';}).join('')+'</span>';
     }
     var viajeStr='';
     if(it.viajeDia||it.viajeDiaVuelta){
@@ -1418,11 +1418,11 @@ function renderItems(cat){
       if(it.resultado)tipLines.push(it.resultado);
       tipLines.push(estLabel2[it.estado||'propuesta']||'Propuesta');
       if(it.obs)tipLines.push('💬 '+it.obs);
-      div.innerHTML='<div class="item-row"><span class="st-badge '+(it.estado||'propuesta')+'">'+estadoIcon(it.estado)+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+locTxt+matchInfo+viajeStr+'<span class="item-dt">'+dtStr+'</span></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'')+contactoHtml;
+      div.innerHTML='<div class="item-row"><span class="st-badge '+(it.estado||'propuesta')+'">'+estadoIcon(it.estado)+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+locTxt+matchInfo+contactoInline+viajeStr+'<span class="item-dt">'+dtStr+'</span></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'');
       div.addEventListener('mouseenter',function(e){var tip=document.getElementById('obsTip');var lines=this.getAttribute('data-tip').split(' · ');tip.innerHTML='<div style="font-weight:700;font-size:12px;margin-bottom:4px">'+esc(lines[0])+'</div>'+lines.slice(1).map(function(l){return '<div style="font-size:11px;opacity:.75;margin-top:2px">'+esc(l)+'</div>';}).join('');tip.style.display='block';var r=this.getBoundingClientRect();var left=Math.max(8,Math.min(r.left,window.innerWidth-tip.offsetWidth-8));tip.style.left=left+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';if(parseInt(tip.style.top)<8)tip.style.top=(r.bottom+8)+'px';});
       div.addEventListener('mouseleave',function(){document.getElementById('obsTip').style.display='none';});
     } else {
-      div.innerHTML='<div class="item-row"><span class="st-badge '+((it.estado||'propuesta'))+'">'+estadoIcon(it.estado)+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+locTxt+matchInfo+viajeStr+'<span class="item-dt">'+dtStr+'</span>'+(it.obs?'<span class="obs-dot" data-obs="'+esc(it.obs).replace(/"/g,'&quot;')+'">💬</span>':'')+'<div class="item-acts"><button onclick="openItemById(\''+cat.id+'\',\''+itemId+'\')">'+IC.ed+'</button><button onclick="delItemById(\''+cat.id+'\',\''+itemId+'\')">'+IC.dl+'</button></div></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'')+contactoHtml;
+      div.innerHTML='<div class="item-row"><span class="st-badge '+((it.estado||'propuesta'))+'">'+estadoIcon(it.estado)+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+locTxt+matchInfo+contactoInline+viajeStr+'<span class="item-dt">'+dtStr+'</span>'+(it.obs?'<span class="obs-dot" data-obs="'+esc(it.obs).replace(/"/g,'&quot;')+'">💬</span>':'')+'<div class="item-acts"><button onclick="openItemById(\''+cat.id+'\',\''+itemId+'\')">'+IC.ed+'</button><button onclick="delItemById(\''+cat.id+'\',\''+itemId+'\')">'+IC.dl+'</button></div></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'');
     }
 
     // Sección de partidos (siempre visible si hay rango, editable o no)
