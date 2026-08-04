@@ -118,7 +118,10 @@ body.readonly .notes-textarea{pointer-events:none;opacity:.7;background:var(--su
 .item-card.res-green{border-left:3px solid var(--green);background:linear-gradient(135deg,var(--green-bg) 0%,var(--surface) 50%)}
 .item-card.res-orange{border-left:3px solid var(--orange)}
 .item-card.res-red{border-left:3px solid var(--red)}
-.item-row{display:flex;align-items:center;gap:5px}
+.item-row{display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;gap:6px}
+.item-col-rival{display:flex;align-items:center;gap:5px;min-width:0}
+.item-col-contact{display:flex;align-items:center;min-width:0;overflow:hidden}
+.item-col-right{display:flex;align-items:center;justify-content:flex-end;gap:4px;min-width:0;flex-shrink:0}
 .st-badge{padding:0;border-radius:0;font-weight:600;flex-shrink:0;line-height:1;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:none}
 .st-badge svg{display:block;flex-shrink:0}
 .item-nm{font-size:11px;font-weight:600;color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -1418,11 +1421,19 @@ function renderItems(cat){
       if(it.resultado)tipLines.push(it.resultado);
       tipLines.push(estLabel2[it.estado||'propuesta']||'Propuesta');
       if(it.obs)tipLines.push('💬 '+it.obs);
-      div.innerHTML='<div class="item-row"><span class="st-badge '+(it.estado||'propuesta')+'">'+estadoIcon(it.estado)+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+locTxt+matchInfo+contactoInline+viajeStr+'<span class="item-dt">'+dtStr+'</span></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'');
+      div.innerHTML='<div class="item-row">'+
+        '<div class="item-col-rival"><span class="st-badge '+(it.estado||'propuesta')+'">'+estadoIcon(it.estado)+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+matchInfo+'</div>'+
+        '<div class="item-col-contact">'+contactoInline+'</div>'+
+        '<div class="item-col-right">'+locTxt+viajeStr+'<span class="item-dt">'+dtStr+'</span></div>'+
+      '</div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'');
       div.addEventListener('mouseenter',function(e){var tip=document.getElementById('obsTip');var lines=this.getAttribute('data-tip').split(' · ');tip.innerHTML='<div style="font-weight:700;font-size:12px;margin-bottom:4px">'+esc(lines[0])+'</div>'+lines.slice(1).map(function(l){return '<div style="font-size:11px;opacity:.75;margin-top:2px">'+esc(l)+'</div>';}).join('');tip.style.display='block';var r=this.getBoundingClientRect();var left=Math.max(8,Math.min(r.left,window.innerWidth-tip.offsetWidth-8));tip.style.left=left+'px';tip.style.top=(r.top-tip.offsetHeight-8)+'px';if(parseInt(tip.style.top)<8)tip.style.top=(r.bottom+8)+'px';});
       div.addEventListener('mouseleave',function(){document.getElementById('obsTip').style.display='none';});
     } else {
-      div.innerHTML='<div class="item-row"><span class="st-badge '+((it.estado||'propuesta'))+'">'+estadoIcon(it.estado)+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+locTxt+matchInfo+contactoInline+viajeStr+'<span class="item-dt">'+dtStr+'</span>'+(it.obs?'<span class="obs-dot" data-obs="'+esc(it.obs).replace(/"/g,'&quot;')+'">💬</span>':'')+'<div class="item-acts"><button onclick="openItemById(\''+cat.id+'\',\''+itemId+'\')">'+IC.ed+'</button><button onclick="delItemById(\''+cat.id+'\',\''+itemId+'\')">'+IC.dl+'</button></div></div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'');
+      div.innerHTML='<div class="item-row">'+
+        '<div class="item-col-rival"><span class="st-badge '+((it.estado||'propuesta'))+'">'+estadoIcon(it.estado)+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+matchInfo+'</div>'+
+        '<div class="item-col-contact">'+contactoInline+'</div>'+
+        '<div class="item-col-right">'+locTxt+viajeStr+'<span class="item-dt">'+dtStr+'</span>'+(it.obs?'<span class="obs-dot" data-obs="'+esc(it.obs).replace(/"/g,'&quot;')+'">💬</span>':'')+'<div class="item-acts"><button onclick="openItemById(\''+cat.id+'\',\''+itemId+'\')">'+IC.ed+'</button><button onclick="delItemById(\''+cat.id+'\',\''+itemId+'\')">'+IC.dl+'</button></div></div>'+
+      '</div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'');
     }
 
     // Sección de partidos (siempre visible si hay rango, editable o no)
