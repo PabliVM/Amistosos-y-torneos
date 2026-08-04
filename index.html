@@ -1438,7 +1438,7 @@ function renderItems(cat){
       div.innerHTML='<div class="item-row">'+
         '<div class="item-col-rival"><span class="st-badge '+((it.estado||'propuesta'))+'">'+estadoIcon(it.estado)+'</span>'+(loc?'<span class="item-loc">'+loc+'</span>':'')+'<span class="item-nm">'+esc(it.nombre)+'</span>'+matchInfo+'</div>'+
         '<div class="item-col-contact">'+contactoInline+'</div>'+
-        '<div class="item-col-right">'+col3Html+(it.obs?'<span class="obs-dot" data-obs="'+esc(it.obs).replace(/"/g,'&quot;')+'">💬</span>':'')+'<div class="item-acts"><button onclick="openItemById(\''+cat.id+'\',\''+itemId+'\')">'+IC.ed+'</button><button onclick="delItemById(\''+cat.id+'\',\''+itemId+'\')">'+IC.dl+'</button></div></div>'+
+        '<div class="item-col-right">'+col3Html+(it.obs?'<span class="obs-dot" data-obs="'+esc(it.obs).replace(/"/g,'&quot;')+'">💬</span>':'')+'<div class="item-acts"><button onclick="copyPartidoText(\''+cat.id+'\',\''+itemId+'\')" title="Copiar texto partido" style="font-size:11px">📋</button><button onclick="openItemById(\''+cat.id+'\',\''+itemId+'\')">'+IC.ed+'</button><button onclick="delItemById(\''+cat.id+'\',\''+itemId+'\')">'+IC.dl+'</button></div></div>'+
       '</div>'+(it.resultado?'<div class="item-sub"><span class="res-tag '+rc+'">'+resIcon(it.resultado)+(resIcon(it.resultado)?' ':'')+esc(it.resultado)+'</span></div>':'');
     }
 
@@ -2103,6 +2103,58 @@ function printTeamView(){
     if(footer){footer.style.display=oldFD;footer.style.position=oldFP;}
     if(rb)rb.style.display=oldRb;
   }
+}
+
+function copyPartidoText(catId,itemId){
+  var it=getItemById(catId,itemId);
+  if(!it){showBanner('Evento no encontrado',true);return;}
+  var t=TEAMS.find(function(x){return x.key===activeTeam;});
+  var teamName=t?t.name.toUpperCase():activeTeam;
+  // Día de la semana
+  var diasSemana=['DOMINGO','LUNES','MARTES','MIÉRCOLES','JUEVES','VIERNES','SÁBADO'];
+  var mesesNombre=['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+  var fechaStr='';
+  if(it.fechaInicio){
+    var fp=it.fechaInicio.split('-').map(Number);
+    var fd=new Date(fp[0],fp[1]-1,fp[2]);
+    var diaSemana=diasSemana[fd.getDay()];
+    var dia=fp[2];
+    var mes=mesesNombre[fp[1]-1];
+    var anyo=fp[0];
+    var horaStr=it.hora?it.hora.replace(':','.')+'H':'';
+    fechaStr=diaSemana+' '+dia+' DE '+mes+' DE '+anyo+(horaStr?' A LAS '+horaStr:'');
+  }
+  var loc=(it.ubicacion?LOC_EMOJI[it.ubicacion]+' ':'')+( it.ubicacionTexto||'');
+  var lines=[
+    'PARTIDO '+teamName,
+    fechaStr,
+    'REAL MADRID '+teamName+' - '+(it.nombre||'').toUpperCase(),
+    it.ubicacionTexto?it.ubicacionTexto.toUpperCase():'',
+    '',
+    it.contactoNombre||'',
+    it.contactoMail||'',
+    it.contactoTel||''
+  ];
+  // Limpiar líneas vacías al final
+  while(lines.length&&!lines[lines.length-1])lines.pop();
+  var texto=lines.filter(function(l,i){
+    // Mantener la línea vacía de separación solo si hay contacto
+    if(l===''&&i===4&&(it.contactoNombre||it.contactoMail||it.contactoTel))return true;
+    return l!=='';
+  }).join('\n');
+  // Copiar al portapapeles
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(texto).then(function(){showBanner('✅ Copiado al portapapeles');}).catch(function(){fallbackCopy(texto);});
+  } else {fallbackCopy(texto);}
+}
+
+function fallbackCopy(texto){
+  var ta=document.createElement('textarea');
+  ta.value=texto;ta.style.position='fixed';ta.style.opacity='0';
+  document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');showBanner('✅ Copiado al portapapeles');}
+  catch(e){showBanner('No se pudo copiar',true);}
+  document.body.removeChild(ta);
 }
 
 function seleccionarTodosGestion(){document.querySelectorAll('#gestionEquipoFilter input').forEach(function(cb){cb.checked=true;});document.querySelectorAll('#gestionEquipoFilter label').forEach(function(l){l.classList.add('sel');});renderGestionTorneos();}
