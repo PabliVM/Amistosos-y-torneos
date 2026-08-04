@@ -1379,6 +1379,7 @@ function renderItems(cat){
   sorted.forEach(function(it){
     var ri=all.indexOf(it),rc=resColor(it.resultado),cls=rc==='green'?'res-green':rc==='orange'?'res-orange':rc==='red'?'res-red':'';
     var dt=(it.fechaFin&&it.fechaFin!==it.fechaInicio)?dtR(it.fechaInicio,it.fechaFin):dtD(it.fechaInicio);
+    var dtStr=(it.hora?it.hora+' · ':'')+dt;
     var contactoHtml='';
     if(it.contactoNombre||it.contactoTel||it.contactoMail){
       contactoHtml='<div style="margin-top:4px;padding-top:4px;border-top:1px solid var(--border-light);display:flex;flex-direction:column;gap:1px">';
