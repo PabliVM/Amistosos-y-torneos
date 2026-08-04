@@ -2128,10 +2128,9 @@ function copyPartidoText(catId,itemId){
   var rivalNombre=(it.nombre||'').toUpperCase();
   var enfrentamiento=it.ubicacion==='fuera'?rivalNombre+' - '+rmNombre:rmNombre+' - '+rivalNombre;
   var titulo='PARTIDO '+teamName;
-  var separador='─'.repeat(titulo.length);
+  var tituloSubrayado=titulo.split('').map(function(c){return (c===' '?'\u00A0':c)+'\u0332';}).join('');
   var lines=[
-    titulo,
-    separador,
+    tituloSubrayado,
     '',
     fechaStr,
     '',
