@@ -2127,8 +2127,11 @@ function copyPartidoText(catId,itemId){
   var rmNombre='REAL MADRID '+teamName;
   var rivalNombre=(it.nombre||'').toUpperCase();
   var enfrentamiento=it.ubicacion==='fuera'?rivalNombre+' - '+rmNombre:rmNombre+' - '+rivalNombre;
+  var titulo='PARTIDO '+teamName;
+  var separador='─'.repeat(titulo.length);
   var lines=[
-    'PARTIDO '+teamName,
+    titulo,
+    separador,
     '',
     fechaStr,
     '',
