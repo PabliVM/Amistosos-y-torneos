@@ -1382,11 +1382,11 @@ function renderItems(cat){
     var dtStr=(it.hora?it.hora+' · ':'')+dt;
     var contactoInline='';
     if(it.contactoNombre||it.contactoTel||it.contactoMail){
-      var cLines=[];
-      if(it.contactoNombre)cLines.push(esc(it.contactoNombre));
-      if(it.contactoTel)cLines.push(esc(it.contactoTel));
-      if(it.contactoMail)cLines.push(esc(it.contactoMail));
-      contactoInline='<span style="font-size:9px;color:var(--text-mut);flex-shrink:0;white-space:nowrap;border-left:1.5px solid var(--border);padding-left:6px;margin-left:2px;line-height:1.4;display:flex;flex-direction:column;gap:0">'+cLines.map(function(l){return '<span>'+l+'</span>';}).join('')+'</span>';
+      var cParts=[];
+      if(it.contactoNombre)cParts.push(esc(it.contactoNombre));
+      if(it.contactoTel)cParts.push(esc(it.contactoTel));
+      if(it.contactoMail)cParts.push(esc(it.contactoMail));
+      contactoInline='<span style="font-size:9px;color:var(--text-mut);flex-shrink:0;white-space:nowrap;margin-left:4px">'+cParts.join(' - ')+'</span>';
     }
     var viajeStr='';
     if(it.viajeDia||it.viajeDiaVuelta){
